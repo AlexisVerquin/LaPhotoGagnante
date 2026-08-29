@@ -1,0 +1,25 @@
+alert:
+    unverified_user : You have not yet verified your email, so you have a limited usage. Please verify your email address. You can ask a resend since in your profile
+    aggree-terms-not-checked:  You should agree to our terms.
+    modification:
+        success: The changes have been successfully
+
+form:
+    label:
+        agree_terms: I accept the terms and conditions of use
+        password : Password
+        name : Username
+        city : city
+        email : Email
+        new_password : New password
+        confirmation_password : password confirmation
+    constraint:
+        password-empty: password is required
+        aggree-password:
+            min: your password must contain at least limit character
+
+message:
+    change-mail:
+        info: if you wish to change your email address, please contact us
+
+

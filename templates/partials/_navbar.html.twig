@@ -1,0 +1,53 @@
+<nav class="navbar navbar-expand-lg navbar-style-custom mb-3 px-3">
+    <div class="container-fluid px-2">
+        <a class="navbar-brand" href="{{ path('app_main') }}">
+            <span class="brand-icon"><i class="bi bi-camera-fill"></i></span>
+            Photoprix
+        </a>
+
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="{{ path('app_main') }}">Accueil</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Galerie</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Palmarès</a>
+                </li>
+            </ul>
+            {% if not hide_auth_actions %}
+            <ul class="navbar-nav align-items-lg-center gap-2">
+                {% if app.user %}
+                    <li class="nav-item">
+                        <a href="#" class="nav-link navbar-cta">
+                            <i class="bi bi-camera-fill me-1"></i>Participer
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ path('app_user_manage') }}" class="nav-link p-0 ms-2" title="{{ app.user.email }}">
+                            <img class="rounded-circle navbar-avatar" src="{{ asset('images/logo-test.png') }}" alt="{{ app.user.email }}-avatar">
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a href="{{ path('app_login') }}" class="nav-link navbar-outline-btn">
+                            Connexion
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ path('app_register') }}" class="nav-link navbar-cta">
+                            S'inscrire
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+            {% endif %}
+        </div>
+    </div>
+</nav>

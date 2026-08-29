@@ -1,0 +1,23 @@
+alert:
+    unverified_user : Vous n'avez pas encore vérifié votre adresse e-mail par conséquent, votre utilisation est limitée. Veuillez vérifier votre adresse e-mail. Vous pouvez en demander le renvoi depuis votre profil.
+    aggree-terms-not-checked: Vous devez accepeter les termes
+    modification:
+        success: les modifications ont été effectuées avec succès
+
+form:
+    label:
+        agree_terms: J'accepte les termes et les conditions générales d'utilisation
+        password : Mot de passe
+        name : Nom d'utilisateur
+        city : Ville
+        email : Adresse Email
+        new_password : Nouveau mot de passe
+        confirmation_password : Confirmer le mot de passe
+    constraint:
+        password-empty: un mot de passe est requis
+        aggree-password:
+            min: votre mot de passe doit contenir au moins limit caractéres
+
+message:
+    change-mail:
+        info: si vous souhaitez changer d'adresse Email, merci de nous contacter

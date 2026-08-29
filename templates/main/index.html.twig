@@ -1,0 +1,300 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+
+        {# ---------- HERO ---------- #}
+        <div class="row align-items-center mb-5 pt-3">
+            <div class="col-lg-7">
+                <span class="hero-eyebrow mb-3">
+                    <i class="bi bi-stars"></i> Concours en cours
+                </span>
+                <h1 class="hero-title display-4 mb-3">
+                    Thème du mois : <span>Lumières urbaines</span>
+                </h1>
+                <p class="text-muted fs-5 mb-4">
+                    Chaque mois, un nouveau thème, une nouvelle façon de voir le monde.
+                    Partagez votre regard, votez pour vos photos préférées et tentez de
+                    devenir la photo du jour.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="#" class="btn btn-fun btn-lg px-4">
+                        <i class="bi bi-camera-fill me-2"></i>Participer au concours
+                    </a>
+                    <a href="#" class="btn btn-lg px-4 btn-outline-dark rounded-3">
+                        Voir la galerie
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-flex justify-content-center mt-5 mt-lg-0">
+                <div class="polaroid" style="width: 260px;">
+                    <img src="https://picsum.photos/seed/urbanlight/400/500" alt="Photo exemple">
+                    <div class="polaroid-caption">Néons, place Bellecour</div>
+                </div>
+            </div>
+        </div>
+
+        {# ---------- PHOTO DU JOUR + COMPTE A REBOURS ---------- #}
+        <div class="row g-4 mb-5">
+            <div class="col-lg-7">
+                <div class="section-card p-4 p-md-5 h-100">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div>
+                            <span class="badge-today mb-2 d-inline-block">
+                                <i class="bi bi-sun-fill me-1"></i>Photo du jour
+                            </span>
+                            <h2 class="h4 mb-0">Le coup de cœur de la communauté</h2>
+                        </div>
+                    </div>
+
+                    <div class="row align-items-center g-4">
+                        <div class="col-sm-5">
+                            <div class="polaroid mx-auto" style="max-width: 220px;">
+                                <img src="https://picsum.photos/seed/photoday/400/500" alt="Photo du jour">
+                                <div class="polaroid-caption">Reflets de pluie</div>
+                            </div>
+                        </div>
+                        <div class="col-sm-7">
+                            <h3 class="h5 mb-1">« Reflets de pluie »</h3>
+                            <p class="text-muted small mb-3">par <strong>Camille D.</strong> — Lyon, France</p>
+                            <p class="mb-4">Une rue pavée après l'averse, capturée au ras du sol pour faire
+                                jouer les néons dans les flaques.</p>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="d-inline-flex align-items-center gap-1 text-coral fw-bold" style="color: var(--coral);">
+                                    <i class="bi bi-heart-fill"></i> 248
+                                </span>
+                                <a href="#" class="btn-vote">Voir en grand</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="countdown-panel p-4 p-md-5 h-100 d-flex flex-column justify-content-center position-relative">
+                    <div class="position-relative">
+                        <span class="hero-eyebrow mb-3" style="border-color: var(--sky);">
+                            <i class="bi bi-hourglass-split"></i> Fin du concours
+                        </span>
+                        <h2 class="h4 mt-3 mb-4">Il vous reste encore un peu de temps !</h2>
+
+                        <div class="d-flex gap-2 gap-md-3 flex-wrap">
+                            <div class="text-center">
+                                <div class="countdown-digit" data-countdown="days">04</div>
+                                <div class="countdown-label">Jours</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="countdown-digit" data-countdown="hours">12</div>
+                                <div class="countdown-label">Heures</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="countdown-digit" data-countdown="minutes">37</div>
+                                <div class="countdown-label">Minutes</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="countdown-digit" data-countdown="seconds">52</div>
+                                <div class="countdown-label">Secondes</div>
+                            </div>
+                        </div>
+
+                        <a href="#" class="btn btn-light rounded-pill mt-4 fw-bold px-4">
+                            Envoyer ma photo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# ---------- VOTE PROCHAIN THEME ---------- #}
+        <div class="section-card p-4 p-md-5 mb-5">
+            <div class="text-center mb-4">
+                <span class="hero-eyebrow mb-3">
+                    <i class="bi bi-check2-square"></i> À vous de choisir
+                </span>
+                <h2 class="h3 mt-3 mb-1">Votez pour le thème du mois prochain</h2>
+                <p class="text-muted mb-0">Le thème le plus voté sera lancé le 1er du mois.</p>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="theme-vote-card is-leading">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h3 class="h6 mb-0">Symétries naturelles</h3>
+                            <span class="badge rounded-pill" style="background: var(--sunshine); color: var(--ink);">En tête</span>
+                        </div>
+                        <p class="text-muted small mb-3">Trouvez l'équilibre parfait dans le désordre du réel.</p>
+                        <div class="theme-vote-progress mb-1">
+                            <div class="theme-vote-progress-bar" style="width: 48%;"></div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="small text-muted">48 % · 312 votes</span>
+                            <button type="button" class="btn-vote">Voter</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="theme-vote-card">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h3 class="h6 mb-0">Couleurs oubliées</h3>
+                        </div>
+                        <p class="text-muted small mb-3">Ces teintes délavées qu'on ne voit qu'en y prêtant attention.</p>
+                        <div class="theme-vote-progress mb-1">
+                            <div class="theme-vote-progress-bar" style="width: 31%;"></div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="small text-muted">31 % · 201 votes</span>
+                            <button type="button" class="btn-vote">Voter</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="theme-vote-card">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h3 class="h6 mb-0">Le monde vu d'en bas</h3>
+                        </div>
+                        <p class="text-muted small mb-3">Changez de point de vue, littéralement.</p>
+                        <div class="theme-vote-progress mb-1">
+                            <div class="theme-vote-progress-bar" style="width: 21%;"></div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="small text-muted">21 % · 139 votes</span>
+                            <button type="button" class="btn-vote">Voter</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# ---------- COMMENT PARTICIPER ---------- #}
+        <div class="mb-5">
+            <div class="text-center mb-4">
+                <h2 class="h3 mb-1">Comment participer ?</h2>
+                <p class="text-muted mb-0">Trois étapes, aucune complication.</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="d-flex gap-3">
+                        <div class="step-badge">1</div>
+                        <div>
+                            <h3 class="h6 mb-1">Créez votre compte</h3>
+                            <p class="text-muted small mb-0">Inscription gratuite en moins d'une minute.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex gap-3">
+                        <div class="step-badge">2</div>
+                        <div>
+                            <h3 class="h6 mb-1">Envoyez votre photo</h3>
+                            <p class="text-muted small mb-0">Une photo, un thème, votre regard.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex gap-3">
+                        <div class="step-badge">3</div>
+                        <div>
+                            <h3 class="h6 mb-1">Votez et partagez</h3>
+                            <p class="text-muted small mb-0">Soutenez vos photos préférées jusqu'au verdict.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# ---------- DERNIERS GAGNANTS ---------- #}
+        <div class="mb-5">
+            <div class="d-flex justify-content-between align-items-end mb-2">
+                <div>
+                    <h2 class="h3 mb-1">Les derniers gagnants</h2>
+                    <p class="text-muted mb-0">Un thème, un vainqueur, chaque mois.</p>
+                </div>
+                <a href="#" class="d-none d-md-inline-block fw-bold text-decoration-none" style="color: var(--grape);">
+                    Voir le palmarès →
+                </a>
+            </div>
+            <div class="gallery-scroll d-flex gap-4">
+                <div class="polaroid polaroid-mini">
+                    <img src="https://picsum.photos/seed/win1/300/300" alt="Gagnant">
+                    <div class="polaroid-caption">Juillet — Ombres</div>
+                </div>
+                <div class="polaroid polaroid-mini">
+                    <img src="https://picsum.photos/seed/win2/300/300" alt="Gagnant">
+                    <div class="polaroid-caption">Juin — Vertige</div>
+                </div>
+                <div class="polaroid polaroid-mini">
+                    <img src="https://picsum.photos/seed/win3/300/300" alt="Gagnant">
+                    <div class="polaroid-caption">Mai — Instantané</div>
+                </div>
+                <div class="polaroid polaroid-mini">
+                    <img src="https://picsum.photos/seed/win4/300/300" alt="Gagnant">
+                    <div class="polaroid-caption">Avril — Brume</div>
+                </div>
+                <div class="polaroid polaroid-mini">
+                    <img src="https://picsum.photos/seed/win5/300/300" alt="Gagnant">
+                    <div class="polaroid-caption">Mars — Racines</div>
+                </div>
+            </div>
+        </div>
+
+        {# ---------- STATS ---------- #}
+        <div class="stats-strip p-4 p-md-5">
+            <div class="row text-center g-4">
+                <div class="col-6 col-md-3">
+                    <div class="stat-number">1 284</div>
+                    <div class="text-muted small">Photos envoyées</div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-number">573</div>
+                    <div class="text-muted small">Photographes</div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-number">18 902</div>
+                    <div class="text-muted small">Votes exprimés</div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-number">27</div>
+                    <div class="text-muted small">Concours organisés</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Décompte factice pour la démo visuelle — à remplacer par une vraie date cible
+        (function () {
+            const target = new Date();
+            target.setDate(target.getDate() + 4);
+            target.setHours(target.getHours() + 12, target.getMinutes() + 37, target.getSeconds() + 52);
+
+            const els = {
+                days: document.querySelector('[data-countdown="days"]'),
+                hours: document.querySelector('[data-countdown="hours"]'),
+                minutes: document.querySelector('[data-countdown="minutes"]'),
+                seconds: document.querySelector('[data-countdown="seconds"]'),
+            };
+
+            function pad(n) { return String(n).padStart(2, '0'); }
+
+            function tick() {
+                const diff = Math.max(0, target - new Date());
+                const d = Math.floor(diff / 86400000);
+                const h = Math.floor((diff % 86400000) / 3600000);
+                const m = Math.floor((diff % 3600000) / 60000);
+                const s = Math.floor((diff % 60000) / 1000);
+                if (els.days) els.days.textContent = pad(d);
+                if (els.hours) els.hours.textContent = pad(h);
+                if (els.minutes) els.minutes.textContent = pad(m);
+                if (els.seconds) els.seconds.textContent = pad(s);
+            }
+
+            tick();
+            setInterval(tick, 1000);
+        })();
+    </script>
+{% endblock %}

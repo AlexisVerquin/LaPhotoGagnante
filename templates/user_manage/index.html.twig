@@ -1,0 +1,132 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon profil{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="row g-4">
+            {% include 'partials/alerts/alert-success.html.twig' %}
+            {# ---------- COLONNE AVATAR / RESUME ---------- #}
+            <div class="col-lg-4">
+                <div class="profile-header-card p-4 text-center">
+                    <div class="avatar-upload-wrap mb-3" data-controller="uploadfile">
+                        <img data-uploadfile-target="preview" src="{{ upload_path(app.user.avatar) }}" alt="Avatar de {{ app.user.userIdentifier }}">
+
+                        <label class="avatar-upload-btn" title="Changer l'avatar">
+                            <i class="bi bi-camera-fill"></i>
+                            <input
+                                type="file"
+                                name="avatar"
+                                accept="image/*"
+                                data-action="change->uploadfile#onFileChange"
+                                data-url="{{ path("app_user_manage_uploadAvatar") }}"
+                                data-token="{{ csrf_token('upload-avatar') }}"
+                            >
+                        </label>
+                        <p data-uploadfile-target="error" class="text-danger p-1" hidden>error</p>
+                    </div>
+
+                    <h1 class="h5 mt-5 mb-1">Camille_D</h1>
+                    <p class="text-muted small mb-1">
+                        <i class="bi bi-geo-alt-fill me-1"></i>Lyon, France
+                    </p>
+                    <p class="text-muted small mb-4">Membre depuis mars 2024</p>
+
+                    <div class="d-flex gap-2">
+                        <div class="profile-mini-stat">
+                            <span class="num">14</span>
+                            <span class="small text-muted">Photos</span>
+                        </div>
+                        <div class="profile-mini-stat">
+                            <span class="num">2</span>
+                            <span class="small text-muted">Victoires</span>
+                        </div>
+                        <div class="profile-mini-stat">
+                            <span class="num">312</span>
+                            <span class="small text-muted">Votes reçus</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# ---------- COLONNE FORMULAIRE ---------- #}
+            <div class="col-lg-8">
+                <div class="section-card p-4 p-md-5">
+                    <h2 class="h4 mb-1">Paramètres du compte</h2>
+                    <p class="text-muted small mb-4">Gérez vos informations personnelles et votre sécurité.</p>
+
+                    {{ form_start(formUser) }}
+
+
+                        {# ---------- INFOS GENERALES ---------- #}
+                        <div class="form-section-title">
+                            <span class="form-section-icon icon-info"><i class="bi bi-person-fill"></i></span>
+                            Informations générales
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                {{ form_label(formUser.name) }}
+                                {{ form_widget(formUser.name, {'attr': {'class' : 'form-control form-control-fun'}, 'label_attr': { 'class' : 'form-label fw-bold small'}}) }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form_label(formUser.city) }}
+                                {{ form_widget(formUser.city, {'attr': {'class' : 'form-control form-control-fun'}, 'label_attr': { 'class' : 'form-label fw-bold small'}}) }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="alert alert-info" role="alert">
+                                {{ 'message.change-mail.info'|trans }}
+                            </div>
+{#                            {{ form_label(formUser.email) }}#}
+{#                            {{ form_widget(formUser.email, {'attr': {'class' : 'form-control form-control-fun'}, 'label_attr': { 'class' : 'form-label fw-bold small'}}) }}#}
+{#                            <div class="form-hint mt-1">Une confirmation vous sera envoyée si vous modifiez cette adresse.</div>#}
+                        </div>
+
+                        <hr class="form-section-divider">
+
+                        {# ---------- SECURITE ---------- #}
+                        <div class="form-section-title">
+                            <span class="form-section-icon icon-security"><i class="bi bi-shield-lock-fill"></i></span>
+                            Sécurité
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(formUser.password) }}
+                            {{ form_widget(formUser.password, {'attr': {'class' : 'form-control form-control-fun'}, 'label_attr': { 'class' : 'form-label fw-bold small'}}) }}
+                            <div class="form-hint mt-1">Requis uniquement si vous changez votre mot de passe.</div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                {{ form_label(formUser.new_password) }}
+                                {{ form_widget(formUser.new_password, {'attr': {'class' : 'form-control form-control-fun'}, 'label_attr': { 'class' : 'form-label fw-bold small'}}) }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form_label(formUser.password_confirm) }}
+                                {{ form_widget(formUser.password_confirm, {'attr': {'class' : 'form-control form-control-fun'}, 'label_attr': { 'class' : 'form-label fw-bold small'}}) }}
+                            </div>
+                        </div>
+
+                        <hr class="form-section-divider">
+
+                        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+                            <a href="#" class="text-decoration-none small text-muted">
+                                <i class="bi bi-trash3 me-1"></i>Supprimer mon compte
+                            </a>
+                            <div class="d-flex gap-2">
+                                <button type="reset" class="btn btn-outline-fun px-4">Annuler</button>
+                                <button type="submit" class="btn btn-fun px-4">
+                                    <i class="bi bi-check2 me-1"></i>Enregistrer
+                                </button>
+                            </div>
+                        </div>
+
+                    {{ form_end(formUser) }}
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

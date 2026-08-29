@@ -1,0 +1,149 @@
+services:
+
+    php:
+        build:
+            context: .
+            args:
+                USER_ID: ${UID:-1000}
+                GROUP_ID: ${GID:-1000}
+        container_name: ${PROJECT_NAME}_php
+        restart: unless-stopped
+        ports:
+            - "80:80"
+            - "443:443"
+            - "443:443/udp"
+        environment:
+            SERVER_NAME: localhost
+            MAILER_DSN: smtp://mailhog:1025
+            MESSENGER_TRANSPORT_DSN: amqp://symfony:symfony@rabbitmq:5672/%2f
+        volumes:
+            - ./:/app
+            - caddy_data:/data
+            - caddy_config:/config
+        depends_on:
+            database:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+            mailhog:
+                condition: service_started
+        networks:
+            - default
+
+    database:
+        image: mysql:8.4
+        container_name: ${PROJECT_NAME}_mysql
+        restart: unless-stopped
+        environment:
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+        ports:
+            - "3306:3306"
+        volumes:
+            - database_data:/var/lib/mysql
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+            interval: 5s
+            timeout: 5s
+            retries: 10
+            start_period: 20s
+        networks:
+            - default
+
+    redis:
+        image: redis:7-alpine
+        container_name: ${PROJECT_NAME}_redis
+        restart: unless-stopped
+        ports:
+            - "6379:6379"
+        volumes:
+            - redis_data:/data
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 5s
+            timeout: 3s
+            retries: 10
+        networks:
+            - default
+
+    rabbitmq:
+        image: rabbitmq:4-management-alpine
+        container_name: ${PROJECT_NAME}_rabbitmq
+        restart: unless-stopped
+        environment:
+            RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+            RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+        ports:
+            - "5672:5672"
+            - "15672:15672"
+        volumes:
+            - rabbitmq_data:/var/lib/rabbitmq
+        healthcheck:
+            test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+            interval: 5s
+            timeout: 5s
+            retries: 10
+        networks:
+            - default
+
+    messenger:
+        build:
+            context: .
+            args:
+                USER_ID: ${UID:-1000}
+                GROUP_ID: ${GID:-1000}
+        container_name: ${PROJECT_NAME}_messenger
+        restart: unless-stopped
+        command: php bin/console messenger:consume async --time-limit=3600 -vv
+        environment:
+            APP_ENV: ${APP_ENV}
+            MAILER_DSN: smtp://mailhog:1025
+            MESSENGER_TRANSPORT_DSN: amqp://symfony:symfony@rabbitmq:5672/%2f/messages
+            DATABASE_URL: "mysql://symfony:symfony@database:3306/app?serverVersion=8:4:0&charset=utf8mb4"
+        volumes:
+            - ./:/app
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
+            database:
+                condition: service_healthy
+            mailhog:
+                condition: service_started
+        networks:
+            - default
+
+    mailhog:
+        image: mailhog/mailhog
+        container_name: ${PROJECT_NAME}_mailhog
+        restart: unless-stopped
+        ports:
+            - "1025:1025"   # SMTP
+            - "8025:8025"   # interface web
+        networks:
+            - default
+
+    cloudbeaver:
+        image: dbeaver/cloudbeaver:latest
+        container_name: ${PROJECT_NAME}_cloudbeaver
+        restart: unless-stopped
+        ports:
+            - "8081:8978"
+        depends_on:
+            database:
+                condition: service_healthy
+        networks:
+            - default
+
+volumes:
+    database_data:
+    redis_data:
+    rabbitmq_data:
+    caddy_data:
+    caddy_config:
+
+networks:
+    default:
+        name : ${PROJECT_NAME}
+
