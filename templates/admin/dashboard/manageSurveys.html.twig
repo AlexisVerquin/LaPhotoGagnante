@@ -1,0 +1,97 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="section-card p-4 mb-4 p-md-5">
+                    <h2>Ajouter un theme</h2>
+                    {{ form_start(formSurveyChoice) }}
+                        {{ form_row(formSurveyChoice.name) }}
+                        {{ form_row(formSurveyChoice.description) }}
+                        <button class="btn btn-fun" >enregister</button>
+                    {{ form_end(formSurveyChoice) }}
+                </div>
+                <div class="section-card p-4 p-md-5">
+                    <h2>Themes disponibles : </h2>
+                    <div>
+                    {% for theme in surveyChoices %}
+                        <div class="d-flex justify-content-between admin-box-theme">
+                            <div class="d-flex flex-column">
+                                <span class="admin-box-theme-name fw-bold">{{ theme.name }}</span>
+                                <span class="admin-box-theme-desc fw-light fst-italic fs-mini">{{ theme.description }}</span>
+                            </div>
+                            <div class="admin-box-theme-remove">
+                                <form action="{{ path('admin_delete_surveyChoice', {'id': theme.id}) }}" method="post" onsubmit="return confirm('Supprimer ce thème ?');">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete-survey-choice-' ~ theme.id) }}">
+                                    <button type="submit" class="p-0 border-0">
+                                        <twig:ux:icon name="lucide:trash-2" />
+                                    </button>
+                                </form>
+                            </div>
+                         </div>
+                    {% else %}
+                        <li>Aucun theme disponible</li>
+                    {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="section-card p-4 p-md-5">
+                    <h2>Lancer un sondage de theme</h2>
+                    {{ form_start(formSurvey) }}
+                    {{ form_row(formSurvey.name) }}
+                    {{ form_row(formSurvey.dateStart) }}
+                    {{ form_row(formSurvey.dateEnd) }}
+                    {{ form_row(formSurvey.surveyChoices) }}
+                    <button class="btn btn-fun" >enregister</button>
+                    {{ form_end(formSurvey) }}
+                </div>
+                <div class="section-card p-4 p-md-5 mt-4">
+                    <h2>Les sondages</h2>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for survey in surveys %}
+                            <tr>
+                                <td>{{ survey.name }}</td>
+                                <td>du {{ survey.dateStart|date('d-m-Y') }} jusqu'au {{ survey.dateEnd|date('d-m-Y') }}</td>
+                                <td class="d-flex gap-2">
+                                    <a class="text-primary-emphasis" href="{{ path('admin_manage_survey', {'id': survey.id}) }}">
+                                        <twig:ux:icon name="lucide:edit-3" />
+                                    </a>
+                                    <div class="admin-box-theme-remove">
+                                        <form action="{{ path('admin_manage_survey_delete', {'id': survey.id}) }}" method="post" onsubmit="return confirm('Supprimer ce sondage ?');">
+                                            <input type="hidden" name="_method" value="DELETE">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete-survey-' ~ survey.id) }}">
+                                            <button type="submit" class="p-0 border-0">
+                                                <twig:ux:icon name="lucide:trash-2" />
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center"><i>Pas de sondage disponible prochainement</i></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

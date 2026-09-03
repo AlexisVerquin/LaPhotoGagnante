@@ -26,32 +26,15 @@ final class UserManageController extends AbstractController
         TranslatorInterface $translator,
         UserPasswordHasherInterface  $userPasswordHasher
     ): Response {
-
-        $user = $em->getRepository(User::class)->find($this->getUser()->getId());
-        $userFormEntity = clone $user;
-        $form = $this->createForm(UserInfoType::class, $userFormEntity);
+        $user = $this->getUser();
+        $form = $this->createForm(UserInfoType::class, $this->getUser());
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $data = $form->getData();
-            dd($data, $user, $userFormEntity);
-            if ($data->getEmail() && $data->getEmail() !== $user->getEmail()) {
-                $user->setEmail($data->getEmail());
+            if ($user->getPassword() && $userPasswordHasher->isPasswordValid($user, $user->getPassword())) {
+                $user->setPassword($userPasswordHasher->hashPassword($user, $user->getPassword()));
             }
-
-            if ($data->getName() && $data->getName() !== $user->getName()) {
-                $user->setName($data->getName());
-            }
-
-            if ($data->getCity() && $data->getCity() !== $user->getCity()) {
-                $user->setCity($data->setCity());
-            }
-
-//            if ($data->getPassword()) {
-//
-//            }
-
 
             $em->flush();
 
@@ -63,6 +46,7 @@ final class UserManageController extends AbstractController
             'formUser' => $form,
         ]);
     }
+
 
     #[Route('/user/manage/uploadAvatar', name: 'app_user_manage_uploadAvatar')]
     public function uploadAvatar(

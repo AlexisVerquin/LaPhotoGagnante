@@ -26,9 +26,9 @@
                         <p data-uploadfile-target="error" class="text-danger p-1" hidden>error</p>
                     </div>
 
-                    <h1 class="h5 mt-5 mb-1">Camille_D</h1>
+                    <h1 class="h5 mt-5 mb-1">{{ app.user.name }}</h1>
                     <p class="text-muted small mb-1">
-                        <i class="bi bi-geo-alt-fill me-1"></i>Lyon, France
+                        <i class="bi bi-geo-alt-fill me-1"></i>{{ app.user.city }}
                     </p>
                     <p class="text-muted small mb-4">Membre depuis mars 2024</p>
 
@@ -56,7 +56,6 @@
                     <p class="text-muted small mb-4">Gérez vos informations personnelles et votre sécurité.</p>
 
                     {{ form_start(formUser) }}
-
 
                         {# ---------- INFOS GENERALES ---------- #}
                         <div class="form-section-title">

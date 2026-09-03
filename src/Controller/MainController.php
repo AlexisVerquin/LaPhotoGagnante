@@ -2,6 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\Theme;
+use App\Repository\SurveyChoiceRepository;
+use App\Repository\SurveyRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,13 +18,27 @@ final class MainController extends AbstractController
 {
     public function __construct(
         private TranslatorInterface $translator,
+        private EntityManagerInterface $em,
     ) {}
-
     #[Route('/', name: 'app_main')]
     public function index(Request $request): Response
     {
-        $locale = $request->getPreferredLanguage(['pt', 'fr_Latn_CH', 'en_US'] );
+        $locale = $request->getPreferredLanguage(['pt', 'fr_Latn_CH', 'en_US']);
         LocaleFallbackProvider::validateLocale($locale);
+
+        $themeRepository = $this->em->getRepository(Theme::class);
+        $actualTheme = $themeRepository->findActualTheme();
+
+        $dateForEnableVote = null;
+        $lastTheme = null;
+
+        if ($actualTheme) {
+            // Vote ouvert durant les 7 derniers jours du concours (J-6 à J-0 inclus)
+            $dateForEnableVote = clone $actualTheme->getDateEnd();
+            $dateForEnableVote->modify('-6 day');
+        } else {
+            $lastTheme = $themeRepository->findLastFinishedTheme();
+        }
 
         if ($this->getUser() && !$this->getUser()->isVerified()) {
             $message = $this->translator->trans(AlertConst::ALERT_MSG_USER_UNVERIFIED);
@@ -28,7 +46,19 @@ final class MainController extends AbstractController
         }
 
         return $this->render('main/index.html.twig', [
+            'actualTheme' => $actualTheme,
+            'dateForEnableVote' => $dateForEnableVote,
+            'lastTheme' => $lastTheme,
         ]);
+    }
+
+
+    #[Route('/voteSurvey', name: 'app_main_vote')]
+    public function voteSurvey(
+        Request $request
+    ): Response {
+
+        return $this->render('main/index.html.twig');
     }
 
     #[Route('/locale/{locale}', name: 'app_change_locale')]

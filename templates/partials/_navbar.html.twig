@@ -17,9 +17,18 @@
                 <li class="nav-item">
                     <a class="nav-link" href="#">Galerie</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Palmarès</a>
-                </li>
+                {% if is_granted("ROLE_ADMIN") %}
+                    <div class="dropdown">
+                        <button class="btn btn-fun px-4 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Administration
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ path('admin_dashboard') }}">Dashboard</a></li>
+                            <li><a class="dropdown-item" href="{{ path('admin_manage_themes') }}">Thême</a></li>
+                            <li><a class="dropdown-item" href="{{ path('admin_manage_survey') }}">Sondage</a></li>
+                        </ul>
+                    </div>
+                {% endif %}
             </ul>
             {% if not hide_auth_actions %}
             <ul class="navbar-nav align-items-lg-center gap-2">

@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <h1>test</h1>
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="section-card p-4 p-md-5">
+                    <h2>Sondage en cours : </h2>
+                    {% if survey %}
+                        {{ survey.name }}
+                    {% else %}
+                        aucun sondage en cour
+                    {% endif %}
+                    <div class="d-flex gap-2 justify-content-end mt-5" data-controller="modal">
+                        <a
+                            class="btn btn-fun px-4"
+                            href="{{ path("admin_manage_survey") }}"
+                        >
+                            <i class="bi bi-check2 me-1"></i>Ajouter un sondage
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-lg-8">
+                <div class="section-card p-4 p-md-5">
+                    <h2>Theme en cour : </h2>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+{% endblock %}

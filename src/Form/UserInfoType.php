@@ -24,6 +24,7 @@ class UserInfoType extends AbstractType
             ])
             ->add('password', PasswordType::class, [
                 'label' => 'form.label.password',
+                'mapped' => false,
                 'required' => false,
                 'attr' => [
                     'placeholder' => '••••••••',
@@ -31,11 +32,11 @@ class UserInfoType extends AbstractType
             ])
             ->add('new_password', PasswordType::class, [
                 'label' => 'form.label.new_password',
+                'mapped' => false,
                 'required' => false,
                 'attr' => [
                     'placeholder' => '••••••••',
                 ],
-                'mapped' => false,
             ])
             ->add('password_confirm', PasswordType::class, [
                 'label' => 'form.label.confirmation_password',
