@@ -9,8 +9,8 @@ export default class extends Controller {
     ];
 
     static values = {
-        target: String,
-        voteTarget: String,
+        endDate: String,
+        voteEndDate: String,
     };
 
     connect() {
@@ -39,8 +39,10 @@ export default class extends Controller {
         if (targets.seconds) targets.seconds.textContent = this.pad(s);
     }
     tick() {
-        const target = new Date(this.targetValue);
-        const voteTarget = new Date(this.voteTargetValue);
+        const target = new Date(this.endDateValue);
+        const voteTarget = new Date(this.voteEndDateValue);
+
+        console.log(target, voteTarget);
 
         const diff = target - new Date();
         const diffVote = voteTarget - new Date();

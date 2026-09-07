@@ -15,7 +15,7 @@
                     <a class="nav-link active" href="{{ path('app_main') }}">Accueil</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Galerie</a>
+                    <a class="nav-link" href="{{ path('app_gallery') }}">Galerie</a>
                 </li>
                 {% if is_granted("ROLE_ADMIN") %}
                     <div class="dropdown">
@@ -34,13 +34,14 @@
             <ul class="navbar-nav align-items-lg-center gap-2">
                 {% if app.user %}
                     <li class="nav-item">
-                        <a href="#" class="nav-link navbar-cta">
-                            <i class="bi bi-camera-fill me-1"></i>Participer
+                        <a href="#" {% if app.user%} data-action="click->modal#showModal" {% endif %} class=" btn btn-fun">
+                            <i class="bi bi-camera-fill me-2"></i> {% if not getPhotoCurrentTheme() %} Participer au concours {% else %} Voir ma photo {% endif %}
                         </a>
+
                     </li>
                     <li class="nav-item">
                         <a href="{{ path('app_user_manage') }}" class="nav-link p-0 ms-2" title="{{ app.user.email }}">
-                            <img class="rounded-circle navbar-avatar" src="{{ asset('images/logo-test.png') }}" alt="{{ app.user.email }}-avatar">
+                            <img class="rounded-circle navbar-avatar" src="{{ asset(getAvatar()) }}" alt="{{ app.user.email }}-avatar">
                         </a>
                     </li>
                 {% else %}

@@ -3,10 +3,15 @@ import { Controller } from '@hotwired/stimulus';
 import { Modal } from 'bootstrap';
 
 export default class extends Controller {
-    static targets = ['dialog'];
+    static targets = ['dialog', 'action'];
 
     connect() {
-        this.modal = new Modal(this.element);
+        this.modal = new Modal(this.dialogTarget);
+    }
+
+    showModal(event) {
+        event.preventDefault()
+        this.modal.show();
     }
 
     open() {

@@ -1,5 +1,6 @@
 :root {
-    --sunshine: #FFC93C;
+    --sunshine: rgb(255 201 60);
+    --blood: #9b1313;
     --coral: #FF6B6B;
     --sky: #4ECDC4;
     --grape: #A78BFA;
@@ -21,6 +22,17 @@ body {
         var(--cream);
     background-attachment: fixed;
 }
+footer {
+    background-color: var(--cream);
+    background: white;
+    border-top-left-radius: 1.5rem;
+    border-top-right-radius: 1.5rem;
+    border: 3px solid var(--cream);
+    box-shadow: 0 15px 40px -20px rgba(45, 42, 50, 0.25);
+    padding: 1rem;
+    text-align: center;
+
+}
 
 .fs-mini {
     font-size: 0.8rem;
@@ -33,6 +45,17 @@ h1, h2, h3, .navbar-brand {
 
 .container {
     padding-top: 2rem;
+}
+
+.btn-sunshine {
+    background-color: var(--sunshine);
+    color: var(--ink);
+}
+
+.btn-sunshine:hover {
+    background-color: rgb(255 201 60 / 0.24);
+    border: 1px solid var(--sunshine);
+    color: var(--cream);
 }
 
 /* Cards façon "cartes à jouer" arrondies pour les tâches */
@@ -294,6 +317,17 @@ h1, h2, h3, .navbar-brand {
     background: white;
     border: 2px solid var(--ink);
     color: var(--ink);
+    font-weight: 700;
+    border-radius: 50px;
+    font-size: .85rem;
+    padding: .35rem 1rem;
+    transition: background .2s ease, color .2s ease;
+}
+
+.btn-voted {
+    background: var(--ink);
+    border: 2px solid var(--ink);
+    color: white;
     font-weight: 700;
     border-radius: 50px;
     font-size: .85rem;
@@ -581,6 +615,34 @@ h1, h2, h3, .navbar-brand {
     border: 3px solid var(--cream);
     cursor: pointer;
     transition: transform .15s ease;
+
+}
+
+.photo-upload-btn {
+    padding: .5rem;
+    background: linear-gradient(135deg, var(--coral), var(--blood));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid var(--cream);
+    cursor: pointer;
+    transition: transform .15s ease;
+    border-radius: 1rem;
+    font-weight: 700;
+    font-family: 'Poppins', system-ui, sans-serif;
+    letter-spacing: 0.3px;
+}
+
+.photo-upload-btn:hover {
+    transform: scale(1.08);
+}
+
+.photo-upload-btn input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
 }
 
 .avatar-upload-btn:hover {
@@ -782,3 +844,101 @@ h1, h2, h3, .navbar-brand {
     color: var(--ink) !important;
 }
 
+.vote-heart {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: none;
+    background: transparent;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    font-weight: 600;
+    color: #b8b8b8; /* cœur "vide" */
+    transition: color 0.15s ease, transform 0.15s ease;
+    cursor: pointer;
+}
+
+.vote-heart-icon {
+    font-size: 1.15rem;
+    transition: transform 0.2s ease;
+}
+
+.vote-heart:hover .vote-heart-icon {
+    transform: scale(1.12);
+}
+
+.vote-heart.is-voted {
+    color: var(--coral);
+}
+
+/* le "pop" au moment du vote, pas un hover permanent sur chaque carte */
+.vote-heart.is-voted .vote-heart-icon {
+    animation: vote-pop 0.3s ease;
+}
+
+@keyframes vote-pop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.35); }
+    100% { transform: scale(1); }
+}
+
+.gallery-masonry {
+    columns: 3 280px;
+    column-gap: 1.5rem;
+}
+
+.gallery-masonry .gallery-card {
+    break-inside: avoid;
+    margin-bottom: 1.5rem;
+    display: inline-block;
+    width: 100%;
+}
+
+.gallery-masonry img {
+    display: block;
+}
+
+.vote-heart {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: none;
+    background: transparent;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    font-weight: 600;
+    color: #b8b8b8;
+    transition: color 0.15s ease, transform 0.15s ease;
+    cursor: pointer;
+}
+
+.vote-heart-icon {
+    font-size: 1.15rem;
+    transition: transform 0.2s ease;
+}
+
+.vote-heart:hover .vote-heart-icon {
+    transform: scale(1.12);
+}
+
+.vote-heart.is-voted {
+    color: var(--coral);
+}
+
+.vote-heart.is-voted .vote-heart-icon {
+    animation: vote-pop 0.3s ease;
+}
+
+@keyframes vote-pop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.35); }
+    100% { transform: scale(1); }
+}
+
+@media (max-width: 992px) {
+    .gallery-masonry { columns: 2 240px; }
+}
+
+@media (max-width: 576px) {
+    .gallery-masonry { columns: 1; }
+}

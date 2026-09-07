@@ -23,12 +23,72 @@
         <script src="https://cdn.jsdelivr.net/npm/frankenphp-hot-reload/+esm" type="module"></script>
         {% endif %}
     </head>
-    <body>
+    <body data-controller="modal uploadfile" data-action="uploadfile:success->modal#close">
         <div class="container-fluid m-0 p-0">
             {% include 'partials/_navbar.html.twig' with {'hide_auth_actions': app.request.attributes.get('_route') in ['app_login', 'app_register']} %}
             {% include 'partials/alerts/userNotVerified.html.twig' %}
             {% include 'partials/alerts/alert-success.html.twig' %}
+            {% include 'partials/alerts/alert-error.html.twig' %}
             {% block body %}{% endblock %}
         </div>
+        <div class="modal fade" data-modal-target="dialog">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5">
+                            {% if not getPhotoCurrentTheme() %}
+                                Envoyer votre photo
+                            {% else %}
+                                Votre photo
+                            {% endif %}
+
+                        </h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div>
+                        <div class="modal-body d-flex flex-column align-items-center">
+                            <div class="alert alert-danger alert-dismissible fade m-4" role="alert" data-uploadfile-target="alert" hidden>
+                                <span data-uploadfile-target="alertMessage"></span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                            <img
+                                data-uploadfile-target="preview"
+                                width="600px"
+                                src="{% if not getPhotoCurrentTheme() %}{{ asset('images/default_images.jpg') }}{% else %} {{ asset(getPhotoCurrentTheme()) }} {% endif %}"
+                                alt="Photo pour le concours"
+                            >
+                            {% if getPhotoCurrentTheme() %}
+                                <span class="d-inline-flex gap-1 text-coral fw-bold mt-3" style="color: var(--coral);">
+                                    <i class="bi bi-heart-fill"></i> 248
+                                </span>
+                            {% endif %}
+
+                        </div>
+                        <div class="modal-footer gap-4">
+                            {% if not getPhotoCurrentTheme() %}
+                                <label class="photo-upload-btn gap-2" title="Selectionnez une photo">
+                                    <i class="bi bi-camera-fill"></i> Selectionnez une photo
+                                    <input
+                                        type="file"
+                                        name="file"
+                                        data-uploadfile-target="input"
+                                        accept="image/*"
+                                        data-action="change->uploadfile#onFileChange"
+                                        data-url="{{ path("app_photo_chanllenge_update") }}"
+                                        data-token="{{ csrf_token('upload-photo-theme') }}"
+                                        data-submitType="button"
+                                    >
+                                </label>
+                                <button type="button" class="btn btn-fun" data-action="click->uploadfile#sendFile">Envoyer</button>
+                            {% else %}
+                                <button type="button" class="btn btn-fun" data-bs-dismiss="modal">Fermer</button>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% include 'partials/_footer.html.twig' %}
     </body>
 </html>
