@@ -42,8 +42,6 @@ export default class extends Controller {
         const target = new Date(this.endDateValue);
         const voteTarget = new Date(this.voteEndDateValue);
 
-        console.log(target, voteTarget);
-
         const diff = target - new Date();
         const diffVote = voteTarget - new Date();
 

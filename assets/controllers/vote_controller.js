@@ -41,13 +41,14 @@ export default class extends Controller {
             const data = await response.json();
 
             if (!data.success) {
-                // ex: "vous avez déjà voté pour cette photo"
-                console.log(data.message);
+                this.dispatch("error", { bubbles: true, detail: { message: data.message } });
+
                 return;
             }
 
             // on notifie TOUTES les instances (dont soi-même)
             window.dispatchEvent(new CustomEvent('vote:changed', { detail: data }));
+            this.dispatch("success", { bubbles: true, detail: { message: data.message } });
 
         } catch (error) {
             console.log(error);

@@ -68,6 +68,9 @@ class User implements DateInterface, UserInterface, PasswordAuthenticatedUserInt
     #[ORM\ManyToMany(targetEntity: Vote::class, mappedBy: 'user')]
     private Collection $votes;
 
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    private ?\DateTime $last_VoteDate = null;
+
     public function __construct()
     {
         $this->photos = new ArrayCollection();
@@ -262,6 +265,18 @@ class User implements DateInterface, UserInterface, PasswordAuthenticatedUserInt
         if ($this->votes->removeElement($vote)) {
             $vote->removeUser($this);
         }
+
+        return $this;
+    }
+
+    public function getLastVoteDate(): ?\DateTime
+    {
+        return $this->last_VoteDate;
+    }
+
+    public function setLastVoteDate(?\DateTime $last_VoteDate): static
+    {
+        $this->last_VoteDate = $last_VoteDate;
 
         return $this;
     }

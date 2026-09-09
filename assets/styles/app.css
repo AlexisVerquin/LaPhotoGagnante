@@ -151,13 +151,12 @@ h1, h2, h3, .navbar-brand {
     align-items: center;
     gap: .5rem;
     background: white;
-    border: 2px solid var(--sunshine);
     color: var(--ink);
     font-weight: 700;
-    font-size: .85rem;
-    padding: .4rem 1rem;
-    border-radius: 50px;
-    box-shadow: 0 6px 16px -8px rgba(255, 201, 60, 0.6);
+    font-size: .8rem;
+    padding: .3rem .9rem;
+    border-radius: .4rem 1rem .4rem 1rem;
+    box-shadow: 0 4px 14px -6px rgba(45, 42, 50, 0.15); /* ombre très douce, pas "bouton" */
 }
 
 .hero-title span {
@@ -941,4 +940,17 @@ h1, h2, h3, .navbar-brand {
 
 @media (max-width: 576px) {
     .gallery-masonry { columns: 1; }
+}
+
+.btn-disabled {
+    opacity: 0.5;
+}
+
+.btn-disabled:hover {
+    background: inherit;
+    color: inherit;
+}
+
+.hero-title-v2.display-4 {
+    font-size: clamp(2rem, 5vw + 1rem, 3.5rem);
 }

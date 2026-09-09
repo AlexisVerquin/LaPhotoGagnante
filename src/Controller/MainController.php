@@ -3,13 +3,14 @@
 namespace App\Controller;
 
 use App\Entity\Photo;
+use App\Entity\Survey;
+use App\Entity\SurveyChoice;
 use App\Entity\Theme;
 use App\Entity\User;
 use App\Entity\Vote;
-use App\Repository\SurveyChoiceRepository;
-use App\Repository\SurveyRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -32,7 +33,12 @@ final class MainController extends AbstractController
         $themeRepository = $this->em->getRepository(Theme::class);
         $actualTheme = $themeRepository->findActualTheme();
         $hasPhoto = $this->em->getRepository(Photo::class)->findOneBy(['user' => $this->getUser(), 'theme' => $actualTheme]);
+        $activeSurvey = $this->em->getRepository(Survey::class)->findActiveSurvey();
 
+        $totalVote = 0;
+        foreach ($activeSurvey->getSurveyChoices() as $survey) {
+            $totalVote += $survey->getNumberVoter();
+        }
 
         $dateForEnableVote = null;
         $lastTheme = null;
@@ -50,11 +56,17 @@ final class MainController extends AbstractController
             $this->addFlash('USER_NOT_VERIFIED', $message);
         }
 
+        $today = new \DateTime();
+        $lastVote = $this->getUser()->getLastVoteDate();
+
         return $this->render('main/index.html.twig', [
             'actualTheme' => $actualTheme,
             'dateForEnableVote' => $dateForEnableVote,
             'lastTheme' => $lastTheme,
             'hasPhoto' => $hasPhoto,
+            'activeSurvey' => $activeSurvey,
+            'totalVoteSurvey' => $totalVote,
+            'alreadyVoted' => $lastVote !== null && $lastVote->format('Y-m-d') === $today->format('Y-m-d'),
         ]);
     }
 
@@ -80,11 +92,59 @@ final class MainController extends AbstractController
 
 
     #[Route('/voteSurvey', name: 'app_main_vote')]
-    public function voteSurvey(
-        Request $request
-    ): Response {
+    public function voteSurvey(Request $request): JsonResponse
+    {
+        $submittedToken = $request->headers->get('X-CSRF-Token');
 
-        return $this->render('main/index.html.twig');
+        if (!$this->isCsrfTokenValid('survey-vote', $submittedToken)) {
+            return $this->json(['error' => 'Token CSRF invalide'], Response::HTTP_UNAUTHORIZED); // 401
+        }
+
+        $data = $request->request->get('id');
+
+        if ($data === null) {
+            return $this->json(['error' => "Une erreur est survenue pendant le vote, merci de réessayer"], Response::HTTP_BAD_REQUEST); // 400
+        }
+
+        $user = $this->getUser();
+
+        if (!$user instanceof User) {
+            return $this->json(['error' => "Vous devez être connecté pour pouvoir voter"], Response::HTTP_UNAUTHORIZED); // 401
+        }
+
+        if (!$user->isVerified()) {
+            return $this->json(['error' => "Vous devez confirmer votre adresse email pour pouvoir voter"], Response::HTTP_FORBIDDEN); // 403
+        }
+
+        $today = new \DateTime();
+        $lastVote = $user->getLastVoteDate();
+
+        if ($lastVote !== null && $lastVote->format('Y-m-d') === $today->format('Y-m-d')) {
+            return $this->json(['error' => "Vous avez déjà voté aujourd'hui, revenez demain"], Response::HTTP_CONFLICT); // 409
+        }
+
+        $surveyChoice = $this->em->getRepository(SurveyChoice::class)->find($data);
+
+        if (!$surveyChoice) {
+            return $this->json(['error' => "Ce choix de vote n'existe pas"], Response::HTTP_NOT_FOUND); // 404
+        }
+
+        $surveyChoice->setNumberVoter($surveyChoice->getNumberVoter() + 1);
+        $user->setLastVoteDate($today);
+
+        $this->em->flush();
+
+        $total = array_sum(array_map(
+            fn($choice) => $choice->getNumberVoter(),
+            $surveyChoice->getSurvey()->getSurveyChoices()->toArray()
+        ));
+
+        return $this->json([
+            'message' => "Merci d'avoir voté, n'hésitez pas à revenir demain",
+            'vote' => $surveyChoice->getNumberVoter(),
+            'alreadyVoted'=> true,
+            'total' => $total,
+        ]);
     }
 
     #[Route('/locale/{locale}', name: 'app_change_locale')]
@@ -170,7 +230,7 @@ final class MainController extends AbstractController
 
         return $this->json([
             'success' => true,
-            'message' => 'voted',
+            'message' => 'Merci de votre participation',
             'newPhotoId' => $photo->getId(),
             'newVoteCount' => $voteRepo->count(['photo' => $photo]),
             'oldPhotoId' => $oldPhotoId,

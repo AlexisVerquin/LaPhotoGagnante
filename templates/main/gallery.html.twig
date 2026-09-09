@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Galerie{% endblock %}
+{% block title %}PhotoPrix - Galerie du concours{% endblock %}
 
 {% set pathCurrentTheme = getPathCurrentTheme() %}
 {% set pathAvatar = getPathAvatar() %}
@@ -13,17 +13,22 @@
 {% endblock %}
 
 {% block body %}
-    <div class="container py-5">
-
-        {% include 'partials/alerts/alert-success.html.twig' %}
-
+    <div
+        class="container py-5"
+        data-controller="alert"
+        data-alert-flashes-value="{{ flashList|json_encode|e('html_attr') }}"
+        data-action="vote:success@window->alert#success vote:error@window->alert#error"
+    >
+        <div data-alert-target="container" class="position-fixed top-0 end-0 p-3" style="z-index: 1080; min-width: 320px;"></div>
         {% if actualTheme %}
             <div class="text-center mb-5">
-                <span class="hero-eyebrow mb-3">
-                    <i class="bi bi-images"></i> Galerie du concours
-                </span>
-                <h2 class="h3 mt-3 mb-1">{{ actualTheme.themeChoice.name }}</h2>
-                <p class="text-muted mb-0">
+            <span class="hero-eyebrow mb-3">
+                <i class="bi bi-images"></i> Galerie du concours
+            </span>
+                <h1 class="hero-title-v2 display-4 mt-4 mb-2">
+                    <span class="hero-highlight">{{ actualTheme.themeChoice.name }}</span>
+                </h1>
+                <p class="text-muted mb-0 fs-5">
                     {{ actualTheme.photos|length }} photo{{ actualTheme.photos|length > 1 ? 's' : '' }}
                     partagée{{ actualTheme.photos|length > 1 ? 's' : '' }} par la communauté
                 </p>
