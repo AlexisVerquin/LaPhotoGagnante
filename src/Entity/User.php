@@ -71,6 +71,9 @@ class User implements DateInterface, UserInterface, PasswordAuthenticatedUserInt
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTime $last_VoteDate = null;
 
+    #[ORM\Column]
+    private ?bool $isActive = true;
+
     public function __construct()
     {
         $this->photos = new ArrayCollection();
@@ -277,6 +280,18 @@ class User implements DateInterface, UserInterface, PasswordAuthenticatedUserInt
     public function setLastVoteDate(?\DateTime $last_VoteDate): static
     {
         $this->last_VoteDate = $last_VoteDate;
+
+        return $this;
+    }
+
+    public function isActive(): ?bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(bool $isActive): static
+    {
+        $this->isActive = $isActive;
 
         return $this;
     }

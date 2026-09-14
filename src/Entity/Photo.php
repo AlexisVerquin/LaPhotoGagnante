@@ -39,6 +39,12 @@ class Photo implements DateInterface
     #[ORM\OneToMany(targetEntity: Vote::class, mappedBy: 'photo')]
     private Collection $votes;
 
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $title = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $description = null;
+
     public function __construct()
     {
         $this->votes = new ArrayCollection();
@@ -120,6 +126,30 @@ class Photo implements DateInterface
                 $vote->setPhoto(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(?string $title): static
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
 
         return $this;
     }

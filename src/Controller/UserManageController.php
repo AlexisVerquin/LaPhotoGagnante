@@ -99,4 +99,15 @@ final class UserManageController extends AbstractController
 
         return $this->json(['success' => true]);
     }
+
+    #[Route('/user/delete', name: 'app_delete_user')]
+    public function removeUser(EntityManagerInterface $em) {
+
+        $user = $this->getUser();
+
+        $em->remove($user);
+        $em->flush();
+
+        return $this->redirectToRoute('app_main');
+    }
 }

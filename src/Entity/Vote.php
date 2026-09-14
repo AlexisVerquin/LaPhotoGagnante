@@ -24,6 +24,9 @@ class Vote
     #[ORM\ManyToOne(inversedBy: 'votes')]
     private ?Theme $theme = null;
 
+    #[ORM\Column(name: 'datevote', type: 'datetime')]
+    private ?\DateTime $date = null;
+
     public function __construct()
     {
     }
@@ -76,6 +79,18 @@ class Vote
     public function setTheme(?Theme $theme): static
     {
         $this->theme = $theme;
+
+        return $this;
+    }
+
+    public function getDate(): ?\DateTime
+    {
+        return $this->date;
+    }
+
+    public function setDate(\DateTime $date): static
+    {
+        $this->date = $date;
 
         return $this;
     }

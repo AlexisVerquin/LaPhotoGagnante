@@ -8,6 +8,7 @@ use App\Entity\SurveyChoice;
 use App\Entity\Theme;
 use App\Entity\User;
 use App\Entity\Vote;
+use App\Service\PhotoService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -25,7 +26,7 @@ final class MainController extends AbstractController
         private EntityManagerInterface $em,
     ) {}
     #[Route('/', name: 'app_main')]
-    public function index(Request $request): Response
+    public function index(Request $request, PhotoService $photoService): Response
     {
         $locale = $request->getPreferredLanguage(['pt', 'fr_Latn_CH', 'en_US']);
         LocaleFallbackProvider::validateLocale($locale);
@@ -35,20 +36,26 @@ final class MainController extends AbstractController
         $hasPhoto = $this->em->getRepository(Photo::class)->findOneBy(['user' => $this->getUser(), 'theme' => $actualTheme]);
         $activeSurvey = $this->em->getRepository(Survey::class)->findActiveSurvey();
 
+        $nbPhoto = $this->em->getRepository(Photo::class)->count();
+        $nbUsers = $this->em->getRepository(User::class)->count();
+        $nbVotes = $this->em->getRepository(Vote::class)->count();
+        $nbThemes = $this->em->getRepository(Theme::class)->count();
+
         $totalVote = 0;
         foreach ($activeSurvey->getSurveyChoices() as $survey) {
             $totalVote += $survey->getNumberVoter();
         }
 
         $dateForEnableVote = null;
-        $lastTheme = null;
+        $lastTheme = $themeRepository->findLastFinishedTheme();
+        $lastWinner = $photoService->getPhotoWinnerLastTheme();
+        $photoOfTheDay = $photoService->getPhotoOfTheDay();
 
         if ($actualTheme) {
             // Vote ouvert durant les 7 derniers jours du concours (J-6 à J-0 inclus)
             $dateForEnableVote = clone $actualTheme->getDateEnd();
             $dateForEnableVote->modify('-6 day');
-        } else {
-            $lastTheme = $themeRepository->findLastFinishedTheme();
+
         }
 
         if ($this->getUser() && !$this->getUser()->isVerified()) {
@@ -57,7 +64,7 @@ final class MainController extends AbstractController
         }
 
         $today = new \DateTime();
-        $lastVote = $this->getUser()->getLastVoteDate();
+        $lastVote = $this->getUser()?->getLastVoteDate() ?? null;
 
         return $this->render('main/index.html.twig', [
             'actualTheme' => $actualTheme,
@@ -67,6 +74,12 @@ final class MainController extends AbstractController
             'activeSurvey' => $activeSurvey,
             'totalVoteSurvey' => $totalVote,
             'alreadyVoted' => $lastVote !== null && $lastVote->format('Y-m-d') === $today->format('Y-m-d'),
+            'lastWinner' => $lastWinner,
+            'photoOfTheDay' => $photoOfTheDay,
+            'nbPhoto' => $nbPhoto ?? 0,
+            'nbUsers' => $nbUsers ?? 0,
+            'nbVotes' => $nbVotes ?? 0,
+            'nbThemes' => $nbThemes ?? 0,
         ]);
     }
 
@@ -219,7 +232,9 @@ final class MainController extends AbstractController
             $existingVote = (new Vote())
                 ->setPhoto($photo)
                 ->setTheme($photo->getTheme())
-                ->setUser($this->getUser());
+                ->setUser($this->getUser())
+                ->setDate(new \DateTime())
+            ;
 
             $this->em->persist($existingVote);
         }
