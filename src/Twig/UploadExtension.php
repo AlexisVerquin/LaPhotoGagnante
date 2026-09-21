@@ -5,12 +5,10 @@ namespace App\Twig;
 use App\Entity\Photo;
 use App\Entity\Theme;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Twig\Extension\AbstractExtension;
+use Twig\Attribute\AsTwigFunction;
 use Symfony\Bundle\SecurityBundle\Security;
-use Twig\TwigFunction;
 
-class UploadExtension extends AbstractExtension
+class UploadExtension
 {
     private const UPLOADS_DIR = [
         "avatars" => "uploads/avatars",
@@ -23,17 +21,7 @@ class UploadExtension extends AbstractExtension
         private Security $security
     ) {}
 
-    public function getFunctions(): array
-    {
-        return [
-            new TwigFunction('upload_path', [$this, 'getUploadPath']),
-            new TwigFunction('getAvatar', [$this, 'getAvatar']),
-            new TwigFunction('getPhotoCurrentTheme', [$this, 'getPhotoCurrentTheme']),
-            new TwigFunction('getPathCurrentTheme', [$this, 'getPathCurrentTheme']),
-            new TwigFunction('getPathAvatar', [$this, 'getPathAvatar']),
-        ];
-    }
-
+    #[AsTwigFunction('getAvatar')]
     public function getAvatar() {
         $user = $this->security->getUser();
 
@@ -41,10 +29,12 @@ class UploadExtension extends AbstractExtension
 
     }
 
+    #[AsTwigFunction('getPathAvatar')]
     public function getPathAvatar() {
         return self::UPLOADS_DIR['avatars'];
     }
 
+    #[AsTwigFunction('getPhotoCurrentTheme')]
     public function getPhotoCurrentTheme() {
         $user = $this->security->getUser();
 
@@ -55,9 +45,13 @@ class UploadExtension extends AbstractExtension
             return null;
         }
 
-        return self::UPLOADS_DIR['themes'] ."/".$actualTheme->getDirectoryName()."/".$hasPhoto->getName();
+        return [
+            'image' =>self::UPLOADS_DIR['themes'] ."/".$actualTheme->getDirectoryName()."/".$hasPhoto->getName(),
+            'vote' => count($hasPhoto->getVotes())
+        ];
     }
 
+    #[AsTwigFunction('getPathCurrentTheme')]
     public function getPathCurrentTheme() {
         $actualTheme = $this->em->getRepository(Theme::class)->findActualTheme();
 

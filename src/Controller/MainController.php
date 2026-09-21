@@ -46,17 +46,10 @@ final class MainController extends AbstractController
             $totalVote += $survey->getNumberVoter();
         }
 
-        $dateForEnableVote = null;
         $lastTheme = $themeRepository->findLastFinishedTheme();
         $lastWinner = $photoService->getPhotoWinnerLastTheme();
         $photoOfTheDay = $photoService->getPhotoOfTheDay();
 
-        if ($actualTheme) {
-            // Vote ouvert durant les 7 derniers jours du concours (J-6 à J-0 inclus)
-            $dateForEnableVote = clone $actualTheme->getDateEnd();
-            $dateForEnableVote->modify('-6 day');
-
-        }
 
         if ($this->getUser() && !$this->getUser()->isVerified()) {
             $message = $this->translator->trans(AlertConst::ALERT_MSG_USER_UNVERIFIED);
@@ -68,7 +61,6 @@ final class MainController extends AbstractController
 
         return $this->render('main/index.html.twig', [
             'actualTheme' => $actualTheme,
-            'dateForEnableVote' => $dateForEnableVote,
             'lastTheme' => $lastTheme,
             'hasPhoto' => $hasPhoto,
             'activeSurvey' => $activeSurvey,
@@ -102,7 +94,6 @@ final class MainController extends AbstractController
             'voteUser' => $voteUser,
         ]);
     }
-
 
     #[Route('/voteSurvey', name: 'app_main_vote')]
     public function voteSurvey(Request $request): JsonResponse
@@ -205,7 +196,22 @@ final class MainController extends AbstractController
     #[Route('/vote', name: 'app_vote')]
     public function vote(Request $request): Response
     {
+        //dump(app.request.attributes.parameters)
         $photo = $this->em->getRepository(Photo::class)->find($request->request->get('photoId'));
+       dd( $request->attributes);
+
+        if (!$this->getUser()) {
+            $cartUrl = $this->generateUrl('app_login');
+            return $this->json(
+                [
+                    'success' => false,
+                    'message' => sprintf(
+                        'Vous devez etre connecté pour pouvoir voter. <a href="%s" class="alert-link">connectez-vous</a>',
+                        $cartUrl
+                    )
+                ], 200
+            );
+        }
 
         if (!$photo) {
             return $this->json(['success' => false, 'message' => 'Photo introuvable'], 404);
@@ -227,15 +233,17 @@ final class MainController extends AbstractController
             }
 
             $oldPhotoId = $existingVote->getPhoto()->getId();
-            $existingVote->setPhoto($photo);
+            $existingVote
+                ->setPhoto($photo)
+                ->setDate(new \DateTime())
+            ;
         } else {
             $existingVote = (new Vote())
                 ->setPhoto($photo)
                 ->setTheme($photo->getTheme())
                 ->setUser($this->getUser())
                 ->setDate(new \DateTime())
-            ;
-
+            ;;
             $this->em->persist($existingVote);
         }
 

@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\Contact;
 use App\Entity\Survey;
 use App\Entity\SurveyChoice;
 use App\Form\SurveyChoiceType;
@@ -23,9 +24,11 @@ class DashboardController extends AbstractController
     #[Route("", "dashboard")]
     public function index(): Response {
         $actualSurvey = $this->em->getRepository(Survey::class)->findOneBy( ['id' => 'ASC']);
+        $contacts = $this->em->getRepository(Contact::class)->findAll();
 
         return $this->render('admin/dashboard/index.html.twig', [
             'survey' => $actualSurvey,
+            'contacts' => $contacts,
         ]);
     }
 

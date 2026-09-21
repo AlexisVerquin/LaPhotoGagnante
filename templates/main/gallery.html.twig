@@ -34,6 +34,8 @@
                 </p>
             </div>
 
+            {% include 'partials/_countdown.html.twig' with {'photoOfTheDay' : false} %}
+
             {% if actualTheme.photos|length > 0 %}
                 <div class="gallery-masonry">
                     {% for photo in actualTheme.photos %}
@@ -48,14 +50,15 @@
                                 </div>
 
                                 <div class="card-body p-0">
+                                    <p>{{ photo.title }}</p>
                                     <img class="rounded w-100"
                                          src="{{ asset(pathCurrentTheme ~ '/' ~ photo.name) }}"
                                          alt="Photo de {{ photo.user.name }} pour le thème {{ actualTheme.themeChoice.name }}">
+                                    <p>{{ photo.description }}</p>
                                 </div>
 
                                 <div class="card-footer d-flex align-items-center justify-content-end bg-transparent border-0 pt-3 px-0"
                                      data-controller="vote"
-                                     data-vote-user-value="{{ app.user.id }}"
                                      data-vote-theme-value="{{ actualTheme.id }}"
                                      data-vote-photo-value="{{ photo.id }}"
                                      data-vote-csrf-value="{{ csrf_token('vote-photo-theme') }}"
@@ -65,6 +68,7 @@
                                         type="button"
                                         class="vote-heart {% if voteUser and photo.id == voteUser.photo.id %}is-voted{% endif %}"
                                         data-vote-target="button"
+                                        data-countdown-target="voteGallery"
                                         data-action="click->vote#submitVote"
                                         aria-pressed="{% if voteUser %}{{  photo.id == voteUser.photo.id ? 'true' : 'false' }}{% endif %}"
                                         aria-label="Voter pour la photo de {{ photo.user.name }}"

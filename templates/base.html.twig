@@ -1,3 +1,12 @@
+{% set flashList = [] %}
+{% for type, messages in app.flashes %}
+    {% for message in messages %}
+        {% set flashList = flashList|merge([{ type: type, message: message }]) %}
+    {% endfor %}
+{% endfor %}
+
+{% set subscriptionChangeUrl = (app.user) ? 'app_user_manage' : 'app_register' %}
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -23,16 +32,17 @@
         <script src="https://cdn.jsdelivr.net/npm/frankenphp-hot-reload/+esm" type="module"></script>
         {% endif %}
     </head>
-    <body data-controller="modal uploadfile" data-action="uploadfile:success->modal#close">
-        <div class="container-fluid m-0 p-0">
-            {% include 'partials/_navbar.html.twig' with {'hide_auth_actions': app.request.attributes.get('_route') in ['app_login', 'app_register']} %}
-            {% set flashList = [] %}
-            {% for type, messages in app.flashes %}
-                {% for message in messages %}
-                    {% set flashList = flashList|merge([{ type: type, message: message }]) %}
-                {% endfor %}
-            {% endfor %}
+    <body
+        data-controller="modal uploadfile alert countdown"
 
+        data-alert-flashes-value="{{ flashList|json_encode|e('html_attr') }}"
+        data-action="uploadfile:success->modal#close"
+    >
+        <div class="container-fluid m-0 p-0">
+            {% include
+                'partials/_navbar.html.twig'
+                with {'hide_auth_actions': app.request.attributes.get('_route') in ['app_login', 'app_register']}
+            %}
             {% block body %}{% endblock %}
         </div>
         <div class="modal fade" data-modal-target="dialog">
@@ -58,12 +68,12 @@
                             <img
                                 data-uploadfile-target="preview"
                                 width="600px"
-                                src="{% if not getPhotoCurrentTheme() %}{{ asset('images/default_images.jpg') }}{% else %} {{ asset(getPhotoCurrentTheme()) }} {% endif %}"
+                                src="{% if not getPhotoCurrentTheme() %}{{ asset('images/default_images.jpg') }}{% else %} {{ asset(getPhotoCurrentTheme()['image']) }} {% endif %}"
                                 alt="Photo pour le concours"
                             >
                             {% if getPhotoCurrentTheme() %}
                                 <span class="d-inline-flex gap-1 text-coral fw-bold mt-3" style="color: var(--coral);">
-                                    <i class="bi bi-heart-fill"></i> 248
+                                    <i class="bi bi-heart-fill"></i> {{ getPhotoCurrentTheme()['vote'] }}
                                 </span>
                             {% endif %}
 

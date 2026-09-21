@@ -15,6 +15,7 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use App\Constant\AlertConst;
 use Symfony\Component\Translation\LocaleFallbackProvider;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 final class PhotoController extends AbstractController
 {

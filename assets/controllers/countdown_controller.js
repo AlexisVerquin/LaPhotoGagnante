@@ -5,7 +5,7 @@ export default class extends Controller {
         'days', 'hours', 'minutes', 'seconds',
         'voteDays', 'voteHours', 'voteMinutes', 'voteSeconds',
         'voteStrip', 'voteLabel', 'voteDigits',
-        'galleryButton'
+        'galleryButton', 'voteGallery'
     ];
 
     static values = {
@@ -69,7 +69,8 @@ export default class extends Controller {
                 this.voteDigitsTarget.classList.add('d-flex');
             }
             if (this.hasGalleryButtonTarget) this.galleryButtonTarget.textContent = 'Voir la galerie';
-
+            this.voteState(false);
+            console.log(diffVote, 'pasencore');
             this.setDigits({
                 days: this.hasVoteDaysTarget ? this.voteDaysTarget : null,
                 hours: this.hasVoteHoursTarget ? this.voteHoursTarget : null,
@@ -84,7 +85,7 @@ export default class extends Controller {
                 this.voteDigitsTarget.classList.remove('d-flex');
             }
             if (this.hasGalleryButtonTarget) this.galleryButtonTarget.textContent = 'Voir la galerie et voter';
-
+            this.voteState(true);
             if (!this.voteButtonAdded && this.hasVoteStripTarget) {
                 const btnVotes = document.createElement('a');
                 btnVotes.classList.add('btn-vote-unlock');
@@ -98,5 +99,19 @@ export default class extends Controller {
         if (diff <= 0 && diffVote <= 0) {
             clearInterval(this.interval);
         }
+    }
+
+    voteState(isActive) {
+        this.voteGalleryTargets.forEach((elm) => {
+
+            if (isActive) {
+                elm.classList.add("d-flex");
+                elm.classList.remove("d-none");
+            } else {
+                elm.classList.add("d-none");
+                elm.classList.remove("d-flex");
+            }
+            console.log(isActive)
+        });
     }
 }

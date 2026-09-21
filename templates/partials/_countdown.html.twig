@@ -1,0 +1,73 @@
+<div
+    class="{{ (photoOfTheDay) ? 'col-lg-5' : ' col-lg-12 mb-4' }}"
+    data-controller="countdown"
+    data-countdown-end-date-value="{{ getCurrentThemeTime()['themeEnd']|date('c') }}"
+    data-countdown-vote-end-date-value="{{ getCurrentThemeTime()['enableVote']|date('c') }}"
+>
+    <div
+        class="countdown-panel p-4 p-md-5 h-100 d-flex flex-column justify-content-center position-relative">
+        <div class="position-relative">
+                                <span class="hero-eyebrow mb-3">
+                                    <i class="bi bi-hourglass-split"></i> Fin du concours
+                                </span>
+            <h2 class="h4 mt-3 mb-4">Il vous reste encore un peu de temps !</h2>
+
+            <div class="d-flex gap-2 gap-md-3 flex-wrap">
+                <div class="text-center">
+                    <div class="countdown-digit" data-countdown-target="days">--</div>
+                    <div class="countdown-label">Jours</div>
+                </div>
+                <div class="text-center">
+                    <div class="countdown-digit" data-countdown-target="hours">--</div>
+                    <div class="countdown-label">Heures</div>
+                </div>
+                <div class="text-center">
+                    <div class="countdown-digit" data-countdown-target="minutes">--</div>
+                    <div class="countdown-label">Minutes</div>
+                </div>
+                <div class="text-center">
+                    <div class="countdown-digit" data-countdown-target="seconds">--</div>
+                    <div class="countdown-label">Secondes</div>
+                </div>
+            </div>
+
+            <div class="countdown-vote-strip mt-4" data-countdown-target="voteStrip">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="bi bi-check2-square"></i>
+                    <span class="countdown-vote-label" data-countdown-target="voteLabel">Votes ouverts dans</span>
+                </div>
+                <div class="d-flex gap-2" data-countdown-target="voteDigits">
+                    <div class="countdown-vote-digit">
+                        <span data-countdown-target="voteDays">--</span><small>j</small>
+                    </div>
+                    <div class="countdown-vote-digit">
+                        <span data-countdown-target="voteHours">--</span><small>h</small>
+                    </div>
+                    <div class="countdown-vote-digit">
+                        <span data-countdown-target="voteMinutes">--</span><small>m</small>
+                    </div>
+                    <div class="countdown-vote-digit">
+                        <span data-countdown-target="voteSeconds">--</span><small>s</small>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <a
+                    href="{{ path(subscriptionChangeUrl) }}"
+                    {% if app.user %} data-action="click->modal#showModal" {% endif %}
+                    class="btn rounded-pill mt-4 fw-bold px-4 btn-sunshine"
+                >
+                    <i class="bi bi-camera-fill me-2"></i>
+                    {% if not getPhotoCurrentTheme() %}
+                        Envoyer ma photo
+                    {% else %}
+                        Voir ma photo
+                    {% endif %}
+
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
