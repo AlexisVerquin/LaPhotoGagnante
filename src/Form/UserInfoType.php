@@ -21,6 +21,11 @@ class UserInfoType extends AbstractType
             ])
             ->add('city', TextType::class, [
                 'label' => 'form.label.city',
+                'required' => false,
+            ])
+            ->add('email', TextType::class, [
+                'label' => 'form.label.email',
+
             ])
             ->add('password', PasswordType::class, [
                 'label' => 'form.label.password',

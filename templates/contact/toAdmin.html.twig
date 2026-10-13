@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réponse à votre message</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #F5F3EF;">
+
+<!-- Wrapper -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #F5F3EF;">
+    <tr>
+        <td align="center" style="padding: 40px 16px;">
+
+            <!-- Card -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 560px; background-color: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 45px -25px rgba(45, 42, 50, 0.35);">
+
+                <!-- Bandeau -->
+                <tr>
+                    <td style="background-color: #2D2A32; padding: 28px 40px;">
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td style="width: 36px;">
+                                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                                        <tr>
+                                            <td style="width: 36px; height: 36px; border-radius: 10px; background-color: #FF6B6B; text-align: center; vertical-align: middle;">
+                                                <span style="font-size: 18px; line-height: 36px; color: #ffffff;">📷</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td style="padding-left: 12px; font-family: 'Poppins', Helvetica, Arial, sans-serif; font-weight: 800; font-size: 18px; color: #ffffff;">
+                                    [Nom du site]
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Contenu -->
+                <tr>
+                    <td style="padding: 40px;">
+
+                        <!-- Eyebrow -->
+                        <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 20px;">
+                            <tr>
+                                <td style="background-color: #ffffff; border: 2px solid #FFC93C; border-radius: 50px; padding: 6px 16px; font-family: Helvetica, Arial, sans-serif; font-weight: 700; font-size: 12px; color: #2D2A32;">
+                                    ✉️
+                                </td>
+                            </tr>
+                        </table>
+
+                        <h1 style="margin: 0 0 12px 0; font-family: 'Poppins', Helvetica, Arial, sans-serif; font-weight: 800; font-size: 22px; color: #2D2A32;">
+                            Bonjour,
+                        </h1>
+
+                        <!-- Réponse -->
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 8px;">
+                            <tr>
+                                <td style="background-color: #EFFBF6; border-left: 4px solid #4ECDC4; border-radius: 12px; padding: 18px 20px;">
+                                    <p style="margin: 0 0 6px 0; font-family: 'Poppins', Helvetica, Arial, sans-serif; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: #1F7A6E;">
+                                        Message :
+                                    </p>
+                                    <p style="margin: 0; font-family: Helvetica, Arial, sans-serif; font-size: 15px; line-height: 1.6; color: #2D2A32;">
+                                        theme : {{ discution['id'] }} <br>
+                                        {{ discution['message'] }}
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </td>
+                </tr>
+
+                <!-- Séparateur -->
+                <tr>
+                    <td style="padding: 0 40px;">
+                        <hr style="border: none; border-top: 2px dashed #EFEAE0; margin: 0;">
+                    </td>
+                </tr>
+
+                <!-- CTA -->
+                <tr>
+                    <td style="padding: 28px 40px 8px 40px;">
+                        <p style="margin: 0 0 20px 0; font-family: Helvetica, Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #55505A;">
+                            Une autre question ? Répondez simplement à cet email ou passez par notre formulaire de contact.
+                        </p>
+                        <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td style="background-color: #FF6B6B; border-radius: 12px;">
+                                    <a href="[URL_CONTACT]" target="_blank" style="display: inline-block; padding: 12px 24px; font-family: 'Poppins', Helvetica, Arial, sans-serif; font-weight: 700; font-size: 14px; color: #ffffff; text-decoration: none;">
+                                        Nous recontacter
+                                    </a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                    <td style="padding: 32px 40px 36px 40px;">
+                        <p style="margin: 0; font-family: Helvetica, Arial, sans-serif; font-size: 12px; line-height: 1.6; color: #9a9490; text-align: center;">
+                            [Nom du site] — [URL du site]<br>
+                            Vous recevez cet email suite à une demande envoyée via notre formulaire de contact.
+                        </p>
+                    </td>
+                </tr>
+
+            </table>
+            <!-- /Card -->
+
+        </td>
+    </tr>
+</table>
+<!-- /Wrapper -->
+
+</body>
+</html>

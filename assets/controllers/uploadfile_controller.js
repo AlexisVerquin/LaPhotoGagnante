@@ -63,7 +63,7 @@ export default class extends Controller {
 
     async upload(file, route, csrf) {
         if (!file || !route || !csrf) return;
-
+        console.log("test");
         const formData = new FormData();
         formData.append("file", file);
 

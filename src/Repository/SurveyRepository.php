@@ -16,7 +16,7 @@ class SurveyRepository extends ServiceEntityRepository
         parent::__construct($registry, Survey::class);
     }
 
-    public function findActiveSurvey(): Survey
+    public function findActiveSurvey(): ?Survey
     {
         $date = new \DateTime();
         $q = $this->createQueryBuilder('s')

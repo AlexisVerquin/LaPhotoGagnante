@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Photo;
 use App\Entity\Theme;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -12,9 +13,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use App\Constant\AlertConst;
-use Symfony\Component\Translation\LocaleFallbackProvider;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 final class PhotoController extends AbstractController
@@ -28,6 +26,7 @@ final class PhotoController extends AbstractController
         Request $request,
         SluggerInterface $slugger,
         #[Autowire('%kernel.project_dir%/public/uploads/themes')] string $photoFileDirectory,
+        LoggerInterface $logger,
 
     ): Response
     {
@@ -59,13 +58,13 @@ final class PhotoController extends AbstractController
         $safeFilename = $slugger->slug($originalFilename);
         $newFilename = sprintf('%s-%s.%s', $safeFilename, uniqid(), $file->guessExtension());
 
-        // 5. Déplacement du fichier
         try {
             $file->move(
                 $photoFileDirectory.'/'.$infoTheme->getDirectoryName(),
                 $newFilename
             );
         } catch (FileException $e) {
+            $logger->error($e->getMessage());
             return $this->json(['error' => 'Erreur lors de l\'enregistrement du fichier'], 500);
         }
 

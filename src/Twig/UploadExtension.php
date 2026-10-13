@@ -24,8 +24,12 @@ class UploadExtension
     #[AsTwigFunction('getAvatar')]
     public function getAvatar() {
         $user = $this->security->getUser();
+        $avatar = $user->getAvatar();
+        if (!$avatar) {
+            $avatar = "default.jpg";
+        }
 
-        return self::UPLOADS_DIR['avatars'] ."/".$user->getAvatar();
+        return self::UPLOADS_DIR['avatars'] ."/".$avatar;
 
     }
 
@@ -47,6 +51,7 @@ class UploadExtension
 
         return [
             'image' =>self::UPLOADS_DIR['themes'] ."/".$actualTheme->getDirectoryName()."/".$hasPhoto->getName(),
+            'isVisible' => $hasPhoto->isVisible(),
             'vote' => count($hasPhoto->getVotes())
         ];
     }

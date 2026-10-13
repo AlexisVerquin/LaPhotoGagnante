@@ -15,11 +15,7 @@
 {% block body %}
     <div
         class="container py-5"
-        data-controller="alert"
-        data-alert-flashes-value="{{ flashList|json_encode|e('html_attr') }}"
-        data-action="vote:success@window->alert#success vote:error@window->alert#error"
     >
-        <div data-alert-target="container" class="position-fixed top-0 end-0 p-3" style="z-index: 1080; min-width: 320px;"></div>
         {% if actualTheme %}
             <div class="text-center mb-5">
             <span class="hero-eyebrow mb-3">
@@ -64,18 +60,21 @@
                                      data-vote-csrf-value="{{ csrf_token('vote-photo-theme') }}"
                                      data-vote-url-value="{{ path('app_vote') }}"
                                 >
-                                    <button
-                                        type="button"
-                                        class="vote-heart {% if voteUser and photo.id == voteUser.photo.id %}is-voted{% endif %}"
-                                        data-vote-target="button"
-                                        data-countdown-target="voteGallery"
-                                        data-action="click->vote#submitVote"
-                                        aria-pressed="{% if voteUser %}{{  photo.id == voteUser.photo.id ? 'true' : 'false' }}{% endif %}"
-                                        aria-label="Voter pour la photo de {{ photo.user.name }}"
-                                    >
-                                        <i class="bi bi-heart-fill vote-heart-icon"></i>
-                                        <span class="vote-heart-count" data-vote-target="count">{{ photo.votes|length }}</span>
-                                    </button>
+                                    {% if enableVote %}
+                                        <button
+                                            type="button"
+                                            class="vote-heart {% if voteUser and photo.id == voteUser.photo.id %}is-voted{% endif %}"
+                                            data-vote-target="button"
+                                            data-countdown-target="voteGallery"
+                                            data-action="click->vote#submitVote"
+                                            aria-pressed="{% if voteUser %}{{  photo.id == voteUser.photo.id ? 'true' : 'false' }}{% endif %}"
+                                            aria-label="Voter pour la photo de {{ photo.user.name }}"
+                                        >
+                                            <i class="bi bi-heart-fill vote-heart-icon"></i>
+                                            <span class="vote-heart-count" data-vote-target="count">{{ photo.votes|length }}</span>
+                                        </button>
+                                    {% endif %}
+
                                 </div>
                             </div>
                         </div>

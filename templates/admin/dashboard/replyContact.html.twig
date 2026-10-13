@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Administration{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+
+
+        <div class="mb-4">
+            <span class="hero-eyebrow mb-2">
+                <i class="bi bi-speedometer2"></i> Espace admin
+            </span>
+            <h1 class="hero-title-v2 mt-2 h2">Contact</h1>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-12">
+                <div class="section-card p-4 p-md-5">
+                    <div class="form-section-title mb-0">
+                        <span class="form-section-icon icon-security">
+                            <i class="bi bi-stars"></i>
+                        </span>
+                        Message de {{ contact.email }}
+                    </div>
+                    <p class="h5 mt-3 mb-0 fst-italic">
+                        {{ contact.message }}
+                    </p>
+                </div>
+                <div class="section-card p-4 p-md-5 mt-4">
+                    <div class="form-section-title mb-0">
+                        <span class="form-section-icon icon-security">
+                            <i class="bi bi-stars"></i>
+                        </span>
+                        Repondre a {{ contact.email }}
+                    </div>
+                    <form method="post">
+                        <div class="h5 mt-3 mb-0">
+                            <label for="message">Message : </label>
+                            <textarea name="reply[message]" id="message" cols="30" rows="10" class="form-control" placeholder="saisir la réponse"></textarea>
+                            <input type="hidden" value="{{ contact.id }}" name="reply[id]" />
+                            <input type="hidden" value="{{ csrf_token('reply_contact_'~contact.id) }}" name="reply[csrf]" />
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary">Envoyer</button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+        {# ---------- MESSAGES DE CONTACT ---------- #}
+
+    </div>
+{% endblock %}

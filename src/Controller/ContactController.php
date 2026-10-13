@@ -21,7 +21,13 @@ final class ContactController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $contact->setCreatedAtValue();
+            $contact
+                ->setCreatedAtValue();
+
+            $contact
+                ->setType(Contact::TYPE_CONTACT)
+                ->setOrigin(0)
+            ;
             $this->addFlash('success', 'formulaire validé !');
             $entityManager->persist($contact);
             $entityManager->flush();

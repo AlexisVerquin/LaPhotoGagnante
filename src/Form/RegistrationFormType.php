@@ -13,6 +13,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotCompromisedPassword;
+use Symfony\Component\Validator\Constraints\PasswordStrength;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class RegistrationFormType extends AbstractType
@@ -39,17 +41,22 @@ class RegistrationFormType extends AbstractType
             ->add('plainPassword', PasswordType::class, [
                 'label' => 'form.label.password',
                 'mapped' => false,
-                'attr' => ['autocomplete' => 'new-password'],
+                'attr' => [
+                    'autocomplete' => 'new-password',
+                    'data-action' => 'change->password#strength'
+                ],
                 'constraints' => [
                     new NotBlank(
-                        message: 'form.constraint.password-empty',
+                        message: 'Please enter a password',
                     ),
                     new Length(
-                        min: 6,
+                        min: 8,
                         max: 4096,
                         // max length allowed by Symfony for security reasons
-                        minMessage: $this->translator->trans('form.constraint.aggree-password.min', ['limit' => '6'], 'messages'),
+                        minMessage: 'Your password should be at least {{ limit }} characters',
                     ),
+                    new PasswordStrength(),
+                    new NotCompromisedPassword(),
                 ],
             ])
         ;
@@ -59,6 +66,9 @@ class RegistrationFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => User::class,
+            'attr' => [
+                'data-controller' => 'password',
+            ]
         ]);
     }
 }

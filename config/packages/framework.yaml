@@ -5,6 +5,10 @@ framework:
     # Note that the session will be started ONLY if you read or write from it.
     session: true
 
+    http_method_override: true
+    # Only allow PUT, PATCH, and DELETE to be overridden
+    allowed_http_method_override: ['DELETE']
+
     #esi: true
     #fragments: true
 

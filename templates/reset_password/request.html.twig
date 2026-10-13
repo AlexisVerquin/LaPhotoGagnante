@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Reset your password{% endblock %}
+
+{% block body %}
+    <div class="container" data-controller="forgetpass">
+        <div class="row justify-content-center min-vh-100 py-5 mt-5">
+            <div class="col-11 col-sm-9 col-md-7 col-lg-5">
+                <div class="card register-card p-4 p-md-5">
+
+                    <div class="text-center mb-4">
+                        <div
+                            class="d-inline-flex align-items-center justify-content-center rounded-circle register-icon mb-3">
+                            <i class="bi bi-camera-fill fs-3"></i>
+                        </div>
+                        <h1 class="h3 mb-1">Mot de passe oublié</h1>
+                        <p class="text-muted small mb-0"></p>
+                    </div>
+
+                    {% for flash_error in app.flashes('reset_password_error') %}
+                        <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
+                    {% endfor %}
+
+                    {{ form_start(requestForm) }}
+                        {{ form_row(requestForm.email) }}
+                        <div>
+                            <small>
+                                Saisissez votre adresse e-mail, et nous vous enverrons un
+                                lien pour réinitialiser votre mot de passe.
+                            </small>
+                        </div>
+                        <div class="d-flex justify-content-center mt-2">
+                            <button class="btn btn-fun mt-2">Envoyer l'Email de réinitialisation</button>
+                        </div>
+
+                    {{ form_end(requestForm) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

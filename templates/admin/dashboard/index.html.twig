@@ -1,57 +1,184 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Accueil{% endblock %}
+{% block title %}Administration{% endblock %}
 
 {% block body %}
     <div class="container py-5">
-        <h1>test</h1>
+        <div class="mb-4">
+            <span class="hero-eyebrow mb-2">
+                <i class="bi bi-speedometer2"></i> Espace admin
+            </span>
+            <h1 class="hero-title-v2 mt-2 h2">Tableau de bord</h1>
+        </div>
+
         <div class="row g-4">
+            {# ---------- SONDAGE EN COURS ---------- #}
             <div class="col-lg-4">
-                <div class="section-card p-4 p-md-5">
-                    <h2>Sondage en cours : </h2>
+                <div class="section-card p-4 p-md-5 h-100 d-flex flex-column">
+                    <div class="form-section-title">
+                        <span class="form-section-icon icon-info">
+                            <i class="bi bi-bar-chart-fill"></i>
+                        </span>
+                        Sondage en cours
+                    </div>
+
                     {% if survey %}
-                        {{ survey.name }}
+                        <p class="fw-bold mb-3">{{ survey.name }}</p>
+
+                        <div class="d-flex flex-column gap-2 mb-4">
+                            {% for theme in survey.surveyChoices %}
+                                <div class="d-flex align-items-center justify-content-between p-2 px-3"
+                                     style="background: white; border-radius: .75rem; border: 2px solid #EFEAE0;">
+                                    <span>{{ theme.name }}</span>
+                                    <span class="badge-today">{{ theme.numberVoter }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
                     {% else %}
-                        aucun sondage en cour
+                        <p class="text-muted mb-4">Aucun sondage en cours pour le moment.</p>
                     {% endif %}
-                    <div class="d-flex gap-2 justify-content-end mt-5" data-controller="modal">
-                        <a
-                            class="btn btn-fun px-4"
-                            href="{{ path("admin_manage_survey") }}"
-                        >
+
+                    <div class="d-flex gap-2 justify-content-end mt-auto" data-controller="modal">
+                        <a class="btn btn-fun px-4" href="{{ path('admin_manage_survey') }}">
                             <i class="bi bi-check2 me-1"></i>Ajouter un sondage
                         </a>
                     </div>
                 </div>
-
             </div>
+
+            {# ---------- THEME EN COURS + PHOTOS A VALIDER ---------- #}
             <div class="col-lg-8">
+                {% if getCurrentTheme() %}
                 <div class="section-card p-4 p-md-5">
-                    <h2>Theme en cour : </h2>
+                    <div class="form-section-title mb-0">
+                        <span class="form-section-icon icon-security">
+                            <i class="bi bi-stars"></i>
+                        </span>
+                        Thème en cours
+                    </div>
+                    <p class="h5 mt-3 mb-0">
+
+                            <span class="text-decoration-underline" style="color: var(--grape);">
+                                {{ getCurrentTheme().themeChoice.name ?? '' }}
+                            </span>
+
+                    </p>
+                </div>
+                {% else %}
+                    <div class="section-card p-4 p-md-5">
+                        <div class="form-section-title mb-0">
+                        <span class="form-section-icon icon-security">
+                            <i class="bi bi-stars"></i>
+                        </span>
+                            Thème disponible
+                        </div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Nombre de votes</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for theme in themes %}
+                                    <tr>
+                                        <td>{{ theme.name }}</td>
+                                        <td>{{ theme.numberVoter }}</td>
+                                        <td>
+                                            <form action="{{ path('admin_theme_enable', {id: theme.id}) }}" method="post">
+                                                <input type="hidden" name="id" value="{{ theme.id }}" />
+                                                <input type="hidden" name="_token" value="{{ csrf_token('csrf-token-'~theme.id) }}" />
+                                                <button type="submit">Charger</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+                <div class="section-card p-4 p-md-5 mt-4">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <div class="form-section-title mb-0">
+                            <span class="form-section-icon icon-info">
+                                <i class="bi bi-images"></i>
+                            </span>
+                            Photos à valider
+                        </div>
+                        {% if photosNotVisible|length > 0 %}
+                            <span class="badge-today">{{ photosNotVisible|length }} en attente</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="row g-4">
+                        {% for photo in photosNotVisible %}
+                            <div class="col-md-6 col-lg-4">
+                                <div class="polaroid-no-rotate p-3">
+                                    <div class="text-center mb-2 fw-bold">
+                                        {{ photo.title ?? 'Sans titre' }}
+                                    </div>
+                                    <img class="rounded w-100 mb-2"
+                                         style="aspect-ratio: 4/5; object-fit: cover;"
+                                         src="{{ asset(getPathCurrentTheme() ~ photo.name) }}"
+                                         alt="{{ photo.title ?? 'Photo en attente de validation' }}">
+                                    <p class="text-muted small text-center mb-3">
+                                        {{ photo.description ?? 'Pas de description' }}
+                                    </p>
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <a
+                                            class="btn-vote"
+                                            data-turbo-prefetch="false"
+                                            href="{{ path('app_admin_photo_accept', {id: photo.id}) }}"
+                                            aria-label="{{ 'Valider'|trans }}"
+                                        >
+                                            <twig:ux:icon name="lucide:circle-check-big" />
+                                        </a>
+                                        <a
+                                            class="btn-vote d-flex justify-content-center align-items-center"
+                                            style="border-color: var(--coral); color: var(--coral);"
+                                            href="#"
+                                            data-turbo-prefetch="false"
+                                            aria-label="{{ 'Supprimer'|trans }}"
+                                        >
+                                            <twig:ux:icon name="lucide:trash" />
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="col-12">
+                                <p class="text-muted text-center mb-0">
+                                    Pas de photo en attente de validation.
+                                </p>
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="row g-4">
-            <table class="table mt-5">
-                <thead>
-                    <tr>
-                        <th scope="col" class="w-25">Email</th>
-                        <th scope="col" class="w-75">Message</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for contact in contacts %}
-                        <tr>
-                            <td>{{ contact.email }}</td>
-                            <td>{{ contact.message }}</td>
-                        </tr>
-                    {% else %}
-                        <p>pas de nouveau message</p>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <twig:ux:icon name="lucide:bell" />
-    </div>
 
+        {# ---------- MESSAGES DE CONTACT ---------- #}
+        <div class="section-card p-4 p-md-5 mt-4">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div class="form-section-title mb-0 d-flex justify-content-between w-100">
+                    <div class="d-flex gap-2 align-items-center">
+                        <span class="form-section-icon icon-security">
+                            <twig:ux:icon name="lucide:bell" />
+                        </span>
+                        Messages reçus
+                    </div>
+
+                </div>
+                {% if contacts|length > 0 %}
+                    <span class="badge-today text-center" style="width: 150px">{{ contacts|length }} nouveau{{ contacts|length > 1 ? 'x' : '' }}</span>
+                {% endif %}
+            </div>
+
+            {% include 'admin/dashboard/partials/_table_contact.html.twig' %}
+            <div class="d-flex gap-2 align-items-center justify-content-end mt-4">
+                <a href="{{ path('admin_contact_all') }}" class="btn btn-outline-secondary">Voir tous les messages</a>
+            </div>
+        </div>
+    </div>
 {% endblock %}

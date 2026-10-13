@@ -69,15 +69,15 @@
                                     <a class="text-primary-emphasis" href="{{ path('admin_manage_survey', {'id': survey.id}) }}">
                                         <twig:ux:icon name="lucide:edit-3" />
                                     </a>
-                                    <div class="admin-box-theme-remove">
-                                        <form action="{{ path('admin_manage_survey_delete', {'id': survey.id}) }}" method="post" onsubmit="return confirm('Supprimer ce sondage ?');">
-                                            <input type="hidden" name="_method" value="DELETE">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('delete-survey-' ~ survey.id) }}">
-                                            <button type="submit" class="p-0 border-0">
-                                                <twig:ux:icon name="lucide:trash-2" />
-                                            </button>
-                                        </form>
-                                    </div>
+{#                                    <div class="admin-box-theme-remove">#}
+{#                                        <form action="{{ path('admin_manage_survey_delete', {'id': survey.id}) }}" method="post" onsubmit="return confirm('Supprimer ce sondage ?');">#}
+{#                                            <input type="hidden" name="_method" value="DELETE">#}
+{#                                            <input type="hidden" name="_token" value="{{ csrf_token('delete-survey-' ~ survey.id) }}">#}
+{#                                            <button type="submit" class="p-0 border-0">#}
+{#                                                <twig:ux:icon name="lucide:trash-2" />#}
+{#                                            </button>#}
+{#                                        </form>#}
+{#                                    </div>#}
                                 </td>
                             </tr>
                         {% else %}

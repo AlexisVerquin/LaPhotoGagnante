@@ -42,6 +42,9 @@ class Theme
     #[ORM\OneToMany(targetEntity: Vote::class, mappedBy: 'theme')]
     private Collection $votes;
 
+    #[ORM\Column]
+    private ?bool $isAlreadyActived = null;
+
     public function __construct()
     {
         $this->photos = new ArrayCollection();
@@ -169,6 +172,18 @@ class Theme
                 $vote->setTheme(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isAlreadyActived(): ?bool
+    {
+        return $this->isAlreadyActived;
+    }
+
+    public function setIsAlreadyActived(bool $isAlreadyActived): static
+    {
+        $this->isAlreadyActived = $isAlreadyActived;
 
         return $this;
     }

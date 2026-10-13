@@ -42,8 +42,10 @@ final class MainController extends AbstractController
         $nbThemes = $this->em->getRepository(Theme::class)->count();
 
         $totalVote = 0;
-        foreach ($activeSurvey->getSurveyChoices() as $survey) {
-            $totalVote += $survey->getNumberVoter();
+        if ($activeSurvey) {
+            foreach ($activeSurvey->getSurveyChoices() as $survey) {
+                $totalVote += $survey->getNumberVoter();
+            }
         }
 
         $lastTheme = $themeRepository->findLastFinishedTheme();
@@ -72,6 +74,7 @@ final class MainController extends AbstractController
             'nbUsers' => $nbUsers ?? 0,
             'nbVotes' => $nbVotes ?? 0,
             'nbThemes' => $nbThemes ?? 0,
+            'allThemes' => $themeRepository->findAll(),
         ]);
     }
 
@@ -89,9 +92,18 @@ final class MainController extends AbstractController
             }
         }
 
+        $dateForEnableVote = clone $actualTheme->getDateEnd();
+        $dateForEnableVote->modify('-6 day');
+        $today = new \DateTime();
+        $enableVote = true;
+        if ($dateForEnableVote->format('Y-m-d') > $today->format('Y-m-d')) {
+            $enableVote = false;
+        }
+
         return $this->render('main/gallery.html.twig', [
             'actualTheme' => $actualTheme,
             'voteUser' => $voteUser,
+            'enableVote' => $enableVote,
         ]);
     }
 
@@ -198,7 +210,8 @@ final class MainController extends AbstractController
     {
         //dump(app.request.attributes.parameters)
         $photo = $this->em->getRepository(Photo::class)->find($request->request->get('photoId'));
-       dd( $request->attributes);
+        $actualTheme = $this->em->getRepository(Theme::class)->findActualTheme();
+
 
         if (!$this->getUser()) {
             $cartUrl = $this->generateUrl('app_login');
@@ -212,6 +225,19 @@ final class MainController extends AbstractController
                 ], 200
             );
         }
+
+        $dateForEnableVote = clone $actualTheme->getDateEnd();
+        $dateForEnableVote->modify('-6 day');
+        $today = new \DateTime();
+        if ($dateForEnableVote->format('Y-m-d') > $today->format('Y-m-d')) {
+            return $this->json(
+                [
+                    'success' => false,
+                    'message' => "Les votes seront activé le ".$dateForEnableVote->format('d-m-Y')
+                ], 200
+            );
+        }
+
 
         if (!$photo) {
             return $this->json(['success' => false, 'message' => 'Photo introuvable'], 404);
@@ -259,5 +285,17 @@ final class MainController extends AbstractController
             'oldPhotoId' => $oldPhotoId,
             'oldVoteCount' => $oldPhotoId ? $voteRepo->count(['photo' => $oldPhotoId]) : null,
         ]);
+    }
+
+    #[Route('/cgu', name: 'app_cgu')]
+    public function cgu(): Response {
+
+        return $this->render('main/cgu.html.twig');
+    }
+
+    #[Route('/rgpd', name: 'app_rgpd')]
+    public function rgpd(): Response {
+
+        return $this->render('main/rgpd.html.twig');
     }
 }

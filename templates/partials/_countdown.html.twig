@@ -3,6 +3,7 @@
     data-controller="countdown"
     data-countdown-end-date-value="{{ getCurrentThemeTime()['themeEnd']|date('c') }}"
     data-countdown-vote-end-date-value="{{ getCurrentThemeTime()['enableVote']|date('c') }}"
+    data-countdown-gallery-url-value="{{ path('app_gallery') }}"
 >
     <div
         class="countdown-panel p-4 p-md-5 h-100 d-flex flex-column justify-content-center position-relative">

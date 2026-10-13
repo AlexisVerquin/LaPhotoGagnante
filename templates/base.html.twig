@@ -2,9 +2,9 @@
 {% for type, messages in app.flashes %}
     {% for message in messages %}
         {% set flashList = flashList|merge([{ type: type, message: message }]) %}
+
     {% endfor %}
 {% endfor %}
-
 {% set subscriptionChangeUrl = (app.user) ? 'app_user_manage' : 'app_register' %}
 
 <!DOCTYPE html>
@@ -21,6 +21,9 @@
         {% block stylesheets %}
         {% endblock %}
 
+        <script src="{{ asset('bundles/fosjsrouting/js/router.min.js') }}"></script>
+        <script src="{{ path('fos_js_routing_js', {callback: 'fos.Router.setData'}) }}"></script>
+
         {% block javascripts %}
             {% block importmap %}{{ importmap('app') }}{% endblock %}
         {% endblock %}
@@ -34,11 +37,12 @@
     </head>
     <body
         data-controller="modal uploadfile alert countdown"
-
         data-alert-flashes-value="{{ flashList|json_encode|e('html_attr') }}"
         data-action="uploadfile:success->modal#close"
+        data-action="vote:success@window->alert#success vote:error@window->alert#error"
     >
         <div class="container-fluid m-0 p-0">
+            <div data-alert-target="container" class="position-fixed mb-2 bottom-0 end-0 p-3" style="z-index: 1080; min-width: 320px;"></div>
             {% include
                 'partials/_navbar.html.twig'
                 with {'hide_auth_actions': app.request.attributes.get('_route') in ['app_login', 'app_register']}
@@ -73,7 +77,12 @@
                             >
                             {% if getPhotoCurrentTheme() %}
                                 <span class="d-inline-flex gap-1 text-coral fw-bold mt-3" style="color: var(--coral);">
-                                    <i class="bi bi-heart-fill"></i> {{ getPhotoCurrentTheme()['vote'] }}
+                                    {% if getPhotoCurrentTheme()['isVisible'] %}
+                                        <i class="bi bi-heart-fill"></i> {{ getPhotoCurrentTheme()['vote'] }}
+                                    {% else %}
+                                        <p>Votre photo est en attente de vérification</p>
+                                    {% endif %}
+
                                 </span>
                             {% endif %}
 

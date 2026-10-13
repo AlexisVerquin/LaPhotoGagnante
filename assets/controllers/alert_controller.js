@@ -1,11 +1,25 @@
 // assets/controllers/alert_controller.js
 import { Controller } from '@hotwired/stimulus';
 
+
 export default class extends Controller {
     static targets = ['container'];
     static values = {
-        timeout: { type: Number, default: 5000 }
+        timeout: { type: Number, default: 5000 },
+        flashes: Array
     };
+
+
+
+    connect() {
+        if (!this.flashesValue) {
+            return;
+        }
+        this.flashesValue.forEach((index) => {
+            this.show(index.type, index.message)
+        })
+
+    }
 
     success(event) {
         this.show('success', event.detail.message);

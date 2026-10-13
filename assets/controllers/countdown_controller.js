@@ -11,6 +11,7 @@ export default class extends Controller {
     static values = {
         endDate: String,
         voteEndDate: String,
+        galleryUrl: String
     };
 
     connect() {
@@ -70,7 +71,6 @@ export default class extends Controller {
             }
             if (this.hasGalleryButtonTarget) this.galleryButtonTarget.textContent = 'Voir la galerie';
             this.voteState(false);
-            console.log(diffVote, 'pasencore');
             this.setDigits({
                 days: this.hasVoteDaysTarget ? this.voteDaysTarget : null,
                 hours: this.hasVoteHoursTarget ? this.voteHoursTarget : null,
@@ -89,7 +89,7 @@ export default class extends Controller {
             if (!this.voteButtonAdded && this.hasVoteStripTarget) {
                 const btnVotes = document.createElement('a');
                 btnVotes.classList.add('btn-vote-unlock');
-                btnVotes.href = '#';
+                btnVotes.href = this.galleryUrlValue;
                 btnVotes.innerHTML = '<i class="bi bi-hand-thumbs-up-fill"></i> Voir la galerie et voter';
                 this.voteStripTarget.appendChild(btnVotes);
                 this.voteButtonAdded = true;
@@ -111,7 +111,6 @@ export default class extends Controller {
                 elm.classList.add("d-none");
                 elm.classList.remove("d-flex");
             }
-            console.log(isActive)
         });
     }
 }

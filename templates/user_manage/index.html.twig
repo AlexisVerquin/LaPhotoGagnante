@@ -27,33 +27,51 @@
                     </div>
 
                     <h1 class="h5 mt-5 mb-1">{{ app.user.name }}</h1>
-                    <p class="text-muted small mb-1">
-                        <i class="bi bi-geo-alt-fill me-1"></i>{{ app.user.city }}
-                    </p>
-                    <p class="text-muted small mb-4">Membre depuis mars 2024</p>
+                    {% if app.user.city %}
+                        <p class="text-muted small mb-1">
+                            <i class="bi bi-geo-alt-fill me-1"></i>{{ app.user.city }}
+                        </p>
+                    {% endif %}
+                    <p class="text-muted small mb-4">Membre depuis le {{ app.user.createdAt|date('d/m/Y') }}</p>
 
-                    <div class="d-flex gap-2">
-                        <div class="profile-mini-stat">
-                            <span class="num">14</span>
-                            <span class="small text-muted">Photos</span>
-                        </div>
-                        <div class="profile-mini-stat">
-                            <span class="num">2</span>
-                            <span class="small text-muted">Victoires</span>
-                        </div>
-                        <div class="profile-mini-stat">
-                            <span class="num">312</span>
-                            <span class="small text-muted">Votes reçus</span>
-                        </div>
-                    </div>
+{#                    <div class="d-flex gap-2">#}
+{#                        <div class="profile-mini-stat">#}
+{#                            <span class="num">14</span>#}
+{#                            <span class="small text-muted">Photos</span>#}
+{#                        </div>#}
+{#                        <div class="profile-mini-stat">#}
+{#                            <span class="num">2</span>#}
+{#                            <span class="small text-muted">Victoires</span>#}
+{#                        </div>#}
+{#                        <div class="profile-mini-stat">#}
+{#                            <span class="num">312</span>#}
+{#                            <span class="small text-muted">Votes reçus</span>#}
+{#                        </div>#}
+{#                    </div>#}
                 </div>
             </div>
 
             {# ---------- COLONNE FORMULAIRE ---------- #}
             <div class="col-lg-8">
                 <div class="section-card p-4 p-md-5">
-                    <h2 class="h4 mb-1">Paramètres du compte</h2>
-                    <p class="text-muted small mb-4">Gérez vos informations personnelles et votre sécurité.</p>
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h2 class="h4 mb-1">Paramètres du compte</h2>
+                            <p class="text-muted small mb-4">Gérez vos informations personnelles et votre sécurité.</p>
+                        </div>
+                        <div>
+                            <a
+                                data-turbo-prefetch="false"
+                                class="logout"
+                                href="{{ path('app_logout') }}"
+                                aria-label="{{ 'Se déconnecter'|trans }}"
+                                title="{{ 'Se déconnecter'|trans }}"
+                            >
+                                <twig:ux:icon name="mdi:power" aria-hidden="true" />
+                            </a>
+                        </div>
+                    </div>
+
 
                     {{ form_start(formUser) }}
 
@@ -72,15 +90,11 @@
                                 {{ form_label(formUser.city) }}
                                 {{ form_widget(formUser.city, {'attr': {'class' : 'form-control form-control-fun'}, 'label_attr': { 'class' : 'form-label fw-bold small'}}) }}
                             </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <div class="alert alert-info" role="alert">
-                                {{ 'message.change-mail.info'|trans }}
+                            <div class="col-md-12">
+                                {{ form_label(formUser.email) }}
+                                {{ form_widget(formUser.email, {'attr': {'class' : 'form-control form-control-fun'}, 'label_attr': { 'class' : 'form-label fw-bold small'}}) }}
+                                <div class="form-hint mt-1">Une confirmation vous sera envoyée si vous modifiez cette adresse.</div>
                             </div>
-{#                            {{ form_label(formUser.email) }}#}
-{#                            {{ form_widget(formUser.email, {'attr': {'class' : 'form-control form-control-fun'}, 'label_attr': { 'class' : 'form-label fw-bold small'}}) }}#}
-{#                            <div class="form-hint mt-1">Une confirmation vous sera envoyée si vous modifiez cette adresse.</div>#}
                         </div>
 
                         <hr class="form-section-divider">
@@ -111,9 +125,6 @@
                         <hr class="form-section-divider">
 
                         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
-                            <a href="{{ path('app_delete_user') }}" class="text-decoration-none small text-muted">
-                                <i class="bi bi-trash3 me-1"></i>Supprimer mon compte
-                            </a>
                             <div class="d-flex gap-2">
                                 <button type="reset" class="btn btn-outline-fun px-4">Annuler</button>
                                 <button type="submit" class="btn btn-fun px-4">
@@ -123,6 +134,26 @@
                         </div>
 
                     {{ form_end(formUser) }}
+                </div>
+                <div class="section-card p-4 p-md-5 mt-5">
+                    <h2 class="h4 mb-1">Suppression du compte</h2>
+                    <div class="alert alert-danger my-3">
+                        <p>
+                            En supprimant votre compte, toutes les données vous concernant seront immédiatement supprimées.
+                            <br>
+                            <br>
+                            Si vous avez remporté un concours et que vous souhaitez rester identifié comme gagnant, mais supprimer votre compte, merci de nous contacter pour une suppression manuelle de vos données.
+                        </p>
+                    </div>
+
+                    <form action="{{ path('app_delete_user') }}" method="post" onsubmit="return confirm('Voulez vous vraiment supprimer votre compte?');">
+                        <input type="hidden" name="_method" value="DELETE" />
+                        <input type="hidden" name="id" value="{{ app.user.id }}" />
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete-user-'~app.user.id) }}" />
+                        <button type="submit" class="text-decoration-none small btn btn-danger">
+                            <i class="bi bi-trash3 me-1"></i>Supprimer mon compte
+                        </button>
+                    </form>
                 </div>
             </div>
 

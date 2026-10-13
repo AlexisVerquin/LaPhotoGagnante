@@ -11,6 +11,9 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ContactRepository::class)]
 class Contact implements DateInterface
 {
+    const TYPE_REPLY = 'reply';
+    const TYPE_CONTACT = 'contact';
+
     use DateTrait;
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -28,6 +31,12 @@ class Contact implements DateInterface
 
     #[ORM\Column]
     private ?bool $isView = false;
+
+    #[ORM\Column]
+    private ?int $origin = null;
+
+    #[ORM\Column(length: 10)]
+    private ?string $type = null;
 
     public function getId(): ?int
     {
@@ -78,6 +87,30 @@ class Contact implements DateInterface
     public function setIsView(bool $isView): static
     {
         $this->isView = $isView;
+
+        return $this;
+    }
+
+    public function getOrigin(): ?int
+    {
+        return $this->origin;
+    }
+
+    public function setOrigin(int $origin): static
+    {
+        $this->origin = $origin;
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): static
+    {
+        $this->type = $type;
 
         return $this;
     }
