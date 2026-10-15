@@ -1,11 +1,12 @@
 <?php
+
 // src/EventSubscriber/LocaleSubscriber.php
 
 namespace App\EventSubscriber;
 
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class LocaleSubscriber implements EventSubscriberInterface
 {
@@ -25,6 +26,7 @@ class LocaleSubscriber implements EventSubscriberInterface
 
         if ($locale = $request->getSession()->get('_locale')) {
             $request->setLocale($locale);
+
             return;
         }
 

@@ -5,12 +5,11 @@
 {% set url = "[www.site.com](http://www.site.com)" %}
 {% set name = "PhotoPrix" %}
 
-{% block body %} <div class="container py-5">
-
-    ```
+{% block body %}
+<div class="container py-5">
     <div class="mb-5 text-center">
         <span class="hero-eyebrow mb-3">
-            <i class="bi bi-shield-lock"></i> Document légal
+            <i class="bi bi-shield-lock" aria-hidden="true"></i> Document légal
         </span>
         <h1 class="hero-title-v2 h2 mt-3 mb-1">Politique de confidentialité</h1>
         <p class="text-muted mb-0">Dernière mise à jour : 01/10/2026</p>
@@ -21,9 +20,9 @@
         {# ---------- SOMMAIRE ---------- #}
         <div class="col-lg-4">
             <div class="section-card p-4 p-md-5" style="position: sticky; top: 2rem;">
-                <div class="form-section-title">
+                <div class="form-section-title" role="heading" aria-level="2">
                     <span class="form-section-icon icon-info">
-                        <i class="bi bi-list-ul"></i>
+                        <i class="bi bi-list-ul" aria-hidden="true"></i>
                     </span>
                     Sommaire
                 </div>
@@ -124,7 +123,7 @@
 
                 {# ---------- 1. RESPONSABLE DE TRAITEMENT ---------- #}
                 <div id="responsable-de-traitement" class="mb-5">
-                    <h3 class="h5 mb-3">1. Responsable de traitement</h3>
+                    <h2 class="h5 mb-3">1. Responsable de traitement</h2>
 
                     <p class="text-muted">
                         Le responsable du traitement des données personnelles collectées sur
@@ -143,7 +142,7 @@
                                 Contact :
                             </span>
                             <a href="mailto:alexis.verquin@gmail.com"
-                               style="color: var(--grape);">
+                               style="color: #5b3b9e;">
                                 alexis.verquin@gmail.com
                             </a>
                         </li>
@@ -166,7 +165,7 @@
 
                 {# ---------- 2. DONNÉES COLLECTÉES ---------- #}
                 <div id="donnees-collectees" class="mb-5">
-                    <h3 class="h5 mb-3">2. Données collectées</h3>
+                    <h2 class="h5 mb-3">2. Données collectées</h2>
 
                     <p class="text-muted">
                         Dans le cadre de l'utilisation du Site, nous collectons les données
@@ -175,11 +174,12 @@
 
                     <div class="table-responsive">
                         <table class="table align-middle">
+                            <caption class="visually-hidden">Données personnelles collectées et leur caractère obligatoire</caption>
                             <thead>
                             <tr>
-                                <th>Donnée</th>
-                                <th>Obligatoire</th>
-                                <th>Finalité</th>
+                                <th scope="col">Donnée</th>
+                                <th scope="col">Obligatoire</th>
+                                <th scope="col">Finalité</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -233,14 +233,15 @@
 
                 {# ---------- 3. FINALITÉS ET BASES LÉGALES ---------- #}
                 <div id="finalites-bases-legales" class="mb-5">
-                    <h3 class="h5 mb-3">3. Finalités et bases légales du traitement</h3>
+                    <h2 class="h5 mb-3">3. Finalités et bases légales du traitement</h2>
 
                     <div class="table-responsive">
                         <table class="table align-middle">
+                            <caption class="visually-hidden">Finalités des traitements et bases légales</caption>
                             <thead>
                             <tr>
-                                <th>Finalité</th>
-                                <th>Base légale</th>
+                                <th scope="col">Finalité</th>
+                                <th scope="col">Base légale</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -274,7 +275,7 @@
 
                 {# ---------- 4. EMAILS ---------- #}
                 <div id="emails-notifications" class="mb-5">
-                    <h3 class="h5 mb-3">4. Emails et notifications</h3>
+                    <h2 class="h5 mb-3">4. Emails et notifications</h2>
 
                     <p class="text-muted">
                         Votre adresse email est utilisée uniquement pour :
@@ -307,7 +308,7 @@
 
                 {# ---------- 5. COOKIES ---------- #}
                 <div id="cookies" class="mb-5">
-                    <h3 class="h5 mb-3">5. Cookies et traceurs</h3>
+                    <h2 class="h5 mb-3">5. Cookies et traceurs</h2>
 
                     <p class="text-muted">
                         Le Site n'utilise
@@ -335,14 +336,15 @@
 
                 {# ---------- 6. DURÉES ---------- #}
                 <div id="durees-conservation" class="mb-5">
-                    <h3 class="h5 mb-3">6. Durées de conservation</h3>
+                    <h2 class="h5 mb-3">6. Durées de conservation</h2>
 
                     <div class="table-responsive">
                         <table class="table align-middle">
+                            <caption class="visually-hidden">Durées de conservation des données</caption>
                             <thead>
                             <tr>
-                                <th>Donnée</th>
-                                <th>Durée de conservation</th>
+                                <th scope="col">Donnée</th>
+                                <th scope="col">Durée de conservation</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -387,7 +389,7 @@
 
                 {# ---------- 7. DESTINATAIRES ---------- #}
                 <div id="destinataires" class="mb-5">
-                    <h3 class="h5 mb-3">7. Destinataires des données</h3>
+                    <h2 class="h5 mb-3">7. Destinataires des données</h2>
 
                     <p class="text-muted">
                         Vos données ne sont accessibles qu'à l'éditeur du Site, dans le cadre
@@ -414,7 +416,7 @@
 
                 {# ---------- 8. HÉBERGEMENT ---------- #}
                 <div id="hebergement-securite" class="mb-5">
-                    <h3 class="h5 mb-3">8. Hébergement et sécurité</h3>
+                    <h2 class="h5 mb-3">8. Hébergement et sécurité</h2>
 
                     <ul class="text-muted">
                         <li>
@@ -443,7 +445,7 @@
 
                 {# ---------- 9. VOS DROITS ---------- #}
                 <div id="vos-droits" class="mb-5">
-                    <h3 class="h5 mb-3">9. Vos droits</h3>
+                    <h2 class="h5 mb-3">9. Vos droits</h2>
 
                     <p class="text-muted">
                         Conformément au RGPD, vous disposez des droits suivants sur vos données
@@ -490,7 +492,7 @@
                         </li>
                     </ul>
 
-                    <h4 class="h6 mt-4 mb-3">Comment exercer vos droits</h4>
+                    <h3 class="h6 mt-4 mb-3">Comment exercer vos droits</h3>
 
                     <p class="text-muted">
                         <span class="fw-bold" style="color: var(--ink);">
@@ -505,7 +507,7 @@
                         limitation ou portabilité), utilisez le formulaire de contact
                         disponible en pied de page du Site ou écrivez à :
                         <a href="mailto:alexis.verquin@gmail.com"
-                           style="color: var(--grape);">
+                           style="color: #5b3b9e;">
                             alexis.verquin@gmail.com
                         </a>.
                     </p>
@@ -525,7 +527,7 @@
                         <a href="https://www.cnil.fr"
                            target="_blank"
                            rel="noopener noreferrer"
-                           style="color: var(--grape);">
+                           style="color: #5b3b9e;">
                             www.cnil.fr
                         </a>
                     </p>
@@ -536,7 +538,7 @@
 
                 {# ---------- 10. MINEURS ---------- #}
                 <div id="mineurs" class="mb-5">
-                    <h3 class="h5 mb-3">10. Mineurs</h3>
+                    <h2 class="h5 mb-3">10. Mineurs</h2>
 
                     <p class="text-muted mb-0">
                         Le Site n'est pas spécifiquement destiné à un public mineur.
@@ -550,7 +552,7 @@
 
                 {# ---------- 11. MODIFICATION ---------- #}
                 <div id="modification-politique" class="mb-5">
-                    <h3 class="h5 mb-3">11. Modification de la politique de confidentialité</h3>
+                    <h2 class="h5 mb-3">11. Modification de la politique de confidentialité</h2>
 
                     <p class="text-muted mb-0">
                         Cette politique peut être mise à jour à tout moment, notamment afin
@@ -565,14 +567,14 @@
 
                 {# ---------- 12. CONTACT ---------- #}
                 <div id="contact" class="mb-0">
-                    <h3 class="h5 mb-3">12. Contact</h3>
+                    <h2 class="h5 mb-3">12. Contact</h2>
 
                     <p class="text-muted mb-0">
                         Pour toute question relative à cette politique ou à vos données
                         personnelles, utilisez le formulaire de contact disponible en pied
                         de page du Site ou écrivez à :
                         <a href="mailto:alexis.verquin@gmail.com"
-                           style="color: var(--grape);">
+                           style="color: #5b3b9e;">
                             alexis.verquin@gmail.com
                         </a>.
                     </p>
@@ -582,6 +584,4 @@
         </div>
     </div>
 </div>
-    ```
-
 {% endblock %}

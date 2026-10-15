@@ -1,12 +1,12 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Administration{% endblock %}
+{% block title %}Tableau de bord{% endblock %}
 
 {% block body %}
     <div class="container py-5">
         <div class="mb-4">
             <span class="hero-eyebrow mb-2">
-                <i class="bi bi-speedometer2"></i> Espace admin
+                <i class="bi bi-speedometer2" aria-hidden="true"></i> Espace admin
             </span>
             <h1 class="hero-title-v2 mt-2 h2">Tableau de bord</h1>
         </div>
@@ -15,9 +15,9 @@
             {# ---------- SONDAGE EN COURS ---------- #}
             <div class="col-lg-4">
                 <div class="section-card p-4 p-md-5 h-100 d-flex flex-column">
-                    <div class="form-section-title">
+                    <div class="form-section-title" role="heading" aria-level="2">
                         <span class="form-section-icon icon-info">
-                            <i class="bi bi-bar-chart-fill"></i>
+                            <i class="bi bi-bar-chart-fill" aria-hidden="true"></i>
                         </span>
                         Sondage en cours
                     </div>
@@ -40,7 +40,7 @@
 
                     <div class="d-flex gap-2 justify-content-end mt-auto" data-controller="modal">
                         <a class="btn btn-fun px-4" href="{{ path('admin_manage_survey') }}">
-                            <i class="bi bi-check2 me-1"></i>Ajouter un sondage
+                            <i class="bi bi-check2 me-1" aria-hidden="true"></i>Ajouter un sondage
                         </a>
                     </div>
                 </div>
@@ -50,15 +50,15 @@
             <div class="col-lg-8">
                 {% if getCurrentTheme() %}
                 <div class="section-card p-4 p-md-5">
-                    <div class="form-section-title mb-0">
+                    <div class="form-section-title mb-0" role="heading" aria-level="2">
                         <span class="form-section-icon icon-security">
-                            <i class="bi bi-stars"></i>
+                            <i class="bi bi-stars" aria-hidden="true"></i>
                         </span>
                         Thème en cours
                     </div>
                     <p class="h5 mt-3 mb-0">
 
-                            <span class="text-decoration-underline" style="color: var(--grape);">
+                            <span class="text-decoration-underline" style="color: #5b3b9e;">
                                 {{ getCurrentTheme().themeChoice.name ?? '' }}
                             </span>
 
@@ -66,18 +66,19 @@
                 </div>
                 {% else %}
                     <div class="section-card p-4 p-md-5">
-                        <div class="form-section-title mb-0">
+                        <div class="form-section-title mb-0" role="heading" aria-level="2">
                         <span class="form-section-icon icon-security">
-                            <i class="bi bi-stars"></i>
+                            <i class="bi bi-stars" aria-hidden="true"></i>
                         </span>
                             Thème disponible
                         </div>
                         <table class="table">
+                            <caption class="visually-hidden">Thèmes disponibles et nombre de votes</caption>
                             <thead>
                                 <tr>
-                                    <th>Nom</th>
-                                    <th>Nombre de votes</th>
-                                    <th>Actions</th>
+                                    <th scope="col">Nom</th>
+                                    <th scope="col">Nombre de votes</th>
+                                    <th scope="col">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -100,9 +101,9 @@
                 {% endif %}
                 <div class="section-card p-4 p-md-5 mt-4">
                     <div class="d-flex align-items-center justify-content-between mb-4">
-                        <div class="form-section-title mb-0">
+                        <div class="form-section-title mb-0" role="heading" aria-level="2">
                             <span class="form-section-icon icon-info">
-                                <i class="bi bi-images"></i>
+                                <i class="bi bi-images" aria-hidden="true"></i>
                             </span>
                             Photos à valider
                         </div>
@@ -130,18 +131,9 @@
                                             class="btn-vote"
                                             data-turbo-prefetch="false"
                                             href="{{ path('app_admin_photo_accept', {id: photo.id}) }}"
-                                            aria-label="{{ 'Valider'|trans }}"
+                                            aria-label="Valider la photo de {{ photo.user.name }}"
                                         >
-                                            <twig:ux:icon name="lucide:circle-check-big" />
-                                        </a>
-                                        <a
-                                            class="btn-vote d-flex justify-content-center align-items-center"
-                                            style="border-color: var(--coral); color: var(--coral);"
-                                            href="#"
-                                            data-turbo-prefetch="false"
-                                            aria-label="{{ 'Supprimer'|trans }}"
-                                        >
-                                            <twig:ux:icon name="lucide:trash" />
+                                            <twig:ux:icon name="lucide:circle-check-big" aria-hidden="true" />
                                         </a>
                                     </div>
                                 </div>
@@ -161,10 +153,10 @@
         {# ---------- MESSAGES DE CONTACT ---------- #}
         <div class="section-card p-4 p-md-5 mt-4">
             <div class="d-flex align-items-center justify-content-between mb-4">
-                <div class="form-section-title mb-0 d-flex justify-content-between w-100">
+                <div class="form-section-title mb-0 d-flex justify-content-between w-100" role="heading" aria-level="2">
                     <div class="d-flex gap-2 align-items-center">
                         <span class="form-section-icon icon-security">
-                            <twig:ux:icon name="lucide:bell" />
+                            <twig:ux:icon name="lucide:bell" aria-hidden="true" />
                         </span>
                         Messages reçus
                     </div>

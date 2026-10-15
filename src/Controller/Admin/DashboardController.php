@@ -7,6 +7,7 @@ use App\Entity\Photo;
 use App\Entity\Survey;
 use App\Entity\SurveyChoice;
 use App\Entity\Theme;
+use App\Entity\User;
 use App\Form\SurveyChoiceType;
 use App\Form\SurveyType;
 use App\Service\MailService;
@@ -15,22 +16,24 @@ use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsCsrfTokenValid;
-use Symfony\Component\ExpressionLanguage\Expression;
 
-#[Route("/admin/dashboard", name: "admin_")]
+#[Route('/admin/dashboard', name: 'admin_')]
 class DashboardController extends AbstractController
 {
     public function __construct(
-        private EntityManagerInterface $em
-    ){}
+        private EntityManagerInterface $em,
+    ) {
+    }
 
-    #[Route("", "dashboard")]
-    public function index(): Response {
+    #[Route('', 'dashboard')]
+    public function index(): Response
+    {
         $actualSurvey = $this->em->getRepository(Survey::class)->findActiveSurvey();
         $actualTheme = $this->em->getRepository(Theme::class)->findActualTheme();
         $contacts = $this->em->getRepository(Contact::class)->findBy(['type' => Contact::TYPE_CONTACT, 'isView' => false]);
@@ -41,16 +44,15 @@ class DashboardController extends AbstractController
             'survey' => $actualSurvey,
             'contacts' => $contacts,
             'photosNotVisible' => $photosNotVisible,
-            'themes'=> $themes,
+            'themes' => $themes,
         ]);
     }
 
-    #[Route("/manage/survey/{id}", "manage_survey", requirements: ["id" => "\d+"], defaults: ["id" => null])]
+    #[Route('/manage/survey/{id}', 'manage_survey', requirements: ['id' => "\d+"], defaults: ['id' => null])]
     public function manageSurveys(
         Request $request,
-        #[MapEntity(mapping: ["id" => "id"])] ?Survey $survey = null
+        #[MapEntity(mapping: ['id' => 'id'])] ?Survey $survey = null,
     ): Response {
-
         $survey ??= new Survey();
         $surveyChoice = new SurveyChoice();
         $surveys = $this->em->getRepository(Survey::class)->findAll();
@@ -89,9 +91,10 @@ class DashboardController extends AbstractController
         ]);
     }
 
-    #[Route("/manage/delete/survey/{id}", "manage_survey_delete", methods: ["DELETE"])]
-    public function deleteSurvey(Request $request, Survey $survey): Response {
-        if($this->isCsrfTokenValid('delete-survey-'.$survey->getId(), $request->request->get('_token'))) {
+    #[Route('/manage/delete/survey/{id}', 'manage_survey_delete', methods: ['DELETE'])]
+    public function deleteSurvey(Request $request, Survey $survey): Response
+    {
+        if ($this->isCsrfTokenValid('delete-survey-' . $survey->getId(), $request->request->get('_token'))) {
             $this->em->remove($survey);
             $this->em->flush();
 
@@ -101,8 +104,9 @@ class DashboardController extends AbstractController
         return $this->redirectToRoute('admin_manage_survey');
     }
 
-    #[Route("/manage/delete/surveychoice/{id}", "delete_surveyChoice", methods: ["DELETE"])]
-    public function deleteSurveyChoice(Request $request, SurveyChoice $surveyChoice): Response {
+    #[Route('/manage/delete/surveychoice/{id}', 'delete_surveyChoice', methods: ['DELETE'])]
+    public function deleteSurveyChoice(Request $request, SurveyChoice $surveyChoice): Response
+    {
         if ($this->isCsrfTokenValid('delete-survey-choice-' . $surveyChoice->getId(), $request->request->get('_token'))) {
             $this->em->remove($surveyChoice);
             $this->em->flush();
@@ -113,27 +117,30 @@ class DashboardController extends AbstractController
         return $this->redirectToRoute('admin_manage_survey');
     }
 
-    #[Route("/contact/reply/{id}", "contact_reply", methods: ["GET", 'POST'])]
-    public function replyContact(Contact $contact, Request $request, MailService $mailService, LoggerInterface $logger): Response {
-
+    #[Route('/contact/reply/{id}', 'contact_reply', methods: ['GET', 'POST'])]
+    public function replyContact(Contact $contact, Request $request, MailService $mailService, LoggerInterface $logger): Response
+    {
         if ($request->isMethod('POST') && $request->request->all('reply')) {
             $form = $request->request->all('reply');
 
             if (!$this->isCsrfTokenValid('reply_contact_' . $contact->getId(), $form['csrf'])) {
                 $this->addFlash('error', 'Le formulaire n\'est pas valide');
+
                 return $this->redirectToRoute('admin_contact_reply', ['id' => $contact->getId()]);
             }
             $contact->setIsView(true);
             $replyContact = new Contact();
+
+            /** @var User|null $user */
+            $user = $this->getUser();
             $replyContact
                 ->setEmail('admin@gmail.com')
                 ->setMessage($form['message'])
                 ->setOrigin($contact->getId())
-                ->setUserId($this->getUser()->getId())
+                ->setUserId($user->getId())
                 ->setIsView(true)
                 ->setType(Contact::TYPE_REPLY)
                 ->setCreatedAtValue();
-            ;
 
             try {
                 $this->em->persist($replyContact);
@@ -154,7 +161,7 @@ class DashboardController extends AbstractController
                     ->to((string) $contact->getEmail())
                     ->subject('Formulaire de contact')
                     ->htmlTemplate('contact/replyContactTmpl.html.twig'),
-                $discution
+                $discution,
             );
         }
 
@@ -163,8 +170,9 @@ class DashboardController extends AbstractController
         ]);
     }
 
-    #[Route("/contact/read/{id}", "contact_read", methods: ["GET"])]
-    public function readContact(Contact $contact): Response {
+    #[Route('/contact/read/{id}', 'contact_read', methods: ['GET'])]
+    public function readContact(Contact $contact): Response
+    {
         $contact->setIsView(true);
         $this->em->flush();
 
@@ -173,9 +181,9 @@ class DashboardController extends AbstractController
         return $this->redirectToRoute('admin_dashboard');
     }
 
-    #[Route("/contact/show", "contact_all")]
-    public function showMessages(): Response {
-
+    #[Route('/contact/show', 'contact_all')]
+    public function showMessages(): Response
+    {
         $contacts = $this->em->getRepository(Contact::class)->findAll();
 
         return $this->render('admin/dashboard/showMessages.html.twig', [
@@ -183,27 +191,27 @@ class DashboardController extends AbstractController
         ]);
     }
 
-    #[Route("/contact/delete", "contact_delete", methods: ["DELETE"])]
-    public function deleteMessages(Request $request): Response {
+    #[Route('/contact/delete', 'contact_delete', methods: ['DELETE'])]
+    public function deleteMessages(Request $request): Response
+    {
         $form = $request->request->all('message');
 
         $contact = $this->em->getRepository(Contact::class)->find($form['id']);
-        if (!$this->isCsrfTokenValid('delete_message_'.$contact->getId(),  $form['csrf'])) {
-            $this->addFlash('danger', "csrf non valide");
-
+        if (!$this->isCsrfTokenValid('delete_message_' . $contact->getId(), $form['csrf'])) {
+            $this->addFlash('danger', 'csrf non valide');
         } else {
             $this->em->remove($contact);
             $this->em->flush();
 
-            $this->addFlash('success', "Message supprimé avec succes");
+            $this->addFlash('success', 'Message supprimé avec succes');
         }
 
         return $this->redirectToRoute('admin_contact_all');
     }
 
-    #[Route("/utils", "utils")]
-    public function showUtils(): Response {
-
+    #[Route('/utils', 'utils')]
+    public function showUtils(): Response
+    {
         return $this->render('admin/dashboard/doc.html.twig');
     }
 

@@ -20,7 +20,6 @@ final class ContactController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-
             $contact
                 ->setCreatedAtValue();
 
@@ -31,6 +30,7 @@ final class ContactController extends AbstractController
             $this->addFlash('success', 'formulaire validé !');
             $entityManager->persist($contact);
             $entityManager->flush();
+
             return $this->redirectToRoute('app_contact');
         }
 

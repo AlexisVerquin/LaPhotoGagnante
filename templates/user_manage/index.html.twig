@@ -11,8 +11,9 @@
                     <div class="avatar-upload-wrap mb-3" >
                         <img data-uploadfile-target="preview" src="{{ asset(getAvatar()) }}" alt="Avatar de {{ app.user.userIdentifier }}">
 
-                        <label class="avatar-upload-btn" title="Changer l'avatar">
-                            <i class="bi bi-camera-fill"></i>
+                        <label class="avatar-upload-btn">
+                            <span class="visually-hidden">Changer l’avatar</span>
+                            <i class="bi bi-camera-fill" aria-hidden="true"></i>
                             <input
                                 type="file"
                                 name="avatar"
@@ -29,7 +30,7 @@
                     <h1 class="h5 mt-5 mb-1">{{ app.user.name }}</h1>
                     {% if app.user.city %}
                         <p class="text-muted small mb-1">
-                            <i class="bi bi-geo-alt-fill me-1"></i>{{ app.user.city }}
+                            <i class="bi bi-geo-alt-fill me-1" aria-hidden="true"></i>{{ app.user.city }}
                         </p>
                     {% endif %}
                     <p class="text-muted small mb-4">Membre depuis le {{ app.user.createdAt|date('d/m/Y') }}</p>
@@ -76,8 +77,8 @@
                     {{ form_start(formUser) }}
 
                         {# ---------- INFOS GENERALES ---------- #}
-                        <div class="form-section-title">
-                            <span class="form-section-icon icon-info"><i class="bi bi-person-fill"></i></span>
+                        <div class="form-section-title" role="heading" aria-level="3">
+                            <span class="form-section-icon icon-info"><i class="bi bi-person-fill" aria-hidden="true"></i></span>
                             Informations générales
                         </div>
 
@@ -100,8 +101,8 @@
                         <hr class="form-section-divider">
 
                         {# ---------- SECURITE ---------- #}
-                        <div class="form-section-title">
-                            <span class="form-section-icon icon-security"><i class="bi bi-shield-lock-fill"></i></span>
+                        <div class="form-section-title" role="heading" aria-level="3">
+                            <span class="form-section-icon icon-security"><i class="bi bi-shield-lock-fill" aria-hidden="true"></i></span>
                             Sécurité
                         </div>
 
@@ -128,7 +129,7 @@
                             <div class="d-flex gap-2">
                                 <button type="reset" class="btn btn-outline-fun px-4">Annuler</button>
                                 <button type="submit" class="btn btn-fun px-4">
-                                    <i class="bi bi-check2 me-1"></i>Enregistrer
+                                    <i class="bi bi-check2 me-1" aria-hidden="true"></i>Enregistrer
                                 </button>
                             </div>
                         </div>
@@ -151,7 +152,7 @@
                         <input type="hidden" name="id" value="{{ app.user.id }}" />
                         <input type="hidden" name="_token" value="{{ csrf_token('delete-user-'~app.user.id) }}" />
                         <button type="submit" class="text-decoration-none small btn btn-danger">
-                            <i class="bi bi-trash3 me-1"></i>Supprimer mon compte
+                            <i class="bi bi-trash3 me-1" aria-hidden="true"></i>Supprimer mon compte
                         </button>
                     </form>
                 </div>

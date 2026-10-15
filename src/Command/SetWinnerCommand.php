@@ -3,13 +3,12 @@
 namespace App\Command;
 
 use App\Entity\Theme;
+use App\Service\MailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use App\Service\MailService;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Mime\Address;
@@ -27,7 +26,6 @@ class SetWinnerCommand extends Command
 
     protected function configure(): void
     {
-
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -41,36 +39,32 @@ class SetWinnerCommand extends Command
         $discution['id'] = $acthalTheme->getId();
 
         try {
-
-
             $winner = null;
             foreach ($photos as $photo) {
-                if ($winner === null) {
+                if (null === $winner) {
                     $winner = $photo;
-                } else if (count($photo->getVotes()) > count($winner->getVotes())) {
+                } elseif (count($photo->getVotes()) > count($winner->getVotes())) {
                     $winner = $photo;
-                } else if (count($photo->getVotes()) === count($winner->getVotes())) {
+                } elseif (count($photo->getVotes()) === count($winner->getVotes())) {
                     $winner = ($winner->getCreatedAt() < $photo->getCreatedAt()) ? $winner : $photo;
                 }
-
             }
 
             $acthalTheme->setWinner($winner->getUser());
-            $discution['message'] = $winner->getUser()->getName(). ' id : '. $winner->getUser()->getId();
+            $discution['message'] = $winner->getUser()->getName() . ' id : ' . $winner->getUser()->getId();
             $this->entityManager->flush();
         } catch (\Throwable $exception) {
             $io->error($exception->getMessage());
 
             $discution['message'] = $exception->getMessage();
 
-
             $this->mailService->sendEmail(
                 new TemplatedEmail()
                     ->from(new Address('admin@${PROJECT_NAME}.fr', '${PROJECT_NAME}'))
-                    ->to((string)'alexis.verquin@gmail.com')
+                    ->to((string) 'alexis.verquin@gmail.com')
                     ->subject('erreur lors de la selection du gagnant')
                     ->htmlTemplate('contact/toAdmin.html.twig'),
-                $discution
+                $discution,
             );
 
             return Command::FAILURE;
@@ -79,10 +73,10 @@ class SetWinnerCommand extends Command
         $this->mailService->sendEmail(
             new TemplatedEmail()
                 ->from(new Address('admin@${PROJECT_NAME}.fr', '${PROJECT_NAME}'))
-                ->to((string)'alexis.verquin@gmail.com')
+                ->to((string) 'alexis.verquin@gmail.com')
                 ->subject('succés de la selection du gagnant')
                 ->htmlTemplate('contact/toAdmin.html.twig'),
-            $discution
+            $discution,
         );
 
         $io->success('gagnant selectionné avec success');

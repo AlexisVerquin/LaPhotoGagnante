@@ -1,62 +1,90 @@
-<nav class="navbar navbar-expand-lg navbar-style-custom mb-3 px-3">
+{% set currentRoute = app.request.attributes.get('_route') %}
+
+<nav class="navbar navbar-expand-lg navbar-style-custom mb-3 px-3" aria-label="Navigation principale">
     <div class="container-fluid px-2">
         <a class="navbar-brand" href="{{ path('app_main') }}">
-            <span class="brand-icon"><i class="bi bi-camera-fill"></i></span>
+            <span class="brand-icon"><i class="bi bi-camera-fill" aria-hidden="true"></i></span>
             Photoprix
         </a>
 
-        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <button
+            class="navbar-toggler border-0"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent"
+            aria-expanded="false"
+            aria-label="Afficher ou masquer la navigation"
+        >
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link {{ app.request.attributes.get('_route') == 'app_main' ? 'active' }}" href="{{ path('app_main') }}">Accueil</a>
+                    <a
+                        class="nav-link {{ currentRoute == 'app_main' ? 'active' }}"
+                        href="{{ path('app_main') }}"
+                        {% if currentRoute == 'app_main' %}aria-current="page"{% endif %}
+                    >Accueil</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ app.request.attributes.get('_route') == 'app_gallery' ? 'active' }}" href="{{ path('app_gallery') }}">Galerie</a>
+                    <a
+                        class="nav-link {{ currentRoute == 'app_gallery' ? 'active' }}"
+                        href="{{ path('app_gallery') }}"
+                        {% if currentRoute == 'app_gallery' %}aria-current="page"{% endif %}
+                    >Galerie</a>
                 </li>
-                {% if is_granted("ROLE_ADMIN") %}
-                    <div class="dropdown">
+                {% if is_granted('ROLE_ADMIN') %}
+                    <li class="nav-item dropdown">
                         <button class="btn btn-fun px-4 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Administration
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ path('admin_dashboard') }}">Dashboard</a></li>
-                            <li><a class="dropdown-item" href="{{ path('admin_manage_themes') }}">Thême</a></li>
+                            <li><a class="dropdown-item" href="{{ path('admin_dashboard') }}">Tableau de bord</a></li>
+                            <li><a class="dropdown-item" href="{{ path('admin_manage_themes') }}">Thèmes</a></li>
                             <li><a class="dropdown-item" href="{{ path('admin_manage_survey') }}">Sondage</a></li>
                         </ul>
-                    </div>
+                    </li>
                 {% endif %}
             </ul>
-            {% if not hide_auth_actions %}
-            <ul class="navbar-nav align-items-lg-center gap-2">
-                {% if app.user %}
-                    <li class="nav-item">
-                        <a href="#" {% if app.user%} data-action="click->modal#showModal" {% endif %} class=" btn btn-fun">
-                            <i class="bi bi-camera-fill me-2"></i> {% if not getPhotoCurrentTheme() %} Participer au concours {% else %} Voir ma photo {% endif %}
-                        </a>
 
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ path('app_user_manage') }}" class="nav-link p-0 ms-2" title="{{ app.user.email }}">
-                            <img class="rounded-circle navbar-avatar" src="{{ asset(getAvatar()) }}" alt="{{ app.user.email }}-avatar">
-                        </a>
-                    </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a href="{{ path('app_login') }}" class="nav-link navbar-outline-btn">
-                            Connexion
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ path('app_register') }}" class="nav-link navbar-cta">
-                            S'inscrire
-                        </a>
-                    </li>
-                {% endif %}
-            </ul>
+            {% if not hide_auth_actions %}
+                <ul class="navbar-nav align-items-lg-center gap-2">
+                    {% if app.user %}
+                        {% set currentPhoto = getPhotoCurrentTheme() %}
+                        <li class="nav-item">
+                            <button
+                                type="button"
+                                class="btn btn-fun"
+                                data-action="click->modal#showModal"
+                                aria-haspopup="dialog"
+                                aria-controls="photo-modal"
+                            >
+                                <i class="bi bi-camera-fill me-2" aria-hidden="true"></i>
+                                {% if not currentPhoto %}Participer au concours{% else %}Voir ma photo{% endif %}
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <a
+                                href="{{ path('app_user_manage') }}"
+                                class="nav-link p-0 ms-2"
+                                aria-label="Mon compte"
+                                title="Mon compte"
+                                {% if currentRoute == 'app_user_manage' %}aria-current="page"{% endif %}
+                            >
+                                <img class="rounded-circle navbar-avatar" src="{{ asset(getAvatar()) }}" alt="">
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a href="{{ path('app_login') }}" class="nav-link navbar-outline-btn">Connexion</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ path('app_register') }}" class="nav-link navbar-cta">S'inscrire</a>
+                        </li>
+                    {% endif %}
+                </ul>
             {% endif %}
         </div>
     </div>

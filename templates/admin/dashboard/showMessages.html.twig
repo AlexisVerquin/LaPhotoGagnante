@@ -1,12 +1,12 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Administration{% endblock %}
+{% block title %}Messages reçus{% endblock %}
 
 {% block body %}
     <div class="container py-5">
         <div class="mb-4">
             <span class="hero-eyebrow mb-2">
-                <i class="bi bi-speedometer2"></i> Espace admin
+                <i class="bi bi-speedometer2" aria-hidden="true"></i> Espace admin
             </span>
             <h1 class="hero-title-v2 mt-2 h2">Messages</h1>
         </div>
@@ -15,10 +15,10 @@
             <div class="col-lg-12">
                 <div class="section-card p-4 p-md-5 mt-4">
                     <div class="d-flex align-items-center justify-content-between mb-4">
-                        <div class="form-section-title mb-0 d-flex justify-content-between w-100">
+                        <div class="form-section-title mb-0 d-flex justify-content-between w-100" role="heading" aria-level="2">
                             <div class="d-flex gap-2 align-items-center">
                         <span class="form-section-icon icon-security">
-                            <twig:ux:icon name="lucide:bell" />
+                            <twig:ux:icon name="lucide:bell" aria-hidden="true" />
                         </span>
                                 Messages reçus
                             </div>

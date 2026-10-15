@@ -2,26 +2,25 @@
 
 namespace App\Controller;
 
+use App\Constant\AlertConst;
 use App\Entity\User;
 use App\Form\UserInfoType;
-use App\Constant\AlertConst;
-use App\Repository\UserRepository;
+use App\Security\EmailVerifier;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mime\Address;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use App\Security\EmailVerifier;
-use Symfony\Component\Filesystem\Filesystem;
 
 final class UserManageController extends AbstractController
 {
@@ -30,16 +29,17 @@ final class UserManageController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         TranslatorInterface $translator,
-        UserPasswordHasherInterface  $userPasswordHasher,
+        UserPasswordHasherInterface $userPasswordHasher,
         EmailVerifier $emailVerifier,
     ): Response {
+        /** @var User|null $user */
         $user = $this->getUser();
+
         $email = $user->getEmail();
         $form = $this->createForm(UserInfoType::class, $this->getUser());
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             if ($user->getPassword() && $userPasswordHasher->isPasswordValid($user, $user->getPassword())) {
                 $user->setPassword($userPasswordHasher->hashPassword($user, $user->getPassword()));
             }
@@ -51,14 +51,14 @@ final class UserManageController extends AbstractController
                         ->from(new Address('no-reply@${PROJECT_NAME}.fr', '${PROJECT_NAME}'))
                         ->to((string) $user->getEmail())
                         ->subject('Please Confirm your Email')
-                        ->htmlTemplate('user_manage/confirmation_email.html.twig')
+                        ->htmlTemplate('user_manage/confirmation_email.html.twig'),
                 );
-
             }
 
             $em->flush();
 
-            $this->addFlash(AlertConst::ALERT_SUCCESS, $translator->trans('alert.modification.success') );
+            $this->addFlash(AlertConst::ALERT_SUCCESS, $translator->trans('alert.modification.success'));
+
             return $this->redirectToRoute('app_user_manage');
         }
 
@@ -66,7 +66,6 @@ final class UserManageController extends AbstractController
             'formUser' => $form,
         ]);
     }
-
 
     #[Route('/user/manage/uploadAvatar', name: 'app_user_manage_uploadAvatar')]
     public function uploadAvatar(
@@ -107,13 +106,15 @@ final class UserManageController extends AbstractController
         try {
             $file->move(
                 $avatarFileDirectory,
-                $newFilename
+                $newFilename,
             );
         } catch (FileException $e) {
             $logger->error($e->getMessage());
+
             return $this->json(['error' => 'Erreur lors de l\'enregistrement du fichier'], 500);
         }
 
+        /** @var User|null $user */
         $user = $this->getUser();
         $user->setAvatar($newFilename);
 
@@ -130,41 +131,39 @@ final class UserManageController extends AbstractController
         Filesystem $filesystem,
         #[Autowire('%kernel.project_dir%/public/uploads/avatars')] string $avatarFileDirectory,
     ): Response {
-
         $user = $this->getUser();
-        if ($this->isCsrfTokenValid('delete-user-'.$user->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete-user-' . $user->getId(), $request->request->get('_token'))) {
+            /** @var User|null $user */
             $user = $this->getUser();
             $avatar = $user->getAvatar();
 
             try {
                 if ($avatar) {
-                    $filesystem->remove($avatarFileDirectory.'/'.$avatar);
+                    $filesystem->remove($avatarFileDirectory . '/' . $avatar);
                 }
 
-                $randomisedMail = uniqid("userdelete-");
+                $randomisedMail = uniqid('userdelete-');
                 $user
-                    ->setEmail($randomisedMail."@deleteduser.fr")
+                    ->setEmail($randomisedMail . '@deleteduser.fr')
                     ->setIsVerified(false)
                     ->setUpdatedAt(new \DateTime('now'))
-                    ->setRoles(["ROLE_USER"])
-                    ->setAvatar("")
+                    ->setRoles(['ROLE_USER'])
+                    ->setAvatar('')
                     ->setName('Anonyme')
                     ->setCity('')
                 ;
 
                 $em->flush();
 
-                $this->addFlash("success", "Votre compte a bien été supprimer, merci pour votre participation. \n a bientôt");
+                $this->addFlash('success', "Votre compte a bien été supprimer, merci pour votre participation. \n a bientôt");
 
                 return $this->redirectToRoute('app_main');
             } catch (\Exception $e) {
                 $logger->error($e->getMessage());
-                $this->addFlash("error", "Erreur lors de la suppression de l'utilisateur, veuillez contacter un administrateur");
-
+                $this->addFlash('error', "Erreur lors de la suppression de l'utilisateur, veuillez contacter un administrateur");
             }
         }
+
         return $this->redirectToRoute('app_user_manage');
-
-
     }
 }

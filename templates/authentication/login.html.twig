@@ -10,14 +10,14 @@
 
                     <div class="text-center mb-4">
                         <div class="d-inline-flex align-items-center justify-content-center rounded-circle register-icon mb-3">
-                            <i class="bi bi-camera-fill fs-3"></i>
+                            <i class="bi bi-camera-fill fs-3" aria-hidden="true"></i>
                         </div>
-                        <h1 class="h3 mb-1">Bon retour !</h1>
+                        <h1 class="h3 mb-1" id="login-title">Bon retour !</h1>
                         <p class="text-muted small mb-0">Connectez-vous pour retrouver vos photos</p>
                     </div>
 
                     {% if error %}
-                        <div class="alert alert-danger rounded-4">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                        <div class="alert alert-danger rounded-4" id="login-error" role="alert">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
                     {% endif %}
 
                     {% if app.user %}
@@ -26,12 +26,12 @@
                         </div>
                     {% endif %}
 
-                    <form method="post">
+                    <form method="post" aria-labelledby="login-title">
                         <div class="mb-3 text-start">
                             <label for="username" class="form-label fw-bold small">Adresse email</label>
                             <input type="email" value="{{ last_username }}" name="_username" id="username"
                                    class="form-control form-control-fun" placeholder="vous@exemple.com"
-                                   autocomplete="email" required autofocus>
+                                   autocomplete="email" required>
                         </div>
 
                         <div class="mb-4 text-start">
@@ -42,16 +42,6 @@
                         </div>
 
                         <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
-
-                        {#
-                        Uncomment this section and add a remember_me option below your firewall to activate remember me functionality.
-                        See https://symfony.com/doc/current/security/remember_me.html
-
-                        <div class="form-check mb-4 text-start">
-                            <input type="checkbox" name="_remember_me" id="_remember_me" class="form-check-input">
-                            <label for="_remember_me" class="form-check-label small">Se souvenir de moi</label>
-                        </div>
-                        #}
 
                         <button class="btn btn-fun btn-lg w-100" type="submit">
                             Se connecter

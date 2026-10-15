@@ -27,7 +27,6 @@ class ThemeType extends AbstractType
             ->add('dateStart', DateType::class, [
                 'label' => 'Date de début :',
                 'data' => new \DateTime('now')->modify('first day of this month'),
-
             ])
             ->add('dateEnd', DateType::class, [
                 'label' => 'Date de fin :',
@@ -36,7 +35,7 @@ class ThemeType extends AbstractType
             ->add('winner', EntityType::class, [
                 'class' => User::class,
                 'choice_label' => 'name',
-                'label' => 'Gagnant'
+                'label' => 'Gagnant',
             ])
         ;
     }

@@ -11,32 +11,31 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ContactRepository::class)]
 class Contact implements DateInterface
 {
-    const TYPE_REPLY = 'reply';
-    const TYPE_CONTACT = 'contact';
-
     use DateTrait;
+    public const TYPE_REPLY = 'reply';
+    public const TYPE_CONTACT = 'contact';
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    private ?string $message = null;
+    private string $message;
 
     #[ORM\Column(nullable: true)]
     private ?int $userId = null;
 
     #[ORM\Column(length: 100)]
-    private ?string $email = null;
+    private string $email;
 
     #[ORM\Column]
-    private ?bool $isView = false;
+    private bool $isView = false;
 
     #[ORM\Column]
-    private ?int $origin = null;
+    private int $origin;
 
     #[ORM\Column(length: 10)]
-    private ?string $type = null;
+    private string $type;
 
     public function getId(): ?int
     {

@@ -28,7 +28,7 @@ class ThemeRepository extends ServiceEntityRepository
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult()
-            ;
+        ;
     }
 
     public function findLastFinishedTheme(): ?Theme
@@ -42,6 +42,6 @@ class ThemeRepository extends ServiceEntityRepository
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult()
-            ;
+        ;
     }
 }

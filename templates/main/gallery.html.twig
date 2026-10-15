@@ -19,7 +19,7 @@
         {% if actualTheme %}
             <div class="text-center mb-5">
             <span class="hero-eyebrow mb-3">
-                <i class="bi bi-images"></i> Galerie du concours
+                <i class="bi bi-images" aria-hidden="true"></i> Galerie du concours
             </span>
                 <h1 class="hero-title-v2 display-4 mt-4 mb-2">
                     <span class="hero-highlight">{{ actualTheme.themeChoice.name }}</span>
@@ -38,10 +38,9 @@
                         <div class="gallery-card">
                             <div class="card p-3">
                                 <div class="card-head gap-3 d-flex align-items-center ms-2 mb-3">
-                                    {% set avatar = photo.user.avatar ?: 'default.png' %}
                                     <img class="rounded-circle navbar-avatar"
-                                         src="{{ pathAvatar ~ '/' ~ avatar }}"
-                                         alt="Avatar de {{ photo.user.name }}">
+                                         src="{{ getAvatar(photo.user) }}"
+                                         alt="">
                                     <div class="fw-bold">{{ photo.user.name }}</div>
                                 </div>
 
@@ -67,10 +66,10 @@
                                             data-vote-target="button"
                                             data-countdown-target="voteGallery"
                                             data-action="click->vote#submitVote"
-                                            aria-pressed="{% if voteUser %}{{  photo.id == voteUser.photo.id ? 'true' : 'false' }}{% endif %}"
+                                            aria-pressed="{{ voteUser and photo.id == voteUser.photo.id ? 'true' : 'false' }}"
                                             aria-label="Voter pour la photo de {{ photo.user.name }}"
                                         >
-                                            <i class="bi bi-heart-fill vote-heart-icon"></i>
+                                            <i class="bi bi-heart-fill vote-heart-icon" aria-hidden="true"></i>
                                             <span class="vote-heart-count" data-vote-target="count">{{ photo.votes|length }}</span>
                                         </button>
                                     {% endif %}
@@ -83,18 +82,18 @@
             {% else %}
                 <div class="section-card p-4 p-md-5 text-center">
                     <span class="hero-eyebrow mb-3">
-                        <i class="bi bi-camera"></i> C'est calme par ici
+                        <i class="bi bi-camera" aria-hidden="true"></i> C'est calme par ici
                     </span>
-                    <h3 class="h5 mt-3 mb-2">Aucune photo en ligne pour l'instant</h3>
+                    <h2 class="h5 mt-3 mb-2">Aucune photo en ligne pour l'instant</h2>
                     <p class="text-muted mb-0">Soyez le premier à participer à ce thème !</p>
                 </div>
             {% endif %}
         {% else %}
             <div class="section-card p-4 p-md-5 text-center">
                 <span class="hero-eyebrow mb-3">
-                    <i class="bi bi-hourglass"></i> Entre deux concours
+                    <i class="bi bi-hourglass" aria-hidden="true"></i> Entre deux concours
                 </span>
-                <h2 class="h4 mt-3 mb-2">Aucun concours en cours pour le moment</h2>
+                <h1 class="h4 mt-3 mb-2">Aucun concours en cours pour le moment</h1>
                 <p class="text-muted mb-0">Revenez bientôt pour découvrir les nouvelles photos !</p>
             </div>
         {% endif %}

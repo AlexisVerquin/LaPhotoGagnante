@@ -6,15 +6,16 @@ namespace App\Service;
 
 use App\Entity\Photo;
 use App\Entity\Theme;
-use App\Entity\Vote;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 
-class PhotoService {
+class PhotoService
+{
+    public function __construct(private EntityManagerInterface $entityManager)
+    {
+    }
 
-    public function __construct(private EntityManagerInterface $entityManager){}
-
-    public function getPhotoWinnerLastTheme(): ?Photo {
+    public function getPhotoWinnerLastTheme(): ?Photo
+    {
         $lastTheme = $this->entityManager->getRepository(Theme::class)->findLastFinishedTheme();
         if (!$lastTheme) {
             return null;
@@ -25,11 +26,14 @@ class PhotoService {
                 return $photo;
             }
         }
+
         return null;
     }
 
-    public function getPhotoOfTheDay(): ?array {
+    public function getPhotoOfTheDay(): ?array
+    {
         $votes = $this->entityManager->getRepository(Photo::class)->findPhotosOfTheDay();
+
         return $votes[0] ?? null;
     }
 }

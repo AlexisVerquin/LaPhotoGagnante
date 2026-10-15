@@ -36,7 +36,8 @@ class PhotoRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function getNb() {
+    public function getNb()
+    {
         return $this->createQueryBuilder('p')
             ->select('COUNT(p)')
             ->getQuery()

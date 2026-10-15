@@ -2,7 +2,6 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Survey;
 use App\Entity\Theme;
 use App\Form\ThemeType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -12,17 +11,18 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route("/admin/dashboard/theme", name: "admin_")]
+#[Route('/admin/dashboard/theme', name: 'admin_')]
 class ThemeController extends AbstractController
 {
     public function __construct(
-        private EntityManagerInterface $em
-    ){}
+        private EntityManagerInterface $em,
+    ) {
+    }
 
-    #[Route("/{id}", "manage_themes", requirements: ["id" => "\d+"], defaults: ["id" => null])]
+    #[Route('/{id}', 'manage_themes', requirements: ['id' => "\d+"], defaults: ['id' => null])]
     public function manageThemes(
         Request $request,
-        #[MapEntity(mapping: ["id" => "id"])] ?Theme $theme = null
+        #[MapEntity(mapping: ['id' => 'id'])] ?Theme $theme = null,
     ): Response {
         $theme ??= new Theme();
         $formTheme = $this->createForm(ThemeType::class, $theme);
@@ -33,16 +33,15 @@ class ThemeController extends AbstractController
             if (!$theme->getId()) {
                 $theme->setWinner(null);
                 $this->em->persist($theme);
-                $message = "Theme successfully added";
+                $message = 'Theme successfully added';
             } else {
-                $message = "Theme successfully updated";
+                $message = 'Theme successfully updated';
             }
 
             $this->em->flush();
-            $this->addFlash("alert-success", $message);
+            $this->addFlash('alert-success', $message);
 
-            return $this->redirectToRoute("admin_manage_themes");
-
+            return $this->redirectToRoute('admin_manage_themes');
         }
 
         return $this->render('admin/dashboard/manageThemes.html.twig', [

@@ -44,7 +44,7 @@ class ResetPasswordController extends AbstractController
             /** @var string $email */
             $email = $form->get('email')->getData();
 
-            return $this->processSendingPasswordResetEmail($email, $mailer, $translator
+            return $this->processSendingPasswordResetEmail($email, $mailer, $translator,
             );
         }
 
@@ -97,7 +97,7 @@ class ResetPasswordController extends AbstractController
             $this->addFlash('reset_password_error', sprintf(
                 '%s - %s',
                 $translator->trans(ResetPasswordExceptionInterface::MESSAGE_PROBLEM_VALIDATE, [], 'ResetPasswordBundle'),
-                $translator->trans($e->getReason(), [], 'ResetPasswordBundle')
+                $translator->trans($e->getReason(), [], 'ResetPasswordBundle'),
             ));
 
             return $this->redirectToRoute('app_forgot_password_request');

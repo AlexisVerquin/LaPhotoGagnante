@@ -18,7 +18,7 @@
                 <div class="row align-items-center mb-5 pt-3">
                     <div class="col-lg-7">
                         <span class="hero-eyebrow mb-3">
-                            <i class="bi bi-stars"></i> Concours en cours
+                            <i class="bi bi-stars" aria-hidden="true"></i> Concours en cours
                         </span>
                         <h1 class="hero-title-v2 display-4 mb-3">
                             <span class="hero-highlight">{{ actualTheme.themeChoice.name }}</span>
@@ -30,10 +30,14 @@
                         </p>
 
                         <div class="d-flex flex-wrap gap-3">
-                            <a href="{{ path(subscriptionChangeUrl) }}" {% if app.user %} data-action="click->modal#showModal" {% endif %}
-                               class="btn btn-fun btn-lg px-4">
-                                <i class="bi bi-camera-fill me-2"></i> {% if not hasPhoto %} Participer au concours {% else %} Voir ma photo {% endif %}
-                            </a>
+                                {% if app.user %}
+                                <button type="button" data-action="click->modal#showModal" aria-haspopup="dialog" aria-controls="photo-modal"
+                                    class="btn btn-fun btn-lg px-4">
+                                {% else %}
+                                <a href="{{ path(subscriptionChangeUrl) }}" class="btn btn-fun btn-lg px-4">
+                                {% endif %}
+                                <i class="bi bi-camera-fill me-2" aria-hidden="true"></i> {% if not hasPhoto %} Participer au concours {% else %} Voir ma photo {% endif %}
+                                {% if app.user %}</button>{% else %}</a>{% endif %}
 
                             <a href="{{ path('app_gallery') }}" class="btn btn-lg px-4 btn-outline-dark rounded-3"
                                data-countdown-target="galleryButton">
@@ -57,7 +61,7 @@
                                 <div class="d-flex justify-content-between align-items-start mb-4">
                                     <div>
                                     <span class="badge-today mb-2 d-inline-block">
-                                        <i class="bi bi-sun-fill me-1"></i>Photo du jour
+                                        <i class="bi bi-sun-fill me-1" aria-hidden="true"></i>Photo du jour
                                     </span>
                                         <h2 class="h4 mb-0">Le coup de cœur de la communauté</h2>
                                         <i>La photo ayant obtenu le plus de votes aujourd'hui</i>
@@ -87,9 +91,9 @@
                                         <div class="d-flex align-items-center gap-3">
                                     <span class="d-inline-flex align-items-center gap-1 text-coral fw-bold"
                                           style="color: var(--coral);">
-                                        <i class="bi bi-heart-fill"></i> {{ photoOfTheDay.nbVotes }}
+                                        <i class="bi bi-heart-fill" aria-hidden="true"></i> {{ photoOfTheDay.nbVotes }}
                                     </span>
-                                            <a href="#" class="btn-vote">Voir en grand</a>
+                                            <a href="{{ path('app_gallery') }}" class="btn-vote">Voir la photo dans la galerie</a>
                                         </div>
                                     </div>
                                 </div>
@@ -105,9 +109,9 @@
                 <div class="row align-items-center g-5">
                     <div class="col-lg-6 order-2 order-lg-1">
                 <span class="hero-eyebrow mb-3">
-                    <i class="bi bi-hourglass"></i> Entre deux concours
+                    <i class="bi bi-hourglass" aria-hidden="true"></i> Entre deux concours
                 </span>
-                        <h2 class="h3 mt-3 mb-3">Aucun concours en cours pour le moment</h2>
+                        <h1 class="h3 mt-3 mb-3">Aucun concours en cours pour le moment</h1>
                         <p class="text-muted fs-6 mb-4">
                             Le prochain thème arrive bientôt. En attendant, découvrez qui a
                             remporté le dernier concours, ou proposez le thème du mois prochain
@@ -132,7 +136,7 @@
                         {% endif %}
 
                         <a href="{{ path('app_gallery') }}" class="btn btn-fun px-4 py-2">
-                            <i class="bi bi-images me-2"></i>Voir la galerie complète
+                            <i class="bi bi-images me-2" aria-hidden="true"></i>Voir la galerie complète
                         </a>
                     </div>
 
@@ -141,11 +145,11 @@
                             <div class="countdown-panel p-4 p-md-5 text-center position-relative">
                                 <div class="position-relative">
                             <span class="badge-today mb-3 d-inline-block">
-                                <i class="bi bi-trophy-fill me-1"></i>Gagnant du dernier concours
+                                <i class="bi bi-trophy-fill me-1" aria-hidden="true"></i>Gagnant du dernier concours
                             </span>
-                                    <h3 class="h5 mb-4" style="color: var(--cream);">
+                                    <h2 class="h5 mb-4" style="color: var(--cream);">
                                         {{ lastTheme.themeChoice.name }}
-                                    </h3>
+                                    </h2>
 
                                     <div class="d-flex justify-content-center">
                                         <div class="polaroid" style="width: 220px;">
@@ -159,7 +163,7 @@
                                     <div class="d-flex justify-content-center mt-3">
                                 <span class="d-inline-flex align-items-center gap-1 fw-bold"
                                       style="color: var(--coral);">
-                                    <i class="bi bi-heart-fill"></i> 80 votes
+                                    <i class="bi bi-heart-fill" aria-hidden="true"></i> 80 votes
                                 </span>
                                     </div>
                                 </div>
@@ -183,7 +187,7 @@
             <div class="section-card p-4 p-md-5 mb-5">
                 <div class="text-center mb-4">
                 <span class="hero-eyebrow mb-3">
-                    <i class="bi bi-check2-square"></i> À vous de choisir
+                    <i class="bi bi-check2-square" aria-hidden="true"></i> À vous de choisir
                 </span>
                     <h2 class="h3 mt-3 mb-1">Votez pour le prochain thème </h2>
                     <p class="text-muted mb-0">Le thème le plus voté sera lancé le 1er du mois.</p>
@@ -222,7 +226,8 @@
                                         data-survey-target="pourcentVote">{{ percentVote|round }} %</span> · <span
                                         data-survey-target="numberVote">{{ theme.numberVoter }}</span> votes</span>
                                     <button type="button" class="btn-vote {% if alreadyVoted %} btn-disabled {% endif %}"
-                                            data-action="click->survey#updateVote" {% if alreadyVoted %} disabled {% endif %}>
+                                            data-action="click->survey#updateVote"
+                                            aria-label="Voter pour le thème {{ theme.name }}" {% if alreadyVoted %} disabled {% endif %}>
                                         Voter
                                     </button>
                                 </div>

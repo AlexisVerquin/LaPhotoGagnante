@@ -7,7 +7,7 @@
 
         <div class="mb-4">
             <span class="hero-eyebrow mb-2">
-                <i class="bi bi-palette-fill"></i> Administration
+                <i class="bi bi-palette-fill" aria-hidden="true"></i> Administration
             </span>
             <h1 class="hero-title mt-2">Gestion des <span>thèmes</span></h1>
         </div>
@@ -15,9 +15,9 @@
         <div class="row g-4">
             <div class="col-lg-6">
                 <div class="section-card p-4 p-md-5 h-100">
-                    <div class="form-section-title">
+                    <div class="form-section-title" role="heading" aria-level="2">
                         <span class="form-section-icon icon-info">
-                            <i class="bi bi-plus-lg"></i>
+                            <i class="bi bi-plus-lg" aria-hidden="true"></i>
                         </span>
                         Ajouter un thème
                     </div>
@@ -38,7 +38,7 @@
                         {{ form_row(formTheme.winner) }}
                     </div>
                     <button type="submit" class="btn btn-fun px-4 py-2">
-                        <i class="bi bi-check-lg me-1"></i> Enregistrer
+                        <i class="bi bi-check-lg me-1" aria-hidden="true"></i> Enregistrer
                     </button>
                     {{ form_end(formTheme) }}
                 </div>
@@ -48,16 +48,16 @@
                 <div class="col-lg-6">
                     <div class="section-card p-4 p-md-5 h-100">
                         <div class="d-flex align-items-center justify-content-between mb-3">
-                            <div class="form-section-title mb-0">
+                            <div class="form-section-title mb-0" role="heading" aria-level="2">
                             <span class="form-section-icon icon-security">
-                                <i class="bi bi-stars"></i>
+                                <i class="bi bi-stars" aria-hidden="true"></i>
                             </span>
                                 Thème en cours
                             </div>
                             <span class="badge-today">En cours</span>
                         </div>
 
-                        <h3 class="mb-1">{{ actualTheme.themeChoice.name }}</h3>
+                        <h2 class="mb-1">{{ actualTheme.themeChoice.name }}</h2>
                         <p class="form-hint mb-4">
                             Du {{ actualTheme.dateStart|date('d-m-Y') }}
                             au {{ actualTheme.dateEnd|date('d-m-Y') }}

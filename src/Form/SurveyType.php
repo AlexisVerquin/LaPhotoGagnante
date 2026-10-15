@@ -5,10 +5,10 @@ namespace App\Form;
 use App\Entity\Survey;
 use App\Entity\SurveyChoice;
 use App\Repository\SurveyChoiceRepository;
-use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -21,10 +21,10 @@ class SurveyType extends AbstractType
                 'label' => 'Nom',
             ])
             ->add('dateStart', DateTimeType::class, [
-                'label' => 'Date de debut'
+                'label' => 'Date de debut',
             ])
             ->add('dateEnd', DateTimeType::class, [
-                'label' => 'Date de fin'
+                'label' => 'Date de fin',
             ])
             ->add('surveyChoices', EntityType::class, [
                 'class' => SurveyChoice::class,
@@ -37,7 +37,6 @@ class SurveyType extends AbstractType
                     return $er->createQueryBuilder('sc')
                         ->where('sc.survey IS NULL');
                 },
-
             ])
         ;
     }

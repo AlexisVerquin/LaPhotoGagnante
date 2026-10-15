@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Constant\AlertConst;
 use App\Entity\Photo;
 use App\Entity\Survey;
 use App\Entity\SurveyChoice;
@@ -15,16 +16,17 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use App\Constant\AlertConst;
 use Symfony\Component\Translation\LocaleFallbackProvider;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class MainController extends AbstractController
 {
     public function __construct(
         private TranslatorInterface $translator,
         private EntityManagerInterface $em,
-    ) {}
+    ) {
+    }
+
     #[Route('/', name: 'app_main')]
     public function index(Request $request, PhotoService $photoService): Response
     {
@@ -52,14 +54,16 @@ final class MainController extends AbstractController
         $lastWinner = $photoService->getPhotoWinnerLastTheme();
         $photoOfTheDay = $photoService->getPhotoOfTheDay();
 
+        /** @var User|null $user */
+        $user = $this->getUser();
 
-        if ($this->getUser() && !$this->getUser()->isVerified()) {
+        if ($this->getUser() && !$user->isVerified()) {
             $message = $this->translator->trans(AlertConst::ALERT_MSG_USER_UNVERIFIED);
             $this->addFlash('USER_NOT_VERIFIED', $message);
         }
 
         $today = new \DateTime();
-        $lastVote = $this->getUser()?->getLastVoteDate() ?? null;
+        $lastVote = $user?->getLastVoteDate() ?? null;
 
         return $this->render('main/index.html.twig', [
             'actualTheme' => $actualTheme,
@@ -67,13 +71,13 @@ final class MainController extends AbstractController
             'hasPhoto' => $hasPhoto,
             'activeSurvey' => $activeSurvey,
             'totalVoteSurvey' => $totalVote,
-            'alreadyVoted' => $lastVote !== null && $lastVote->format('Y-m-d') === $today->format('Y-m-d'),
+            'alreadyVoted' => null !== $lastVote && $lastVote->format('Y-m-d') === $today->format('Y-m-d'),
             'lastWinner' => $lastWinner,
             'photoOfTheDay' => $photoOfTheDay,
-            'nbPhoto' => $nbPhoto ?? 0,
-            'nbUsers' => $nbUsers ?? 0,
-            'nbVotes' => $nbVotes ?? 0,
-            'nbThemes' => $nbThemes ?? 0,
+            'nbPhoto' => $nbPhoto,
+            'nbUsers' => $nbUsers,
+            'nbVotes' => $nbVotes,
+            'nbThemes' => $nbThemes,
             'allThemes' => $themeRepository->findAll(),
         ]);
     }
@@ -118,24 +122,24 @@ final class MainController extends AbstractController
 
         $data = $request->request->get('id');
 
-        if ($data === null) {
-            return $this->json(['error' => "Une erreur est survenue pendant le vote, merci de réessayer"], Response::HTTP_BAD_REQUEST); // 400
+        if (null === $data) {
+            return $this->json(['error' => 'Une erreur est survenue pendant le vote, merci de réessayer'], Response::HTTP_BAD_REQUEST); // 400
         }
 
         $user = $this->getUser();
 
         if (!$user instanceof User) {
-            return $this->json(['error' => "Vous devez être connecté pour pouvoir voter"], Response::HTTP_UNAUTHORIZED); // 401
+            return $this->json(['error' => 'Vous devez être connecté pour pouvoir voter'], Response::HTTP_UNAUTHORIZED); // 401
         }
 
         if (!$user->isVerified()) {
-            return $this->json(['error' => "Vous devez confirmer votre adresse email pour pouvoir voter"], Response::HTTP_FORBIDDEN); // 403
+            return $this->json(['error' => 'Vous devez confirmer votre adresse email pour pouvoir voter'], Response::HTTP_FORBIDDEN); // 403
         }
 
         $today = new \DateTime();
         $lastVote = $user->getLastVoteDate();
 
-        if ($lastVote !== null && $lastVote->format('Y-m-d') === $today->format('Y-m-d')) {
+        if (null !== $lastVote && $lastVote->format('Y-m-d') === $today->format('Y-m-d')) {
             return $this->json(['error' => "Vous avez déjà voté aujourd'hui, revenez demain"], Response::HTTP_CONFLICT); // 409
         }
 
@@ -151,14 +155,14 @@ final class MainController extends AbstractController
         $this->em->flush();
 
         $total = array_sum(array_map(
-            fn($choice) => $choice->getNumberVoter(),
-            $surveyChoice->getSurvey()->getSurveyChoices()->toArray()
+            fn ($choice) => $choice->getNumberVoter(),
+            $surveyChoice->getSurvey()->getSurveyChoices()->toArray(),
         ));
 
         return $this->json([
             'message' => "Merci d'avoir voté, n'hésitez pas à revenir demain",
             'vote' => $surveyChoice->getNumberVoter(),
-            'alreadyVoted'=> true,
+            'alreadyVoted' => true,
             'total' => $total,
         ]);
     }
@@ -167,18 +171,18 @@ final class MainController extends AbstractController
     public function changeLocale(string $locale, Request $request): Response
     {
         $request->getSession()->set('_locale', $locale);
+
         return $this->redirectToRoute('app_main');
     }
 
     #[Route('/generate-data', name: 'app_dev_data')]
-    public function generateData(): Response {
+    public function generateData(): Response
+    {
         $faker = \Faker\Factory::create();
         $actualTheme = $this->em->getRepository(Theme::class)->findActualTheme();
-        for($i = 0; $i < 25; $i++) {
+        for ($i = 0; $i < 25; ++$i) {
             $user = new User();
             $photo = new Photo();
-
-
 
             $user
                 ->setName($faker->name)
@@ -190,7 +194,7 @@ final class MainController extends AbstractController
             ;
 
             $photo
-                ->setName($faker->name."_photo")
+                ->setName($faker->name . '_photo')
                 ->setIsVisible(true)
                 ->setTheme($actualTheme)
                 ->setUser($user)
@@ -208,21 +212,21 @@ final class MainController extends AbstractController
     #[Route('/vote', name: 'app_vote')]
     public function vote(Request $request): Response
     {
-        //dump(app.request.attributes.parameters)
+        // dump(app.request.attributes.parameters)
         $photo = $this->em->getRepository(Photo::class)->find($request->request->get('photoId'));
         $actualTheme = $this->em->getRepository(Theme::class)->findActualTheme();
 
-
         if (!$this->getUser()) {
             $cartUrl = $this->generateUrl('app_login');
+
             return $this->json(
                 [
                     'success' => false,
                     'message' => sprintf(
                         'Vous devez etre connecté pour pouvoir voter. <a href="%s" class="alert-link">connectez-vous</a>',
-                        $cartUrl
-                    )
-                ], 200
+                        $cartUrl,
+                    ),
+                ], 200,
             );
         }
 
@@ -233,11 +237,10 @@ final class MainController extends AbstractController
             return $this->json(
                 [
                     'success' => false,
-                    'message' => "Les votes seront activé le ".$dateForEnableVote->format('d-m-Y')
-                ], 200
+                    'message' => 'Les votes seront activé le ' . $dateForEnableVote->format('d-m-Y'),
+                ], 200,
             );
         }
-
 
         if (!$photo) {
             return $this->json(['success' => false, 'message' => 'Photo introuvable'], 404);
@@ -264,12 +267,15 @@ final class MainController extends AbstractController
                 ->setDate(new \DateTime())
             ;
         } else {
-            $existingVote = (new Vote())
+            /** @var User|null $user */
+            $user = $this->getUser();
+
+            $existingVote = new Vote()
                 ->setPhoto($photo)
                 ->setTheme($photo->getTheme())
-                ->setUser($this->getUser())
+                ->setUser($user)
                 ->setDate(new \DateTime())
-            ;;
+            ;
             $this->em->persist($existingVote);
         }
 
@@ -288,14 +294,14 @@ final class MainController extends AbstractController
     }
 
     #[Route('/cgu', name: 'app_cgu')]
-    public function cgu(): Response {
-
+    public function cgu(): Response
+    {
         return $this->render('main/cgu.html.twig');
     }
 
     #[Route('/rgpd', name: 'app_rgpd')]
-    public function rgpd(): Response {
-
+    public function rgpd(): Response
+    {
         return $this->render('main/rgpd.html.twig');
     }
 }

@@ -17,10 +17,10 @@ use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
+use Symfony\Component\Security\Http\Authenticator\AuthenticatorInterface;
 use Symfony\Component\Validator\Constraints\PasswordStrengthValidator;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
-use Symfony\Component\Security\Http\Authenticator\AuthenticatorInterface;
 
 class RegistrationController extends AbstractController
 {
@@ -35,8 +35,7 @@ class RegistrationController extends AbstractController
         EntityManagerInterface $entityManager,
         UserAuthenticatorInterface $userAuthenticator,
         #[Autowire(service: 'security.authenticator.form_login.main')] AuthenticatorInterface $authenticator,
-    ): Response
-    {
+    ): Response {
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
@@ -57,16 +56,14 @@ class RegistrationController extends AbstractController
                     ->from(new Address('no-reply@${PROJECT_NAME}.fr', '${PROJECT_NAME}'))
                     ->to((string) $user->getEmail())
                     ->subject('Please Confirm your Email')
-                    ->htmlTemplate('registration/confirmation_email.html.twig')
+                    ->htmlTemplate('registration/confirmation_email.html.twig'),
             );
 
             return $userAuthenticator->authenticateUser(
                 $user,
                 $authenticator,
-                $request
+                $request,
             );
-
-            return $this->redirectToRoute('app_main');
         }
 
         return $this->render('registration/register.html.twig', [

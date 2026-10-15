@@ -26,7 +26,6 @@ class SurveyRepository extends ServiceEntityRepository
             ->setParameter('dateEnd', $date)
             ->getQuery()
             ->getOneOrNullResult();
-        ;
 
         return $q;
     }

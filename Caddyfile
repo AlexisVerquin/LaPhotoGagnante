@@ -1,23 +1,24 @@
+
 {
-	frankenphp
-	{$CADDY_GLOBAL_OPTIONS}
+    frankenphp
+    {$CADDY_GLOBAL_OPTIONS}
 }
 
 {$SERVER_NAME:localhost} {
-	log {
-		output stderr
-	}
+    tls internal
 
-	root * /app/public
-	encode zstd br gzip
+    log {
+        output stderr
+    }
 
-	# Active le hub Mercure intégré, requis pour le hot reload
-	mercure {
-		anonymous
-	}
+    root * /app/public
+    encode zstd br gzip
 
-	php_server {
-		# Active le hot reload (PHP, Twig, CSS, JS...)
-		hot_reload
-	}
+    mercure {
+        anonymous
+    }
+
+    php_server {
+        hot_reload
+    }
 }

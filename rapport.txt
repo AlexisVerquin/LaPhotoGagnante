@@ -1,0 +1,342 @@
+ ------ ------------------------------------------------------------------------------------------
+  Line   src/Controller/Admin/PhotoController.php
+ ------ ------------------------------------------------------------------------------------------
+  17     Method App\Controller\Admin\PhotoController::acceptPhoto() has no return type specified.
+         🪪  missingType.return
+ ------ ------------------------------------------------------------------------------------------
+
+ ------ --------------------------------------------------------------------------------------------------------------------------------------------
+  Line   src/Controller/MainController.php
+ ------ --------------------------------------------------------------------------------------------------------------------------------------------
+  56     Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::isVerified().
+         🪪  method.notFound
+  62     Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::getLastVoteDate().
+         🪪  method.notFound
+  73     Variable $nbPhoto on left side of ?? always exists and is not nullable.
+         🪪  nullCoalesce.variable
+  74     Variable $nbUsers on left side of ?? always exists and is not nullable.
+         🪪  nullCoalesce.variable
+  75     Variable $nbVotes on left side of ?? always exists and is not nullable.
+         🪪  nullCoalesce.variable
+  76     Variable $nbThemes on left side of ?? always exists and is not nullable.
+         🪪  nullCoalesce.variable
+  270    Parameter #1 $user of method App\Entity\Vote::setUser() expects App\Entity\User, Symfony\Component\Security\Core\User\UserInterface given.
+         🪪  argument.type
+ ------ --------------------------------------------------------------------------------------------------------------------------------------------
+
+ ------ ------------------------------------------------------------------------------------------------------------------------------------------------
+  Line   src/Controller/PhotoController.php
+ ------ ------------------------------------------------------------------------------------------------------------------------------------------------
+  74     Parameter #1 $user of method App\Entity\Photo::setUser() expects App\Entity\User|null, Symfony\Component\Security\Core\User\UserInterface|null
+         given.
+         🪪  argument.type
+ ------ ------------------------------------------------------------------------------------------------------------------------------------------------
+
+ ------ -------------------------------------------------------
+  Line   src/Controller/RegistrationController.php
+ ------ -------------------------------------------------------
+  69     Unreachable statement - code above always terminates.
+         🪪  deadCode.unreachable
+ ------ -------------------------------------------------------
+
+ ------ -----------------------------------------------------------------------------------------------------------------------------------------
+  Line   src/Controller/UserManageController.php
+ ------ -----------------------------------------------------------------------------------------------------------------------------------------
+  37     Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::getEmail().
+         🪪  method.notFound
+  43     Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::getPassword().
+         🪪  method.notFound
+  43     Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::getPassword().
+         🪪  method.notFound
+  43     Parameter #1 $user of method Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface::isPasswordValid() expects
+         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface, Symfony\Component\Security\Core\User\UserInterface|null given.
+         🪪  argument.type
+  44     Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::getPassword().
+         🪪  method.notFound
+  44     Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::setPassword().
+         🪪  method.notFound
+  44     Parameter #1 $user of method Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface::hashPassword() expects
+         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface, Symfony\Component\Security\Core\User\UserInterface|null given.
+         🪪  argument.type
+  47     Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::getEmail().
+         🪪  method.notFound
+  48     Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::setIsVerified().
+         🪪  method.notFound
+  49     Parameter #2 $user of method App\Security\EmailVerifier::sendEmailConfirmation() expects App\Entity\User,
+         Symfony\Component\Security\Core\User\UserInterface|null given.
+         🪪  argument.type
+  52     Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::getEmail().
+         🪪  method.notFound
+  118    Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::setAvatar().
+         🪪  method.notFound
+  135    Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::getId().
+         🪪  method.notFound
+  137    Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::getAvatar().
+         🪪  method.notFound
+  146    Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::setEmail().
+         🪪  method.notFound
+ ------ -----------------------------------------------------------------------------------------------------------------------------------------
+
+ ------ ----------------------------------------------------------------------------------------------------------------------------
+  Line   src/Entity/Contact.php
+ ------ ----------------------------------------------------------------------------------------------------------------------------
+  24     Property App\Entity\Contact::  type mapping mismatch: property can contain string|null but database expects string.
+         🪪  doctrine.columnType
+  30     Property App\Entity\Contact::$email type mapping mismatch: property can contain string|null but database expects string.
+         🪪  doctrine.columnType
+  33     Property App\Entity\Contact::$isView type mapping mismatch: property can contain bool|null but database expects bool.
+         🪪  doctrine.columnType
+  36     Property App\Entity\Contact::$origin type mapping mismatch: property can contain int|null but database expects int.
+         🪪  doctrine.columnType
+  39     Property App\Entity\Contact::$type type mapping mismatch: property can contain string|null but database expects string.
+         🪪  doctrine.columnType
+ ------ ----------------------------------------------------------------------------------------------------------------------------
+
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------------------
+  Line   src/Entity/Photo.php
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------------------
+  23     Property App\Entity\Photo::$name type mapping mismatch: property can contain string|null but database expects string.
+         🪪  doctrine.columnType
+  26     Property App\Entity\Photo::$is_visible type mapping mismatch: property can contain bool|null but database expects bool.
+         🪪  doctrine.columnType
+  30     Property App\Entity\Photo::$user type mapping mismatch: property can contain App\Entity\User|null but database expects App\Entity\User.
+         🪪  doctrine.associationType
+  34     Property App\Entity\Photo::$theme type mapping mismatch: property can contain App\Entity\Theme|null but database expects App\Entity\Theme.
+         🪪  doctrine.associationType
+  116    Method App\Entity\Photo::getVotes() return type with generic interface Doctrine\Common\Collections\Collection does not specify its types: TKey, T
+         🪪  missingType.generics
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------
+  Line   src/Entity/ResetPasswordRequest.php
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------
+  22     Property App\Entity\ResetPasswordRequest::$user type mapping mismatch: property can contain App\Entity\User|null but database expects
+         App\Entity\User.
+         🪪  doctrine.associationType
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------
+
+ ------ ------------------------------------------------------------------------------------------------------------------------------------------
+  Line   src/Entity/Survey.php
+ ------ ------------------------------------------------------------------------------------------------------------------------------------------
+  23     Property App\Entity\Survey::$name type mapping mismatch: property can contain string|null but database expects string.
+         🪪  doctrine.columnType
+  26     Property App\Entity\Survey::$dateStart type mapping mismatch: property can contain DateTime|null but database expects DateTimeInterface.
+         🪪  doctrine.columnType
+  29     Property App\Entity\Survey::$dateEnd type mapping mismatch: property can contain DateTime|null but database expects DateTimeInterface.
+         🪪  doctrine.columnType
+ ------ ------------------------------------------------------------------------------------------------------------------------------------------
+
+ ------ -------------------------------------------------------------------------------------------------------------------------------
+  Line   src/Entity/SurveyChoice.php
+ ------ -------------------------------------------------------------------------------------------------------------------------------
+  18     Property App\Entity\SurveyChoice::$name type mapping mismatch: property can contain string|null but database expects string.
+         🪪  doctrine.columnType
+  21     Property App\Entity\SurveyChoice::$numberVoter type mapping mismatch: property can contain int|null but database expects int.
+         🪪  doctrine.columnType
+ ------ -------------------------------------------------------------------------------------------------------------------------------
+
+ ------ -----------------------------------------------------------------------------------------------------------------------------------------
+  Line   src/Entity/Theme.php
+ ------ -----------------------------------------------------------------------------------------------------------------------------------------
+  19     Property App\Entity\Theme::$dateStart type mapping mismatch: property can contain DateTime|null but database expects DateTimeInterface.
+         🪪  doctrine.columnType
+  22     Property App\Entity\Theme::$dateEnd type mapping mismatch: property can contain DateTime|null but database expects DateTimeInterface.
+         🪪  doctrine.columnType
+  37     Property App\Entity\Theme::$directoryName type mapping mismatch: property can contain string|null but database expects string.
+         🪪  doctrine.columnType
+  46     Property App\Entity\Theme::$isAlreadyActived type mapping mismatch: property can contain bool|null but database expects bool.
+         🪪  doctrine.columnType
+ ------ -----------------------------------------------------------------------------------------------------------------------------------------
+
+ ------ -----------------------------------------------------------------------------------------------------------------------------------------------------
+  Line   src/Entity/Trait/DateTrait.php (in context of class App\Entity\Contact)
+ ------ -----------------------------------------------------------------------------------------------------------------------------------------------------
+  10     Property App\Entity\Contact::$created_at type mapping mismatch: property can contain DateTimeImmutable|null but database expects DateTimeImmutable.
+         🪪  doctrine.columnType
+  13     Property App\Entity\Contact::$updated_at type mapping mismatch: property can contain DateTime|null but database expects DateTimeInterface.
+         🪪  doctrine.columnType
+ ------ -----------------------------------------------------------------------------------------------------------------------------------------------------
+
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------------------
+  Line   src/Entity/Trait/DateTrait.php (in context of class App\Entity\Photo)
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------------------
+  10     Property App\Entity\Photo::$created_at type mapping mismatch: property can contain DateTimeImmutable|null but database expects DateTimeImmutable.
+         🪪  doctrine.columnType
+  13     Property App\Entity\Photo::$updated_at type mapping mismatch: property can contain DateTime|null but database expects DateTimeInterface.
+         🪪  doctrine.columnType
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+ ------ ----------------------------------------------------------------------------------------------------------------------------------------------------
+  Line   src/Entity/Trait/DateTrait.php (in context of class App\Entity\Survey)
+ ------ ----------------------------------------------------------------------------------------------------------------------------------------------------
+  10     Property App\Entity\Survey::$created_at type mapping mismatch: property can contain DateTimeImmutable|null but database expects DateTimeImmutable.
+         🪪  doctrine.columnType
+  13     Property App\Entity\Survey::$updated_at type mapping mismatch: property can contain DateTime|null but database expects DateTimeInterface.
+         🪪  doctrine.columnType
+ ------ ----------------------------------------------------------------------------------------------------------------------------------------------------
+
+ ------ --------------------------------------------------------------------------------------------------------------------------------------------------
+  Line   src/Entity/Trait/DateTrait.php (in context of class App\Entity\User)
+ ------ --------------------------------------------------------------------------------------------------------------------------------------------------
+  10     Property App\Entity\User::$created_at type mapping mismatch: property can contain DateTimeImmutable|null but database expects DateTimeImmutable.
+         🪪  doctrine.columnType
+  13     Property App\Entity\User::$updated_at type mapping mismatch: property can contain DateTime|null but database expects DateTimeInterface.
+         🪪  doctrine.columnType
+ ------ --------------------------------------------------------------------------------------------------------------------------------------------------
+
+ ------ --------------------------------------------------------------------------------------------------------------------------
+  Line   src/Entity/User.php
+ ------ --------------------------------------------------------------------------------------------------------------------------
+  30     Property App\Entity\User::$email type mapping mismatch: property can contain string|null but database expects string.
+         🪪  doctrine.columnType
+  42     Property App\Entity\User::$password type mapping mismatch: property can contain string|null but database expects string.
+         🪪  doctrine.columnType
+  51     Property App\Entity\User::$name type mapping mismatch: property can contain string|null but database expects string.
+         🪪  doctrine.columnType
+  75     Property App\Entity\User::$isActive type mapping mismatch: property can contain bool|null but database expects bool.
+         🪪  doctrine.columnType
+  260    Call to an undefined method App\Entity\Vote::addUser().
+         🪪  method.notFound
+ ------ --------------------------------------------------------------------------------------------------------------------------
+
+ ------ ------------------------------------------------------------------------------------------------------------------------------------------
+  Line   src/Entity/Vote.php
+ ------ ------------------------------------------------------------------------------------------------------------------------------------------
+  19     Property App\Entity\Vote::$user type mapping mismatch: database can contain App\Entity\User|null but property expects App\Entity\User.
+         🪪  doctrine.associationType
+  28     Property App\Entity\Vote::$date type mapping mismatch: property can contain DateTime|null but database expects DateTimeInterface.
+         🪪  doctrine.columnType
+  42     PHPDoc tag @return with type Doctrine\Common\Collections\Collection<int, App\Entity\User> is not subtype of native type App\Entity\User.
+         🪪  return.phpDocType
+  57     Call to an undefined method App\Entity\User::removeElement().
+         🪪  method.notFound
+ ------ ------------------------------------------------------------------------------------------------------------------------------------------
+
+ ------ -------------------------------------------------------------------------------------------------------------------------------------------------
+  Line   src/EventSubscriber/LocaleSubscriber.php
+ ------ -------------------------------------------------------------------------------------------------------------------------------------------------
+  12     Method App\EventSubscriber\LocaleSubscriber::__construct() has parameter $availableLocales with no value type specified in iterable type array.
+         🪪  missingType.iterableValue
+         💡  See: https://phpstan.org/blog/solving-phpstan-no-value-type-specified-in-iterable-type
+ ------ -------------------------------------------------------------------------------------------------------------------------------------------------
+
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------
+  Line   src/Form/ChangePasswordFormType.php
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------
+  15     Class App\Form\ChangePasswordFormType extends generic class Symfony\Component\Form\AbstractType but does not specify its types: TData
+         🪪  missingType.generics
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------
+
+ ------ ----------------------------------------------------------------------------------------------------------------------------
+  Line   src/Form/ContactType.php
+ ------ ----------------------------------------------------------------------------------------------------------------------------
+  13     Class App\Form\ContactType extends generic class Symfony\Component\Form\AbstractType but does not specify its types: TData
+         🪪  missingType.generics
+ ------ ----------------------------------------------------------------------------------------------------------------------------
+
+ ------ -------------------------------------------------------------------------------------------------------------------------------------
+  Line   src/Form/RegistrationFormType.php
+ ------ -------------------------------------------------------------------------------------------------------------------------------------
+  20     Class App\Form\RegistrationFormType extends generic class Symfony\Component\Form\AbstractType but does not specify its types: TData
+         🪪  missingType.generics
+  22     Property App\Form\RegistrationFormType::$translator is never read, only written.
+         🪪  property.onlyWritten
+         💡  See: https://phpstan.org/developing-extensions/always-read-written-properties
+ ------ -------------------------------------------------------------------------------------------------------------------------------------
+
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------------
+  Line   src/Form/ResetPasswordRequestFormType.php
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------------
+  11     Class App\Form\ResetPasswordRequestFormType extends generic class Symfony\Component\Form\AbstractType but does not specify its types: TData
+         🪪  missingType.generics
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------------
+
+ ------ ---------------------------------------------------------------------------------------------------------------------------------
+  Line   src/Form/SurveyChoiceType.php
+ ------ ---------------------------------------------------------------------------------------------------------------------------------
+  12     Class App\Form\SurveyChoiceType extends generic class Symfony\Component\Form\AbstractType but does not specify its types: TData
+         🪪  missingType.generics
+ ------ ---------------------------------------------------------------------------------------------------------------------------------
+
+ ------ ---------------------------------------------------------------------------------------------------------------------------
+  Line   src/Form/SurveyType.php
+ ------ ---------------------------------------------------------------------------------------------------------------------------
+  15     Class App\Form\SurveyType extends generic class Symfony\Component\Form\AbstractType but does not specify its types: TData
+         🪪  missingType.generics
+ ------ ---------------------------------------------------------------------------------------------------------------------------
+
+ ------ --------------------------------------------------------------------------------------------------------------------------
+  Line   src/Form/ThemeType.php
+ ------ --------------------------------------------------------------------------------------------------------------------------
+  14     Class App\Form\ThemeType extends generic class Symfony\Component\Form\AbstractType but does not specify its types: TData
+         🪪  missingType.generics
+ ------ --------------------------------------------------------------------------------------------------------------------------
+
+ ------ -----------------------------------------------------------------------------------------------------------------------------
+  Line   src/Form/UserInfoType.php
+ ------ -----------------------------------------------------------------------------------------------------------------------------
+  13     Class App\Form\UserInfoType extends generic class Symfony\Component\Form\AbstractType but does not specify its types: TData
+         🪪  missingType.generics
+ ------ -----------------------------------------------------------------------------------------------------------------------------
+
+ ------ -----------------------------------------------------------------------------------------------------------------------------
+  Line   src/Repository/PhotoRepository.php
+ ------ -----------------------------------------------------------------------------------------------------------------------------
+  19     Method App\Repository\PhotoRepository::findPhotosOfTheDay() return type has no value type specified in iterable type array.
+         🪪  missingType.iterableValue
+         💡  See: https://phpstan.org/blog/solving-phpstan-no-value-type-specified-in-iterable-type
+  39     Method App\Repository\PhotoRepository::getNb() has no return type specified.
+         🪪  missingType.return
+ ------ -----------------------------------------------------------------------------------------------------------------------------
+
+ ------ ---------------------------------------------------------------------------------------------------------------------------
+  Line   src/Service/MailService.php
+ ------ ---------------------------------------------------------------------------------------------------------------------------
+  18     Property App\Service\MailService::$entityManager is never read, only written.
+         🪪  property.onlyWritten
+         💡  See: https://phpstan.org/developing-extensions/always-read-written-properties
+  25     Method App\Service\MailService::sendEmail() has parameter $discution with no value type specified in iterable type array.
+         🪪  missingType.iterableValue
+         💡  See: https://phpstan.org/blog/solving-phpstan-no-value-type-specified-in-iterable-type
+ ------ ---------------------------------------------------------------------------------------------------------------------------
+
+ ------ ---------------------------------------------------------------------------------------------------------------------
+  Line   src/Service/PhotoService.php
+ ------ ---------------------------------------------------------------------------------------------------------------------
+  31     Method App\Service\PhotoService::getPhotoOfTheDay() return type has no value type specified in iterable type array.
+         🪪  missingType.iterableValue
+         💡  See: https://phpstan.org/blog/solving-phpstan-no-value-type-specified-in-iterable-type
+ ------ ---------------------------------------------------------------------------------------------------------------------
+
+ ------ -----------------------------------------------------------------------------------------------------------------------
+  Line   src/Twig/ThemeExtension.php
+ ------ -----------------------------------------------------------------------------------------------------------------------
+  24     Method App\Twig\ThemeExtension::getCurrentThemeTime() return type has no value type specified in iterable type array.
+         🪪  missingType.iterableValue
+         💡  See: https://phpstan.org/blog/solving-phpstan-no-value-type-specified-in-iterable-type
+ ------ -----------------------------------------------------------------------------------------------------------------------
+
+ ------ ----------------------------------------------------------------------------------------------
+  Line   src/Twig/UploadExtension.php
+ ------ ----------------------------------------------------------------------------------------------
+  24     Method App\Twig\UploadExtension::getAvatar() has no return type specified.
+         🪪  missingType.return
+  27     Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::getAvatar().
+         🪪  method.notFound
+  36     Method App\Twig\UploadExtension::getPathAvatar() has no return type specified.
+         🪪  missingType.return
+  41     Method App\Twig\UploadExtension::getPhotoCurrentTheme() has no return type specified.
+         🪪  missingType.return
+  59     Method App\Twig\UploadExtension::getPathCurrentTheme() has no return type specified.
+         🪪  missingType.return
+ ------ ----------------------------------------------------------------------------------------------
+
+ ------ ------------------------------------------------------------------------------------------------------------------------
+  Line   tests/bootstrap.php
+ ------ ------------------------------------------------------------------------------------------------------------------------
+  7      Call to function method_exists() with 'Symfony\\Component\\Dotenv\\Dotenv' and 'bootEnv' will always evaluate to true.
+         🪪  function.alreadyNarrowedType
+ ------ ------------------------------------------------------------------------------------------------------------------------
+
+ [ERROR] Found 84 errors
+

@@ -4,32 +4,33 @@ namespace App\Controller;
 
 use App\Entity\Photo;
 use App\Entity\Theme;
+use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 final class PhotoController extends AbstractController
 {
     public function __construct(
-//        private TranslatorInterface $translator,
+        //        private TranslatorInterface $translator,
         private EntityManagerInterface $em,
-    ) {}
+    ) {
+    }
+
     #[Route('/upload/photo_challenge', name: 'app_photo_chanllenge_update')]
     public function index(
         Request $request,
         SluggerInterface $slugger,
         #[Autowire('%kernel.project_dir%/public/uploads/themes')] string $photoFileDirectory,
         LoggerInterface $logger,
-
-    ): Response
-    {
+    ): Response {
         $submittedToken = $request->headers->get('X-CSRF-Token');
         $infoTheme = $this->em->getRepository(Theme::class)->findActualTheme();
 
@@ -60,15 +61,18 @@ final class PhotoController extends AbstractController
 
         try {
             $file->move(
-                $photoFileDirectory.'/'.$infoTheme->getDirectoryName(),
-                $newFilename
+                $photoFileDirectory . '/' . $infoTheme->getDirectoryName(),
+                $newFilename,
             );
         } catch (FileException $e) {
             $logger->error($e->getMessage());
+
             return $this->json(['error' => 'Erreur lors de l\'enregistrement du fichier'], 500);
         }
 
+        /** @var User|null $user */
         $user = $this->getUser();
+
         $photo = new Photo();
         $photo->setTheme($infoTheme);
         $photo->setUser($user);

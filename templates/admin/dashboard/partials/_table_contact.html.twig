@@ -22,15 +22,17 @@
                                    class="btn btn-light text-primary border d-flex align-items-center justify-content-center"
                                    data-bs-toggle="tooltip"
                                    data-turbo="false"
-                                   title="Répondre">
-                                    <twig:ux:icon name="lucide:edit-3" class="size-4" />
+                                   title="Répondre"
+                                   aria-label="Répondre au message de {{ contact.email }}">
+                                    <twig:ux:icon name="lucide:edit-3" class="size-4" aria-hidden="true" />
                                 </a>
                                 <a href="{{ path('admin_contact_read', {id:contact.id}) }}"
                                    class="btn btn-light text-success border d-flex align-items-center justify-content-center"
                                    data-bs-toggle="tooltip"
                                    data-turbo="false"
-                                   title="Marquer comme lu">
-                                    <twig:ux:icon name="lucide:circle-check-big" class="size-4" />
+                                   title="Marquer comme lu"
+                                   aria-label="Marquer comme lu le message de {{ contact.email }}">
+                                    <twig:ux:icon name="lucide:circle-check-big" class="size-4" aria-hidden="true" />
                                 </a>
                                 <form
                                     action="{{ path('admin_contact_delete', {id:contact.id}) }}"
@@ -40,7 +42,7 @@
                                     <input type="hidden" name="_method" value="DELETE">
                                     <input type="hidden" name="message[id]" value="{{ contact.id }}">
                                     <input type="hidden" name="message[csrf]" value="{{ csrf_token('delete_message_'~ contact.id)}}">
-                                    <button type="submit" data-bs-toggle="tootip" title="Supprimer" class="btn btn-light text-danger border d-flex align-items-center justify-content-center" ><twig:ux:icon name="lucide:trash-2" class="size-4" /></button>
+                                    <button type="submit" data-bs-toggle="tootip" title="Supprimer" aria-label="Supprimer le message de {{ contact.email }}" class="btn btn-light text-danger border d-flex align-items-center justify-content-center"><twig:ux:icon name="lucide:trash-2" class="size-4" aria-hidden="true" /></button>
                                 </form>
                             </div>
                         </td>

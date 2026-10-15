@@ -103,20 +103,20 @@ h1, h2, h3, .navbar-brand {
 }
 
 .form-control-fun {
-    border: 2px solid #EFEAE0;
+    border: 2px solid #8a858e;
     border-radius: 1rem;
     background-color: white;
     padding: 0.65rem 1rem;
 }
 
 .form-control-fun:focus {
-    border-color: var(--sky);
-    box-shadow: 0 0 0 4px rgba(78, 205, 196, 0.2);
+    border-color: #176d67;
+    box-shadow: 0 0 0 4px rgba(23, 109, 103, 0.2);
 }
 
 .btn-fun {
     background: linear-gradient(135deg, var(--coral), var(--grape));
-    color: white;
+    color: var(--ink);
     border: none;
     border-radius: 1rem;
     font-weight: 700;
@@ -129,16 +129,21 @@ h1, h2, h3, .navbar-brand {
 .btn-fun:hover {
     transform: translateY(-2px);
     box-shadow: 0 12px 24px -6px rgba(255, 107, 107, 0.6);
-    color: white;
+    color: var(--ink);
+}
+
+.btn-fun:focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 3px;
 }
 
 .register-link {
-    color: var(--grape);
+    color: #5b3b9e;
     font-weight: 700;
 }
 
 .register-link:hover {
-    color: var(--coral);
+    color: var(--blood);
 }
 
 .form-check-input:checked {
