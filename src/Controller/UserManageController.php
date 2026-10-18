@@ -57,7 +57,7 @@ final class UserManageController extends AbstractController
 
             $em->flush();
 
-            $this->addFlash(AlertConst::ALERT_SUCCESS, $translator->trans('alert.modification.success'));
+            $this->addFlash('alert-success', $translator->trans('alert.modification.success'));
 
             return $this->redirectToRoute('app_user_manage');
         }

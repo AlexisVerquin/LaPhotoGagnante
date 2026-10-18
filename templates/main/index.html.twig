@@ -201,7 +201,7 @@
                         {% endif %}
 
                         <div
-                            class="col-md-4"
+                            class="col-md-{{ (activeSurvey.surveyChoices|length == 2)?'6':'3' }}"
                             data-controller="survey"
                             data-survey-themeid-value="{{ theme.id }}"
                             data-survey-total-value="{{ totalVoteSurvey }}"

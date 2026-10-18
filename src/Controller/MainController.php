@@ -58,8 +58,8 @@ final class MainController extends AbstractController
         $user = $this->getUser();
 
         if ($this->getUser() && !$user->isVerified()) {
-            $message = $this->translator->trans(AlertConst::ALERT_MSG_USER_UNVERIFIED);
-            $this->addFlash('USER_NOT_VERIFIED', $message);
+            $message = $this->translator->trans('alert.unverified_user');
+            $this->addFlash('info', $message);
         }
 
         $today = new \DateTime();
@@ -171,40 +171,6 @@ final class MainController extends AbstractController
     public function changeLocale(string $locale, Request $request): Response
     {
         $request->getSession()->set('_locale', $locale);
-
-        return $this->redirectToRoute('app_main');
-    }
-
-    #[Route('/generate-data', name: 'app_dev_data')]
-    public function generateData(): Response
-    {
-        $faker = \Faker\Factory::create();
-        $actualTheme = $this->em->getRepository(Theme::class)->findActualTheme();
-        for ($i = 0; $i < 25; ++$i) {
-            $user = new User();
-            $photo = new Photo();
-
-            $user
-                ->setName($faker->name)
-                ->setEmail($faker->email)
-                ->setPassword($faker->password())
-                ->setIsVerified(true)
-                ->setCity($faker->city)
-                ->setRoles(['ROLE_USER'])
-            ;
-
-            $photo
-                ->setName($faker->name . '_photo')
-                ->setIsVisible(true)
-                ->setTheme($actualTheme)
-                ->setUser($user)
-            ;
-
-            $this->em->persist($user);
-            $this->em->persist($photo);
-        }
-        $this->em->flush();
-        $this->em->clear();
 
         return $this->redirectToRoute('app_main');
     }
