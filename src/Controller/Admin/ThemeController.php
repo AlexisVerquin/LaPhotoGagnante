@@ -24,14 +24,21 @@ class ThemeController extends AbstractController
         Request $request,
         #[MapEntity(mapping: ['id' => 'id'])] ?Theme $theme = null,
     ): Response {
-        $theme ??= new Theme();
+        if (!$theme) {
+            $theme = new Theme()
+                ->setDateStart(new \DateTime('first day of this month'))
+                ->setDateEnd(new \DateTime('last day of this month'))
+                ->setDirectoryName(uniqid())
+                ->setIsAlreadyActived(false)
+            ;
+        }
+
         $formTheme = $this->createForm(ThemeType::class, $theme);
         $actualTheme = $this->em->getRepository(Theme::class)->findActualTheme();
 
         $formTheme->handleRequest($request);
         if ($formTheme->isSubmitted() && $formTheme->isValid()) {
             if (!$theme->getId()) {
-                $theme->setWinner(null);
                 $this->em->persist($theme);
                 $message = 'Theme successfully added';
             } else {

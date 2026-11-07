@@ -25,12 +25,13 @@ class UploadExtension
     }
 
     #[AsTwigFunction('getAvatar')]
-    public function getAvatar(?User $user = null)
+    public function getAvatar(?User $user = null): string
     {
         if (!$user) {
-            $user = $this->security->getUser();
+            $currentUser = $this->security->getUser();
+            $user = $currentUser instanceof User ? $currentUser : null;
         }
-        $avatar = $user->getAvatar();
+        $avatar = $user?->getAvatar();
         if (!$avatar) {
             $avatar = 'default.jpg';
         }
@@ -39,17 +40,23 @@ class UploadExtension
     }
 
     #[AsTwigFunction('getPathAvatar')]
-    public function getPathAvatar()
+    public function getPathAvatar(): string
     {
         return self::UPLOADS_DIR['avatars'];
     }
 
+    /**
+     * @return array{image: string, isVisible: bool|null, vote: int}|null
+     */
     #[AsTwigFunction('getPhotoCurrentTheme')]
-    public function getPhotoCurrentTheme()
+    public function getPhotoCurrentTheme(): ?array
     {
         $user = $this->security->getUser();
 
         $actualTheme = $this->em->getRepository(Theme::class)->findActualTheme();
+        if (!$user || !$actualTheme) {
+            return null;
+        }
         $hasPhoto = $this->em->getRepository(Photo::class)->findOneBy(['user' => $user, 'theme' => $actualTheme]);
 
         if (!$hasPhoto) {
@@ -64,9 +71,12 @@ class UploadExtension
     }
 
     #[AsTwigFunction('getPathCurrentTheme')]
-    public function getPathCurrentTheme()
+    public function getPathCurrentTheme(): string
     {
         $actualTheme = $this->em->getRepository(Theme::class)->findActualTheme();
+        if (!$actualTheme) {
+            return '';
+        }
 
         return self::UPLOADS_DIR['themes'] . '/' . $actualTheme->getDirectoryName() . '/';
     }

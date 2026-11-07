@@ -21,7 +21,9 @@ class Theme
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTime $dateEnd = null;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    // ManyToOne : un même membre peut gagner plusieurs concours.
+    // Pas de cascade remove : supprimer un thème ne doit jamais supprimer l'utilisateur gagnant.
+    #[ORM\ManyToOne]
     private ?User $winner = null;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]

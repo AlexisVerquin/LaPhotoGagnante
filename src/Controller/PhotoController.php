@@ -24,7 +24,7 @@ final class PhotoController extends AbstractController
     ) {
     }
 
-    #[Route('/upload/photo_challenge', name: 'app_photo_chanllenge_update')]
+    #[Route('/upload/photo_challenge', name: 'app_photo_chanllenge_update', methods: ['POST'])]
     public function index(
         Request $request,
         SluggerInterface $slugger,
@@ -32,10 +32,28 @@ final class PhotoController extends AbstractController
         LoggerInterface $logger,
     ): Response {
         $submittedToken = $request->headers->get('X-CSRF-Token');
-        $infoTheme = $this->em->getRepository(Theme::class)->findActualTheme();
 
         if (!$this->isCsrfTokenValid('upload-photo-theme', $submittedToken)) {
             return $this->json(['error' => 'Token CSRF invalide'], 419);
+        }
+
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->json(['error' => 'Vous devez être connecté pour participer'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        if (!$user->isVerified()) {
+            return $this->json(['error' => 'Vous devez confirmer votre adresse email pour participer'], Response::HTTP_FORBIDDEN);
+        }
+
+        $infoTheme = $this->em->getRepository(Theme::class)->findActualTheme();
+        if (!$infoTheme) {
+            return $this->json(['error' => 'Aucun concours en cours'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $alreadyPosted = $this->em->getRepository(Photo::class)->findOneBy(['user' => $user, 'theme' => $infoTheme]);
+        if ($alreadyPosted) {
+            return $this->json(['error' => 'Vous avez déjà envoyé une photo pour ce concours'], Response::HTTP_CONFLICT);
         }
 
         /** @var UploadedFile|null $file */
@@ -70,9 +88,6 @@ final class PhotoController extends AbstractController
             return $this->json(['error' => 'Erreur lors de l\'enregistrement du fichier'], 500);
         }
 
-        /** @var User|null $user */
-        $user = $this->getUser();
-
         $photo = new Photo();
         $photo->setTheme($infoTheme);
         $photo->setUser($user);
@@ -81,6 +96,9 @@ final class PhotoController extends AbstractController
         $this->em->persist($photo);
         $this->em->flush();
 
-        return $this->redirectToRoute('app_main');
+        return $this->json([
+            'success' => true,
+            'message' => 'Photo envoyée ! Elle sera visible après validation par un administrateur.',
+        ]);
     }
 }

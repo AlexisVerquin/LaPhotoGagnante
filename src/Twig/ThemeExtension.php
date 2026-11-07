@@ -21,10 +21,17 @@ class ThemeExtension
         return $this->em->getRepository(Theme::class)->findActualTheme();
     }
 
+    /**
+     * @return array{themeEnd: \DateTime, enableVote: \DateTime}|null
+     */
     #[AsTwigFunction('getCurrentThemeTime')]
-    public function getCurrentThemeTime(): array
+    public function getCurrentThemeTime(): ?array
     {
         $actualTheme = $this->em->getRepository(Theme::class)->findActualTheme();
+        if (!$actualTheme) {
+            return null;
+        }
+
         $dateForEnableVote = clone $actualTheme->getDateEnd();
         $dateForEnableVote->modify('-6 day');
 

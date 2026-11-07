@@ -2,7 +2,9 @@
 
 namespace App\Command;
 
+use App\Entity\Photo;
 use App\Entity\Theme;
+use App\Repository\ThemeRepository;
 use App\Service\MailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
@@ -11,21 +13,25 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Mime\Address;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
+/**
+ * À lancer (cron) après la fin d'un concours : désigne le gagnant du dernier thème terminé.
+ * Règles : seules les photos validées comptent ; à égalité de votes, la photo envoyée en premier gagne.
+ */
 #[AsCommand(
     name: 'app:set-winner',
-    description: 'Add a short description for your command',
+    description: 'Désigne le gagnant du dernier concours terminé',
 )]
 class SetWinnerCommand extends Command
 {
-    public function __construct(private EntityManagerInterface $entityManager, private MailService $mailService)
-    {
+    public function __construct(
+        private EntityManagerInterface $entityManager,
+        private ThemeRepository $themeRepository,
+        private MailService $mailService,
+        #[Autowire('%app.admin_email%')] private string $adminEmail,
+    ) {
         parent::__construct();
-    }
-
-    protected function configure(): void
-    {
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -33,54 +39,79 @@ class SetWinnerCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $discution = [];
 
-        $acthalTheme = $this->entityManager->getRepository(Theme::class)->findActualTheme();
-        $photos = $acthalTheme->getPhotos();
+        $theme = $this->themeRepository->findLastFinishedTheme();
 
-        $discution['id'] = $acthalTheme->getId();
+        if (!$theme) {
+            $io->warning('Aucun concours terminé.');
+
+            return Command::SUCCESS;
+        }
+
+        $discution['id'] = $theme->getId();
+
+        if ($theme->getWinner()) {
+            $io->note(sprintf('Le concours #%d a déjà un gagnant, rien à faire.', $theme->getId()));
+
+            return Command::SUCCESS;
+        }
 
         try {
-            $winner = null;
-            foreach ($photos as $photo) {
-                if (null === $winner) {
-                    $winner = $photo;
-                } elseif (count($photo->getVotes()) > count($winner->getVotes())) {
-                    $winner = $photo;
-                } elseif (count($photo->getVotes()) === count($winner->getVotes())) {
-                    $winner = ($winner->getCreatedAt() < $photo->getCreatedAt()) ? $winner : $photo;
-                }
+            $winner = $this->findWinningPhoto($theme);
+
+            if (!$winner || !$winner->getUser()) {
+                throw new \RuntimeException(sprintf('Aucune photo validée pour le concours #%d', $theme->getId()));
             }
 
-            $acthalTheme->setWinner($winner->getUser());
+            $theme->setWinner($winner->getUser());
             $discution['message'] = $winner->getUser()->getName() . ' id : ' . $winner->getUser()->getId();
             $this->entityManager->flush();
         } catch (\Throwable $exception) {
             $io->error($exception->getMessage());
-
             $discution['message'] = $exception->getMessage();
-
-            $this->mailService->sendEmail(
-                new TemplatedEmail()
-                    ->from(new Address('admin@${PROJECT_NAME}.fr', '${PROJECT_NAME}'))
-                    ->to((string) 'alexis.verquin@gmail.com')
-                    ->subject('erreur lors de la selection du gagnant')
-                    ->htmlTemplate('contact/toAdmin.html.twig'),
-                $discution,
-            );
+            $this->notifyAdmin('Erreur lors de la sélection du gagnant', $discution);
 
             return Command::FAILURE;
         }
 
+        $this->notifyAdmin('Succès de la sélection du gagnant', $discution);
+        $io->success('Gagnant sélectionné avec succès');
+
+        return Command::SUCCESS;
+    }
+
+    private function findWinningPhoto(Theme $theme): ?Photo
+    {
+        $winner = null;
+        $winnerVotes = -1;
+
+        foreach ($theme->getPhotos() as $photo) {
+            if (!$photo->isVisible()) {
+                continue;
+            }
+
+            $votes = $photo->getVotes()->count();
+            if ($votes > $winnerVotes
+                || ($votes === $winnerVotes && $photo->getCreatedAt() < $winner?->getCreatedAt())
+            ) {
+                $winner = $photo;
+                $winnerVotes = $votes;
+            }
+        }
+
+        return $winner;
+    }
+
+    /**
+     * @param array<string, mixed> $discution
+     */
+    private function notifyAdmin(string $subject, array $discution): void
+    {
         $this->mailService->sendEmail(
             new TemplatedEmail()
-                ->from(new Address('admin@${PROJECT_NAME}.fr', '${PROJECT_NAME}'))
-                ->to((string) 'alexis.verquin@gmail.com')
-                ->subject('succés de la selection du gagnant')
+                ->to($this->adminEmail)
+                ->subject($subject)
                 ->htmlTemplate('contact/toAdmin.html.twig'),
             $discution,
         );
-
-        $io->success('gagnant selectionné avec success');
-
-        return Command::SUCCESS;
     }
 }

@@ -13,9 +13,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ThemeType extends AbstractType
 {
-    /**
-     * @throws \DateMalformedStringException
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -24,18 +21,20 @@ class ThemeType extends AbstractType
                 'class' => SurveyChoice::class,
                 'choice_label' => 'name',
             ])
+            // Les valeurs par défaut (mois en cours) sont posées dans le contrôleur pour un nouveau thème :
+            // l'option 'data' écraserait les dates à chaque édition.
             ->add('dateStart', DateType::class, [
                 'label' => 'Date de début :',
-                'data' => new \DateTime('now')->modify('first day of this month'),
             ])
             ->add('dateEnd', DateType::class, [
                 'label' => 'Date de fin :',
-                'data' => new \DateTime('now')->modify('last day of this month'),
             ])
             ->add('winner', EntityType::class, [
                 'class' => User::class,
                 'choice_label' => 'name',
                 'label' => 'Gagnant',
+                'required' => false,
+                'placeholder' => '— Pas encore de gagnant —',
             ])
         ;
     }

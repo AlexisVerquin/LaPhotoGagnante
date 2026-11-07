@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Contact;
+use App\Entity\User;
 use App\Form\ContactType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,16 +17,19 @@ final class ContactController extends AbstractController
     public function index(Request $request, EntityManagerInterface $entityManager): Response
     {
         $contact = new Contact();
+        $user = $this->getUser();
+        if ($user instanceof User && $user->getEmail()) {
+            // Pré-remplit l'email du membre connecté (il reste modifiable)
+            $contact->setEmail($user->getEmail());
+        }
         $form = $this->createForm(ContactType::class, $contact);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $contact
-                ->setCreatedAtValue();
-
-            $contact
                 ->setType(Contact::TYPE_CONTACT)
                 ->setOrigin(0)
+                ->setUserId($user instanceof User ? $user->getId() : null)
             ;
             $this->addFlash('success', 'formulaire validé !');
             $entityManager->persist($contact);

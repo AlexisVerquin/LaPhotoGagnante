@@ -7,8 +7,10 @@ use App\Entity\Trait\DateTrait;
 use App\Repository\ContactRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ContactRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Contact implements DateInterface
 {
     use DateTrait;
@@ -20,12 +22,17 @@ class Contact implements DateInterface
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 10, max: 5000)]
     private string $message;
 
     #[ORM\Column(nullable: true)]
     private ?int $userId = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank]
+    #[Assert\Email]
+    #[Assert\Length(max: 100)]
     private string $email;
 
     #[ORM\Column]

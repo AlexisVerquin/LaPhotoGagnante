@@ -12,6 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -27,6 +28,9 @@ class User implements DateInterface, UserInterface, PasswordAuthenticatedUserInt
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Assert\NotBlank]
+    #[Assert\Email]
+    #[Assert\Length(max: 180)]
     private ?string $email = null;
 
     /**
@@ -48,12 +52,15 @@ class User implements DateInterface, UserInterface, PasswordAuthenticatedUserInt
     private ?string $avatar = null;
 
     #[ORM\Column(length: 50)]
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 2, max: 50)]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $bio = null;
 
     #[ORM\Column(length: 100, nullable: true)]
+    #[Assert\Length(max: 100)]
     private ?string $city = null;
 
     /**
@@ -65,7 +72,7 @@ class User implements DateInterface, UserInterface, PasswordAuthenticatedUserInt
     /**
      * @var Collection<int, Vote>
      */
-    #[ORM\ManyToMany(targetEntity: Vote::class, mappedBy: 'user')]
+    #[ORM\OneToMany(targetEntity: Vote::class, mappedBy: 'user')]
     private Collection $votes;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
@@ -257,7 +264,7 @@ class User implements DateInterface, UserInterface, PasswordAuthenticatedUserInt
     {
         if (!$this->votes->contains($vote)) {
             $this->votes->add($vote);
-            $vote->addUser($this);
+            $vote->setUser($this);
         }
 
         return $this;
@@ -265,9 +272,7 @@ class User implements DateInterface, UserInterface, PasswordAuthenticatedUserInt
 
     public function removeVote(Vote $vote): static
     {
-        if ($this->votes->removeElement($vote)) {
-            $vote->removeUser($this);
-        }
+        $this->votes->removeElement($vote);
 
         return $this;
     }

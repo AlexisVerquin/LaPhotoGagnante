@@ -17,7 +17,7 @@ class PhotoService
     public function getPhotoWinnerLastTheme(): ?Photo
     {
         $lastTheme = $this->entityManager->getRepository(Theme::class)->findLastFinishedTheme();
-        if (!$lastTheme) {
+        if (!$lastTheme || !$lastTheme->getWinner()) {
             return null;
         }
 

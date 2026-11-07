@@ -3,6 +3,9 @@ alert:
     aggree-terms-not-checked:  You should agree to our terms.
     modification:
         success: The changes have been successfully
+    password:
+        invalid_current: The current password is incorrect
+        mismatch: The new passwords do not match
 
 form:
     label:

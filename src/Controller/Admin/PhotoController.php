@@ -7,6 +7,7 @@ namespace App\Controller\Admin;
 use App\Entity\Photo;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -17,13 +18,19 @@ class PhotoController extends AbstractController
     {
     }
 
-    #[Route('/accept/{id}', name: '_accept')]
-    public function acceptPhoto(Photo $photo): Response
+    #[Route('/accept/{id}', name: '_accept', methods: ['POST'])]
+    public function acceptPhoto(Request $request, Photo $photo): Response
     {
+        if (!$this->isCsrfTokenValid('accept-photo-' . $photo->getId(), $request->request->getString('_token'))) {
+            $this->addFlash('danger', 'Jeton CSRF invalide');
+
+            return $this->redirectToRoute('admin_dashboard');
+        }
+
         $photo->setIsVisible(true);
 
         $this->em->flush();
-        $this->addFlash('success', 'photo mis a jour avec succés');
+        $this->addFlash('success', 'Photo validée avec succès');
 
         return $this->redirectToRoute('admin_dashboard');
     }

@@ -13,11 +13,10 @@
 
                     <div class="mb-3">
                         {{ form_label(form.email) }}
-                        {{ form_widget(form.email, {'value': (app.user) ? app.user.email : "" }) }}
+                        {{ form_widget(form.email) }}
                     </div>
 
                     {{ form_row(form.message) }}
-                    {{ form_widget(form.userId, {'value': (app.user) ? app.user.id : "" }) }}
                     <button class="btn btn-fun btn-lg mt-3 w-25">Envoyer</button>
                 {{ form_end(form) }}
 
