@@ -100,4 +100,6 @@ Requêtes clés : `ThemeRepository::findActualTheme()` (thème en cours), `findL
 
 ## Suivi
 
+**`TODO.md` : liste des prochains chantiers (à consulter en début de session, cocher au fur et à mesure).**
+
 `AUDIT.md` : audit du 2026-11-07, liste des corrections faites et des points encore ouverts (perfs, XSS potentielle dans alert_controller, CD…).
