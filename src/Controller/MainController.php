@@ -72,7 +72,7 @@ final class MainController extends AbstractController
             'nbUsers' => $nbUsers,
             'nbVotes' => $nbVotes,
             'nbThemes' => $nbThemes,
-            'allThemes' => $themeRepository->findAll(),
+            'recentWinners' => $this->em->getRepository(Photo::class)->findRecentWinningPhotos(),
         ]);
     }
 
@@ -287,6 +287,12 @@ final class MainController extends AbstractController
     public function cgu(): Response
     {
         return $this->render('main/cgu.html.twig');
+    }
+
+    #[Route('/mentions-legales', name: 'app_legal_notice')]
+    public function legalNotice(): Response
+    {
+        return $this->render('main/legal_notice.html.twig');
     }
 
     #[Route('/rgpd', name: 'app_rgpd')]

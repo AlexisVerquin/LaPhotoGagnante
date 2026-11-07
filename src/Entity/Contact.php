@@ -44,6 +44,10 @@ class Contact implements DateInterface
     #[ORM\Column(length: 10)]
     private string $type;
 
+    /** Demande traitée : le message (et ses réponses) est supprimé 24 h après. */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $closedAt = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -117,6 +121,18 @@ class Contact implements DateInterface
     public function setType(string $type): static
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    public function getClosedAt(): ?\DateTimeImmutable
+    {
+        return $this->closedAt;
+    }
+
+    public function setClosedAt(?\DateTimeImmutable $closedAt): static
+    {
+        $this->closedAt = $closedAt;
 
         return $this;
     }

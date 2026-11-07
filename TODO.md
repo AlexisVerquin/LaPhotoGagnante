@@ -2,13 +2,13 @@
 
 Liste établie le 2026-11-07. Pour chaque point : ce qui existe déjà, pour repartir vite.
 
-- [ ] **1. Désigner le gagnant automatiquement à la fin du concours**
-  - Existe : commande `app:set-winner` (dernier thème terminé, photos validées, égalité → photo la plus ancienne, sans effet si déjà un gagnant) + ligne cron proposée dans `deploy/README.md` § 6.
-  - À faire : choisir cron serveur **ou** Symfony Scheduler (worker dans la stack Docker, rien à configurer sur l'hôte) ; annoncer le gagnant aux membres (email / page d'accueil).
+- [x] **1. Désigner le gagnant automatiquement à la fin du concours**
+  - Fait : `app:daily` (gagnant → annonce du nouveau concours → purge), une seule ligne de cron dans `deploy/README.md` § 6.
+  - Reste : installer le cron sur le serveur ; annoncer le gagnant aux membres (email / accueil).
 
 - [ ] **2. Newsletter et/ou réseaux sociaux** (nouveau concours, résultats…)
-  - Existe : Messenger + RabbitMQ pour l'envoi asynchrone d'emails ; le README évoque une option « notifications par email » désactivable (à vérifier : pas de champ d'abonnement dans `User` aujourd'hui).
-  - À faire : abonnement / désabonnement (lien dans chaque email, obligation RGPD), envoi par lots ; publication auto (Symfony Notifier a des connecteurs Facebook Page, Telegram, Discord, Bluesky, Mastodon…).
+  - Fait : email « nouveau concours » aux membres abonnés, désinscription en un clic (profil, lien, bouton Gmail/Outlook).
+  - Reste : email de résultats ; publication sur les réseaux sociaux (Symfony Notifier) — **accord explicite de l'auteur obligatoire** pour diffuser une photo hors du site (CGU § 6).
 
 - [ ] **3. Configuration de Cloudflare**
   - Existe : procédure DNS OVH → Cloudflare et tunnel dans `deploy/README.md` § 1 bis et § 2.
@@ -31,8 +31,8 @@ Liste établie le 2026-11-07. Pour chaque point : ce qui existe déjà, pour rep
   - À faire : audit RGAA / WCAG 2.2 AA (Lighthouse, axe, navigation clavier, lecteur d'écran, contrastes, textes alternatifs des photos, messages d'alerte annoncés) ; déclaration d'accessibilité.
 
 - [ ] **8. Vérification RGPD et CGU**
-  - Existe : pages `/rgpd` et `/cgu` (complétées pour Google / Facebook, suppression des données), EXIF supprimés, anonymisation à la suppression du compte.
-  - À faire : relire en entier (mentions légales / hébergeur, responsable de traitement, durées de conservation réellement appliquées : photos non gagnantes supprimées après le concours ?, gagnante 1 an ?) ; automatiser ces purges ; registre des traitements ; vérifier l'absence de cookies non essentiels (Bootstrap Icons et Google Fonts chargés depuis des CDN externes → transfert d'IP, à héberger localement).
+  - Fait : CGU, politique de confidentialité et mentions légales réécrites (structure CNIL, alignées sur le code) ; purge automatique, vraie suppression de compte, désinscription, polices et icônes locales ; registre `docs/registre-traitements.md`.
+  - Reste : compléter `config/packages/legal.yaml` (hébergeur, pays du serveur, adresse publique de contact) ; relecture par un avocat sur les points ouverts (auto-hébergement et anonymat de l'éditeur, applicabilité du DSA) ; vérifier la durée réelle des journaux sur le serveur.
 
 ## Points techniques encore ouverts (cf. `AUDIT.md`)
 

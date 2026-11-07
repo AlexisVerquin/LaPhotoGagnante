@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -27,6 +28,10 @@ class UserInfoType extends AbstractType
             ])
             ->add('city', TextType::class, [
                 'label' => 'form.label.city',
+                'required' => false,
+            ])
+            ->add('notifyNewTheme', CheckboxType::class, [
+                'label' => 'Me prévenir par email à chaque nouveau concours',
                 'required' => false,
             ])
             ->add('email', EmailType::class, [

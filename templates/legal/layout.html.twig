@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{# Gabarit commun aux pages légales : chaque page définit legal_title, legal_icon, sections et son contenu #}
+{% block title %}{{ legal_title }}{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="mb-5 text-center">
+            <span class="hero-eyebrow mb-3">
+                <i class="bi {{ legal_icon }}" aria-hidden="true"></i> Document légal
+            </span>
+            <h1 class="hero-title-v2 h2 mt-3 mb-1">{{ legal_title }}</h1>
+            <p class="text-muted mb-0">Dernière mise à jour : {{ legal.updated_at|date('d/m/Y') }}</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <nav class="section-card p-4 p-md-5" style="position: sticky; top: 2rem;" aria-label="Sommaire">
+                    <div class="form-section-title" role="heading" aria-level="2">
+                        <span class="form-section-icon icon-info"><i class="bi bi-list-ul" aria-hidden="true"></i></span>
+                        Sommaire
+                    </div>
+                    <ol class="list-unstyled d-flex flex-column gap-2 mb-0">
+                        {% for id, title in sections %}
+                            <li><a href="#{{ id }}" class="text-decoration-none" style="color: var(--ink);">{{ loop.index }}. {{ title }}</a></li>
+                        {% endfor %}
+                    </ol>
+                </nav>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="section-card p-4 p-md-5 legal-content">
+                    {% block legal_content %}{% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\UserInfoType;
 use App\Security\EmailVerifier;
+use App\Service\DataEraser;
 use App\Service\ImageSanitizer;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -169,12 +170,9 @@ final class UserManageController extends AbstractController
     #[Route('/user/delete', name: 'app_delete_user', methods: ['DELETE'])]
     public function removeUser(
         LoggerInterface $logger,
-        EntityManagerInterface $em,
         Request $request,
-        Filesystem $filesystem,
         Security $security,
-        #[Autowire('%kernel.project_dir%/public/uploads/avatars')]
-        string $avatarFileDirectory,
+        DataEraser $dataEraser,
     ): Response {
         $user = $this->getUser();
         if (!$user instanceof User) {
@@ -182,42 +180,17 @@ final class UserManageController extends AbstractController
         }
 
         if ($this->isCsrfTokenValid('delete-user-' . $user->getId(), $request->request->getString('_token'))) {
-            $avatar = $user->getAvatar();
-
             try {
-                if ($avatar) {
-                    $filesystem->remove($avatarFileDirectory . '/' . $avatar);
-                }
-
-                $randomisedMail = uniqid('userdelete-');
-                $user
-                    ->setEmail($randomisedMail . '@deleteduser.fr')
-                    ->setIsVerified(false)
-                    ->setUpdatedAt(new \DateTime('now'))
-                    ->setRoles(['ROLE_USER'])
-                    ->setAvatar(null)
-                    ->setName('Anonyme')
-                    ->setCity(null)
-                    ->setBio(null)
-                    ->setIsActive(false)
-                    // S'il revient par Google ou Facebook, il repartira sur un compte neuf.
-                    ->setGoogleId(null)
-                    ->setFacebookId(null)
-                    // Plus personne ne pourra se connecter à ce compte.
-                    ->setPassword(bin2hex(random_bytes(32)))
-                ;
-
-                $em->flush();
-
-                // On le déconnecte tout de suite, sans repasser par la confirmation de déconnexion.
+                // Tout part : compte, photos, votes, messages et avatar (cf. DataEraser)
+                $dataEraser->eraseAccount($user);
                 $security->logout(false);
 
-                $this->addFlash('success', "Votre compte a bien été supprimer, merci pour votre participation. \n a bientôt");
+                $this->addFlash('success', 'Votre compte et vos données ont bien été supprimés. Merci pour votre participation, et à bientôt !');
 
                 return $this->redirectToRoute('app_main');
             } catch (\Exception $e) {
                 $logger->error($e->getMessage());
-                $this->addFlash('danger', "Erreur lors de la suppression de l'utilisateur, veuillez contacter un administrateur");
+                $this->addFlash('danger', 'Erreur lors de la suppression de votre compte, merci de nous contacter.');
             }
         }
 

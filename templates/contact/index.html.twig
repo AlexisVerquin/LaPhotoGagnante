@@ -22,6 +22,10 @@
                     <div class="position-absolute" style="left: -10000px;" aria-hidden="true">
                         {{ form_row(form.website) }}
                     </div>
+                    <p class="text-muted small mt-3 mb-0">
+                        Votre message et votre email servent uniquement à vous répondre : ils sont supprimés 24 h après la clôture de votre demande.
+                        En savoir plus : <a href="{{ path('app_rgpd') }}">politique de confidentialité</a>.
+                    </p>
                     <button class="btn btn-fun btn-lg mt-3 w-25">Envoyer</button>
                 {{ form_end(form) }}
 

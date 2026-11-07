@@ -63,6 +63,13 @@
                         {{ form_errors(registrationForm.agreeTerms) }}
                     </div>
 
+                    {# Information « premier niveau » demandée par la CNIL au moment de la collecte #}
+                    <p class="text-muted small mb-3">
+                        Vos informations servent uniquement à gérer votre compte et votre participation aux concours sur {{ site_name }}.
+                        Vous serez prévenu par email des nouveaux concours (désactivable à tout moment) ; pour en savoir plus et exercer vos droits,
+                        consultez la <a href="{{ path('app_rgpd') }}" class="register-link">politique de confidentialité</a>.
+                    </p>
+
                     <button type="submit" class="btn btn-fun btn-lg w-100">
                         S’inscrire
                     </button>

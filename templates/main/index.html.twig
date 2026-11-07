@@ -171,7 +171,7 @@
                         {% else %}
                             <div class="d-flex justify-content-center">
                                 <div class="polaroid" style="width: 240px; transform: rotate(2deg);">
-                                    <img src="https://picsum.photos/seed/comingsoon/400/500"
+                                    <img src="{{ asset('images/photo_foret.webp') }}"
                                          alt="Bientôt un nouveau concours">
                                     <div class="polaroid-caption">À vos objectifs !</div>
                                 </div>
@@ -289,32 +289,18 @@
 {#                </a>#}
             </div>
             <div class="gallery-scroll d-flex gap-4">
-{#                {% for theme in allThemes %}#}
-{#                    {% if theme.winner %}#}
-{#                        {{ dump(theme.winner.photos) }}#}
-{#                        <div class="polaroid polaroid-mini">#}
-{#                            <img src="https://picsum.photos/seed/win1/300/300" alt="Gagnant">#}
-{#                            <div class="polaroid-caption">Juillet — {{ theme.themeChoice.name }}</div>#}
-{#                        </div>#}
-{#                    {% endif %}#}
-{#                {% endfor %}#}
-
-                <div class="polaroid polaroid-mini">
-                    <img src="https://picsum.photos/seed/win2/300/300" alt="Gagnant">
-                    <div class="polaroid-caption">Juin — Vertige</div>
-                </div>
-                <div class="polaroid polaroid-mini">
-                    <img src="https://picsum.photos/seed/win3/300/300" alt="Gagnant">
-                    <div class="polaroid-caption">Mai — Instantané</div>
-                </div>
-                <div class="polaroid polaroid-mini">
-                    <img src="https://picsum.photos/seed/win4/300/300" alt="Gagnant">
-                    <div class="polaroid-caption">Avril — Brume</div>
-                </div>
-                <div class="polaroid polaroid-mini">
-                    <img src="https://picsum.photos/seed/win5/300/300" alt="Gagnant">
-                    <div class="polaroid-caption">Mars — Racines</div>
-                </div>
+{% set mois = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'] %}
+                {# Les photos gagnantes sont gardées un an, puis supprimées (cf. DataRetention) #}
+                {% for photo in recentWinners %}
+                    <div class="polaroid polaroid-mini">
+                        <img src="{{ asset('uploads/themes/' ~ photo.theme.directoryName ~ '/' ~ photo.name) }}"
+                             alt="Photo gagnante de {{ photo.user.name }}, thème {{ photo.theme.themeChoice.name ?? '' }}"
+                             loading="lazy">
+                        <div class="polaroid-caption">{{ mois[photo.theme.dateEnd|date('n') - 1] }} — {{ photo.theme.themeChoice.name ?? '' }}</div>
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-0">Les premiers gagnants apparaîtront ici à la fin du premier concours.</p>
+                {% endfor %}
             </div>
         </div>
 

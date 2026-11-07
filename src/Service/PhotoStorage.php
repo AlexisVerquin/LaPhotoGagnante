@@ -76,6 +76,14 @@ final class PhotoStorage
     /**
      * Où se trouve le fichier, qu'il soit en attente ou publié (null s'il a disparu).
      */
+    /**
+     * Efface le fichier de la photo, qu'il soit en attente ou publié.
+     */
+    public function delete(Photo $photo): void
+    {
+        $this->filesystem->remove([$this->pendingPath($photo), $this->publicPath($photo)]);
+    }
+
     public function locate(Photo $photo): ?string
     {
         foreach ([$this->pendingPath($photo), $this->publicPath($photo)] as $path) {

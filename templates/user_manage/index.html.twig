@@ -99,6 +99,12 @@
                                 {{ form_errors(formUser.email) }}
                                 <div class="form-hint mt-1">Une confirmation vous sera envoyée si vous modifiez cette adresse.</div>
                             </div>
+                            <div class="col-md-12">
+                                <div class="form-check">
+                                    {{ form_widget(formUser.notifyNewTheme, {'attr': {'class': 'form-check-input'}}) }}
+                                    {{ form_label(formUser.notifyNewTheme, null, {'label_attr': {'class': 'form-check-label small'}}) }}
+                                </div>
+                            </div>
                         </div>
 
                         <hr class="form-section-divider">

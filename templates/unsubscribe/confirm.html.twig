@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Désinscription{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row justify-content-center align-items-center min-vh-100 py-5">
+            <div class="card register-card p-4 p-md-5 text-center" style="max-width: 560px;">
+                <h1 class="h3 mb-3">Ne plus recevoir les emails de nouveau concours ?</h1>
+                <p class="text-muted mb-4">
+                    L'adresse <strong>{{ email }}</strong> ne sera plus prévenue au lancement des concours.
+                    Vous pourrez toujours changer d'avis depuis votre profil.
+                </p>
+                {# L'adresse signée de la page sert d'autorisation : pas besoin d'être connecté #}
+                <form method="post" action="{{ app.request.uri }}">
+                    <button type="submit" class="btn btn-fun btn-lg">Me désinscrire</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

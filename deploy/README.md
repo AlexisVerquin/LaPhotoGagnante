@@ -133,8 +133,9 @@ docker exec photoprix-prod-php-1 php bin/console app:user:promote votre@email.fr
 `crontab -e` en tant que `github-runner` :
 
 ```cron
-# Désigne le gagnant du dernier concours terminé (sans effet s'il n'y en a pas)
-15 0 * * * docker exec photoprix-prod-php-1 php bin/console app:set-winner >> /srv/photoprix/logs/set-winner.log 2>&1
+# Chaque nuit : désigne le gagnant du concours terminé, annonce le nouveau concours par email,
+# puis supprime ce qui a dépassé sa durée de conservation (photos, messages clôturés)
+15 0 * * * docker exec photoprix-prod-php-1 php bin/console app:daily >> /srv/photoprix/logs/daily.log 2>&1
 
 # Sauvegarde quotidienne de la base (14 jours conservés)
 30 3 * * * docker exec photoprix-prod-database-1 sh -c 'exec mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" --single-transaction "$MYSQL_DATABASE"' | gzip > /srv/photoprix/backups/photoprix-$(date +\%Y\%m\%d-\%H\%M\%S).sql.gz && ls -1t /srv/photoprix/backups/photoprix-*.sql.gz | tail -n +15 | xargs -r rm --

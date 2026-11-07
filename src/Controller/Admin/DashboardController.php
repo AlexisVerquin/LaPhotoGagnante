@@ -181,13 +181,22 @@ class DashboardController extends AbstractController
         ]);
     }
 
-    #[Route('/contact/read/{id}', 'contact_read', methods: ['GET'])]
-    public function readContact(Contact $contact): Response
+    /**
+     * Demande traitée : elle disparaît du tableau de bord et sera supprimée 24 h plus tard (cf. DataRetention).
+     */
+    #[Route('/contact/close/{id}', 'contact_close', methods: ['POST'])]
+    public function closeContact(Contact $contact, Request $request): Response
     {
-        $contact->setIsView(true);
+        if (!$this->isCsrfTokenValid('close_contact_' . $contact->getId(), $request->request->getString('_token'))) {
+            $this->addFlash('danger', 'Jeton CSRF invalide');
+
+            return $this->redirectToRoute('admin_dashboard');
+        }
+
+        $contact->setIsView(true)->setClosedAt(new \DateTimeImmutable());
         $this->em->flush();
 
-        $this->addFlash('success', 'Message marqué comme vue');
+        $this->addFlash('success', 'Demande clôturée : elle sera supprimée dans 24 h.');
 
         return $this->redirectToRoute('admin_dashboard');
     }

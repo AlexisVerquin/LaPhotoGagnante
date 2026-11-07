@@ -89,6 +89,10 @@ class User implements DateInterface, UserInterface, PasswordAuthenticatedUserInt
     #[ORM\Column(length: 255, unique: true, nullable: true)]
     private ?string $facebookId = null;
 
+    /** Reçoit un email à chaque nouveau concours (désactivable dans le profil ou depuis l'email). */
+    #[ORM\Column(options: ['default' => true])]
+    private bool $notifyNewTheme = true;
+
     public function __construct()
     {
         $this->photos = new ArrayCollection();
@@ -329,6 +333,18 @@ class User implements DateInterface, UserInterface, PasswordAuthenticatedUserInt
     public function setFacebookId(?string $facebookId): static
     {
         $this->facebookId = $facebookId;
+
+        return $this;
+    }
+
+    public function isNotifyNewTheme(): bool
+    {
+        return $this->notifyNewTheme;
+    }
+
+    public function setNotifyNewTheme(bool $notifyNewTheme): static
+    {
+        $this->notifyNewTheme = $notifyNewTheme;
 
         return $this;
     }

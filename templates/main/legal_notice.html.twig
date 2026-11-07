@@ -1,0 +1,59 @@
+{% extends 'legal/layout.html.twig' %}
+{% import 'legal/_macros.html.twig' as l %}
+
+{# Mentions obligatoires pour un site édité en France (loi pour la confiance dans l'économie numérique, article 6). #}
+{% set legal_title = 'Mentions légales' %}
+{% set legal_icon = 'bi-info-circle' %}
+{% set sections = {
+    'editeur': 'Éditeur',
+    'hebergement': 'Hébergement',
+    'prestataires': 'Autres prestataires',
+    'credits': 'Crédits',
+} %}
+
+{% block legal_content %}
+    <section id="editeur" class="mb-5">
+        <h2 class="h5 mb-3">1. Éditeur</h2>
+        <ul class="text-muted mb-0">
+            <li>Site : {{ site_name }}, <a href="{{ site_url }}">{{ site_url|split('//')|last }}</a></li>
+            <li>Éditeur et directeur de la publication : {{ legal.editor_name }}, particulier éditant le site à titre non professionnel</li>
+            {% if legal.editor_address %}
+                <li>Adresse : {{ legal.editor_address }}</li>
+            {% endif %}
+            <li>Contact : <a href="mailto:{{ legal.contact_email }}">{{ legal.contact_email }}</a> ou <a href="{{ path('app_contact') }}">formulaire de contact</a></li>
+        </ul>
+    </section>
+
+    <hr class="form-section-divider">
+
+    <section id="hebergement" class="mb-5">
+        <h2 class="h5 mb-3">2. Hébergement</h2>
+        <ul class="text-muted mb-0">
+            <li>Hébergeur : {{ l.value(legal.host_name, 'nom') }}</li>
+            <li>Adresse : {{ l.value(legal.host_address, 'adresse') }}</li>
+            <li>Téléphone : {{ l.value(legal.host_phone, 'téléphone') }}</li>
+            <li>Pays du serveur : {{ l.value(legal.host_country, 'pays') }}</li>
+        </ul>
+    </section>
+
+    <hr class="form-section-divider">
+
+    <section id="prestataires" class="mb-5">
+        <h2 class="h5 mb-3">3. Autres prestataires</h2>
+        <ul class="text-muted mb-0">
+            <li>Acheminement et protection du trafic : Cloudflare, Inc., 101 Townsend Street, San Francisco, CA 94107, États-Unis</li>
+            <li>Envoi des emails : {{ legal.mail_provider }}</li>
+            <li>Nom de domaine : OVH SAS, 2 rue Kellermann, 59100 Roubaix, France</li>
+        </ul>
+    </section>
+
+    <hr class="form-section-divider">
+
+    <section id="credits">
+        <h2 class="h5 mb-3">4. Crédits</h2>
+        <p class="text-muted mb-0">
+            Polices Poppins et Nunito (licence SIL Open Font License 1.1) et icônes Bootstrap Icons (licence MIT), hébergées sur le Site.
+            Les photos publiées appartiennent à leurs auteurs.
+        </p>
+    </section>
+{% endblock %}

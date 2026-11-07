@@ -17,6 +17,24 @@ class PhotoRepository extends ServiceEntityRepository
     }
 
     /**
+     * Les photos gagnantes encore conservées (moins d'un an), de la plus récente à la plus ancienne.
+     *
+     * @return list<Photo>
+     */
+    public function findRecentWinningPhotos(int $limit = 6): array
+    {
+        return $this->createQueryBuilder('p')
+            ->innerJoin('p.theme', 't')
+            ->addSelect('t')
+            ->andWhere('t.winner = p.user')
+            ->andWhere('p.is_visible = true')
+            ->orderBy('t.dateEnd', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * La photo qui a reçu le plus de votes aujourd'hui, avec son score du jour.
      *
      * @return list<array{0: Photo, nbVotes: int}>

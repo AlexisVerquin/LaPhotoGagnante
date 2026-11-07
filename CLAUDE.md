@@ -28,7 +28,10 @@ docker compose exec -e SKIP_DB_RESET=1 php php bin/phpunit tests/Service   # tes
 docker compose exec -u appuser php composer audit
 php bin/console doctrine:migrations:migrate
 php bin/console doctrine:fixtures:load     # admin : alexis.verquin@gmail.com / Password123!
-php bin/console app:set-winner             # désigne le gagnant du dernier thème terminé (cron)
+php bin/console app:daily                  # cron quotidien : app:set-winner → app:notify-new-theme → app:data:purge (dans cet ordre)
+php bin/console app:set-winner             # désigne le gagnant du dernier thème terminé
+php bin/console app:notify-new-theme       # email « nouveau concours » aux abonnés, une seule fois par concours (Theme.notifiedAt)
+php bin/console app:data:purge [--dry-run] # applique les durées de conservation (DataRetention)
 php bin/console app:photos:strip-exif [--dry-run]   # retire les EXIF des images déjà dans public/uploads
 php bin/console app:photos:secure-pending [--dry-run]  # déplace hors de public/ les photos non validées (1 fois au déploiement)
 vendor/bin/phpstan analyse                 # niveau 6 (phpstan.neon local, phpstan.dist.neon versionné)
@@ -72,7 +75,9 @@ Job `docker` : construit l'image de prod (cible `prod` du Dockerfile) à chaque 
 - `Survey` / `SurveyChoice` : sondage du thème suivant (dates en **DATETIME**). 1 vote/jour/membre (`User::lastVoteDate`), compteur `numberVoter`.
 - `Contact` : messages du formulaire de contact (`type` = `contact` | `reply`, `origin` = id du message d'origine).
 - Avatar par défaut : `public/images/default-avatar.jpg` (versionné ; `public/uploads` ne l'est pas).
-- `User` : identifiant = email. Suppression de compte = **anonymisation** (pas de DELETE), cf. `UserManageController::removeUser`.
+- `User` : identifiant = email. `notifyNewTheme` = abonné aux emails de nouveau concours (désinscription : profil, ou lien signé `/desinscription/{id}` + en-têtes `List-Unsubscribe`, cf. `ThemeNotifier`). Suppression de compte = **vraie suppression** via `App\Service\DataEraser::eraseAccount` (photos + fichiers, votes, messages, demandes de mot de passe, avatar ; `Theme.winner` mis à NULL).
+- `Contact.closedAt` : demande clôturée par l'admin (bouton POST + CSRF), supprimée 24 h après par la purge.
+- **Durées de conservation** (`App\Service\DataRetention`, constantes) : photos non gagnantes supprimées dès que le gagnant est désigné (7 jours max après la fin), photo gagnante 1 an, messages 24 h après clôture (1 an max). **Toute modif d'une durée doit être reportée dans `templates/main/rgpd.html.twig` et `docs/registre-traitements.md`.**
 - `DateTrait` : `created_at` / `updated_at` via callbacks → l'entité doit avoir `#[ORM\HasLifecycleCallbacks]`.
 
 Requêtes clés : `ThemeRepository::findActualTheme()` (thème en cours), `findLastFinishedTheme()`, `SurveyRepository::findActiveSurvey()`.
@@ -89,6 +94,10 @@ Requêtes clés : `ThemeRepository::findActualTheme()` (thème en cours), `findL
 - Emails : expéditeur global `MAILER_FROM` (config/packages/mailer.yaml), email admin = paramètre `app.admin_email` (`ADMIN_MAIL`). Ne pas remettre de `->from()` en dur.
 
 ## Conventions / pièges
+
+- **Aucune ressource externe** dans les pages (RGPD : l'IP des visiteurs ne doit partir chez aucun tiers) : polices et icônes sont dans `assets/fonts/`, `importmap_polyfill: false`, pas d'image de démo distante. Seule exception : le rechargement à chaud FrankenPHP, en dev uniquement.
+- **Pages légales** (`/cgu`, `/rgpd`, `/mentions-legales`, gabarit `templates/legal/layout.html.twig`) : les infos (éditeur, hébergeur, âge minimum, date de mise à jour) sont dans `config/packages/legal.yaml` ; une valeur vide s'affiche « À compléter ». Changer `updated_at` à chaque modification. Le registre CNIL est dans `docs/registre-traitements.md`.
+- Twig globales : `site_name`, `site_url` (`config/packages/twig.yaml`), à utiliser dans les emails plutôt que du texte en dur.
 
 - Toute action qui modifie l'état : **POST/DELETE + CSRF** (y compris côté admin).
 - Toujours vérifier `$this->getUser() instanceof User` (et `isVerified()` pour participer/voter) plutôt qu'un `@var`.

@@ -1,0 +1,8 @@
+{# Affiche la valeur, ou un marqueur bien visible si elle manque dans config/packages/legal.yaml #}
+{% macro value(value, label) %}
+    {%- if value is not null and value is not same as('') -%}
+        {{ value }}
+    {%- else -%}
+        <mark class="px-1 rounded">À compléter : {{ label }}</mark>
+    {%- endif -%}
+{% endmacro %}
