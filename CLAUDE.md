@@ -40,7 +40,9 @@ php bin/console lint:twig templates && php bin/console lint:container
 
 ### CI
 
-`.github/workflows/ci.yml` (push sur `main`/`dev` et PR) : job qualité (composer audit, php-cs-fixer, PHPStan `phpstan.dist.neon`, lint conteneur/Twig/YAML, mapping) + job tests (PHPUnit sur PHP 8.4 et 8.5, service MySQL 8.4). Dependabot (`.github/dependabot.yml`) ouvre des PR vers `dev`. Avant de pousser, rejouer localement : `composer audit`, `php-cs-fixer fix --dry-run`, `phpstan analyse -c phpstan.dist.neon`, `bin/phpunit`.
+`.github/workflows/ci.yml` (push sur `main`/`dev` et PR) : job qualité + job tests (PHP 8.4 et 8.5, service MySQL 8.4) + job image de prod. Dependabot (`.github/dependabot.yml`) ouvre des PR vers `dev`.
+- **La liste des vérifications est dans `bin/ci-checks`** (`quality` | `tests` | `all`), appelé tel quel par le workflow : ajouter une vérification là, jamais directement dans le YAML.
+- **Rejouer la CI en local avant de pousser** : `bin/ci` (rapide, arbre de travail, conteneur de dev) ; `bin/ci --clean` (comme GitHub : clone LF propre du dernier commit dans `var/ci/clone`, MySQL jetable, ~1 min) ; options `--php 8.4|all`, `--quality`, `--tests`, `--docker`.
 Job `docker` : construit l'image de prod (cible `prod` du Dockerfile) à chaque push.
 
 ### CD (production)

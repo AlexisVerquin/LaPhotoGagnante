@@ -145,8 +145,9 @@ php bin/console make:migration
 # Compiler les assets pour la production (si AssetMapper)
 php bin/console asset-map:compile
 
-# Lancer les tests (si présents)
-php bin/phpunit
+# Rejouer en local exactement la CI GitHub (cf. bin/ci --help)
+bin/ci            # rapide, sur les fichiers en cours (stack Docker démarrée)
+bin/ci --clean    # comme GitHub : clone propre du dernier commit, base MySQL jetable
 ```
 
 ---
