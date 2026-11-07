@@ -46,7 +46,7 @@ class ThemeController extends AbstractController
             }
 
             $this->em->flush();
-            $this->addFlash('alert-success', $message);
+            $this->addFlash('success', $message);
 
             return $this->redirectToRoute('admin_manage_themes');
         }

@@ -71,7 +71,7 @@ final class UserManageController extends AbstractController
 
             $em->flush();
 
-            $this->addFlash('alert-success', $translator->trans('alert.modification.success'));
+            $this->addFlash('success', $translator->trans('alert.modification.success'));
 
             return $this->redirectToRoute('app_user_manage');
         }
@@ -213,7 +213,7 @@ final class UserManageController extends AbstractController
                 return $this->redirectToRoute('app_main');
             } catch (\Exception $e) {
                 $logger->error($e->getMessage());
-                $this->addFlash('error', "Erreur lors de la suppression de l'utilisateur, veuillez contacter un administrateur");
+                $this->addFlash('danger', "Erreur lors de la suppression de l'utilisateur, veuillez contacter un administrateur");
             }
         }
 

@@ -65,7 +65,7 @@ class DashboardController extends AbstractController
             $this->em->persist($survey);
             $this->em->flush();
 
-            $this->addFlash('alert-success', 'le sondage a été ajouté avec succes');
+            $this->addFlash('success', 'le sondage a été ajouté avec succes');
 
             return $this->redirectToRoute('admin_manage_survey');
         }
@@ -78,7 +78,7 @@ class DashboardController extends AbstractController
             $this->em->persist($surveyChoice);
             $this->em->flush();
 
-            $this->addFlash('alert-success', 'le theme a été ajouté avec succes');
+            $this->addFlash('success', 'le theme a été ajouté avec succes');
 
             return $this->redirectToRoute('admin_manage_survey');
         }
@@ -98,7 +98,7 @@ class DashboardController extends AbstractController
             $this->em->remove($survey);
             $this->em->flush();
 
-            $this->addFlash('alert-success', 'Sondage supprimé avec succes');
+            $this->addFlash('success', 'Sondage supprimé avec succes');
         }
 
         return $this->redirectToRoute('admin_manage_survey');
@@ -111,7 +111,7 @@ class DashboardController extends AbstractController
             $this->em->remove($surveyChoice);
             $this->em->flush();
 
-            $this->addFlash('alert-success', 'Theme supprimé avec succes');
+            $this->addFlash('success', 'Theme supprimé avec succes');
         }
 
         return $this->redirectToRoute('admin_manage_survey');
@@ -130,7 +130,7 @@ class DashboardController extends AbstractController
             $message = trim((string) ($form['message'] ?? ''));
 
             if (!$this->isCsrfTokenValid('reply_contact_' . $contact->getId(), (string) ($form['csrf'] ?? '')) || '' === $message) {
-                $this->addFlash('error', 'Le formulaire n\'est pas valide');
+                $this->addFlash('danger', 'Le formulaire n\'est pas valide');
 
                 return $this->redirectToRoute('admin_contact_reply', ['id' => $contact->getId()]);
             }
@@ -152,7 +152,7 @@ class DashboardController extends AbstractController
                 $this->em->flush();
             } catch (\Exception $exception) {
                 $logger->error($exception->getMessage());
-                $this->addFlash('error', 'Erreur lors de l\'enregistrement de la réponse');
+                $this->addFlash('danger', 'Erreur lors de l\'enregistrement de la réponse');
 
                 return $this->redirectToRoute('admin_contact_reply', ['id' => $contact->getId()]);
             }

@@ -47,6 +47,22 @@ final class UserManageTest extends FunctionalTestCase
         self::assertTrue($this->passwordIsValid($reloaded, self::NEW_PASSWORD));
     }
 
+    public function testSuccessMessageUsesAStyledAlertType(): void
+    {
+        // Régression : le type « alert-success » donnait une alerte sans fond (classe alert-alert-success)
+        $this->client->loginUser($this->createUser());
+
+        $this->submitProfile(['user_info[city]' => 'Lille']);
+        $crawler = $this->client->followRedirect();
+
+        $flashes = json_decode((string) $crawler->filter('body')->attr('data-alert-flashes-value'), true);
+        self::assertIsArray($flashes);
+        self::assertNotEmpty($flashes);
+        foreach ($flashes as $flash) {
+            self::assertContains($flash['type'], ['success', 'danger', 'warning', 'info']);
+        }
+    }
+
     public function testWrongCurrentPasswordIsRefused(): void
     {
         $user = $this->createUser();
