@@ -80,7 +80,8 @@ Chaque bouton n'apparaît que si son identifiant est renseigné dans `.env.prod`
 1. **Créer une app** → cas d'usage *Authentifier et demander des données aux utilisateurs avec Facebook Login*.
 2. **Paramètres de l'app** → **Général** : URL de politique de confidentialité `https://laphotogagnante.fr/rgpd`, URL des conditions `https://laphotogagnante.fr/cgu`, **instructions de suppression des données** `https://laphotogagnante.fr/rgpd#suppression-donnees`, domaine de l'app `laphotogagnante.fr`.
 3. **Facebook Login** → **Paramètres** : URI de redirection OAuth valide `https://laphotogagnante.fr/connect/facebook/check` (laisser *Strict Mode* activé).
-4. Autorisations : `email` et `public_profile` (accès standard, pas de validation d'app requise).
+4. **Ajouter la permission `email`** (sinon Facebook affiche « Invalid Scopes: email ») : menu de gauche **Cas d'utilisation** → *Authentifier et demander des données aux utilisateurs avec Facebook Login* → **Personnaliser** → section **Autorisations** → ligne `email` → **Ajouter**. `public_profile` est déjà présente. Accès standard : aucune validation de l'app par Meta n'est nécessaire.
+   - Si ce cas d'utilisation n'apparaît pas, l'app a été créée avec un autre type (ex. *Entreprise* / « Facebook Login for Business ») : le plus simple est de recréer une app avec le cas d'utilisation ci-dessus.
 5. Passer l'app en mode **Live** (en mode *Développement*, seuls les comptes ajoutés comme testeurs peuvent se connecter).
 6. Copier l'ID de l'app et la clé secrète dans `OAUTH_FACEBOOK_CLIENT_ID` / `OAUTH_FACEBOOK_CLIENT_SECRET`.
 
