@@ -27,7 +27,8 @@ final class StripExifCommand extends Command
 {
     public function __construct(
         private ImageSanitizer $imageSanitizer,
-        #[Autowire('%kernel.project_dir%/public/uploads')] private string $uploadsDirectory,
+        #[Autowire('%kernel.project_dir%/public/uploads')]
+        private string $uploadsDirectory,
     ) {
         parent::__construct();
     }

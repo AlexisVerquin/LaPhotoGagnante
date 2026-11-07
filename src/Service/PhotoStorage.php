@@ -22,8 +22,10 @@ final class PhotoStorage
     private Filesystem $filesystem;
 
     public function __construct(
-        #[Autowire('%app.pending_photos_dir%')] private string $pendingDirectory,
-        #[Autowire('%app.public_photos_dir%')] private string $publicDirectory,
+        #[Autowire('%app.pending_photos_dir%')]
+        private string $pendingDirectory,
+        #[Autowire('%app.public_photos_dir%')]
+        private string $publicDirectory,
     ) {
         $this->filesystem = new Filesystem();
     }

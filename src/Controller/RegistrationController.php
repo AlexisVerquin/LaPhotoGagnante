@@ -33,7 +33,8 @@ class RegistrationController extends AbstractController
         UserPasswordHasherInterface $userPasswordHasher,
         EntityManagerInterface $entityManager,
         UserAuthenticatorInterface $userAuthenticator,
-        #[Autowire(service: 'security.authenticator.form_login.main')] AuthenticatorInterface $authenticator,
+        #[Autowire(service: 'security.authenticator.form_login.main')]
+        AuthenticatorInterface $authenticator,
     ): Response {
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
@@ -50,7 +51,9 @@ class RegistrationController extends AbstractController
             $entityManager->flush();
 
             // generate a signed url and email it to the user
-            $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
+            $this->emailVerifier->sendEmailConfirmation(
+                'app_verify_email',
+                $user,
                 new TemplatedEmail()
                     ->to((string) $user->getEmail())
                     ->subject('Please Confirm your Email')

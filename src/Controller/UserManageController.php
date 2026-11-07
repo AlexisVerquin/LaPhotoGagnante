@@ -61,7 +61,9 @@ final class UserManageController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             if ($email !== $user->getEmail()) {
                 $user->setIsVerified(false);
-                $emailVerifier->sendEmailConfirmation('app_verify_email', $user,
+                $emailVerifier->sendEmailConfirmation(
+                    'app_verify_email',
+                    $user,
                     new TemplatedEmail()
                         ->to((string) $user->getEmail())
                         ->subject('Please Confirm your Email')
@@ -94,7 +96,8 @@ final class UserManageController extends AbstractController
         SluggerInterface $slugger,
         EntityManagerInterface $em,
         ImageSanitizer $imageSanitizer,
-        #[Autowire('%kernel.project_dir%/public/uploads/avatars')] string $avatarFileDirectory,
+        #[Autowire('%kernel.project_dir%/public/uploads/avatars')]
+        string $avatarFileDirectory,
     ): Response {
         $submittedToken = $request->headers->get('X-CSRF-Token');
 
@@ -170,7 +173,8 @@ final class UserManageController extends AbstractController
         Request $request,
         Filesystem $filesystem,
         Security $security,
-        #[Autowire('%kernel.project_dir%/public/uploads/avatars')] string $avatarFileDirectory,
+        #[Autowire('%kernel.project_dir%/public/uploads/avatars')]
+        string $avatarFileDirectory,
     ): Response {
         $user = $this->getUser();
         if (!$user instanceof User) {

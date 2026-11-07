@@ -13,8 +13,10 @@ use Twig\Attribute\AsTwigFunction;
 final class OAuthExtension
 {
     public function __construct(
-        #[Autowire('%env(OAUTH_GOOGLE_CLIENT_ID)%')] private string $googleClientId,
-        #[Autowire('%env(OAUTH_FACEBOOK_CLIENT_ID)%')] private string $facebookClientId,
+        #[Autowire('%env(OAUTH_GOOGLE_CLIENT_ID)%')]
+        private string $googleClientId,
+        #[Autowire('%env(OAUTH_FACEBOOK_CLIENT_ID)%')]
+        private string $facebookClientId,
     ) {
     }
 

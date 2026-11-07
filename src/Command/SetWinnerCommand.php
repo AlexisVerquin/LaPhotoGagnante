@@ -29,7 +29,8 @@ class SetWinnerCommand extends Command
         private EntityManagerInterface $entityManager,
         private ThemeRepository $themeRepository,
         private MailService $mailService,
-        #[Autowire('%app.admin_email%')] private string $adminEmail,
+        #[Autowire('%app.admin_email%')]
+        private string $adminEmail,
     ) {
         parent::__construct();
     }

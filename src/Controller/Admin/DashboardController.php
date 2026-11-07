@@ -51,7 +51,8 @@ class DashboardController extends AbstractController
     #[Route('/manage/survey/{id}', 'manage_survey', requirements: ['id' => "\d+"], defaults: ['id' => null])]
     public function manageSurveys(
         Request $request,
-        #[MapEntity(mapping: ['id' => 'id'])] ?Survey $survey = null,
+        #[MapEntity(mapping: ['id' => 'id'])]
+        ?Survey $survey = null,
     ): Response {
         $survey ??= new Survey();
         $surveyChoice = new SurveyChoice();
@@ -123,7 +124,8 @@ class DashboardController extends AbstractController
         Request $request,
         MailService $mailService,
         LoggerInterface $logger,
-        #[Autowire('%app.admin_email%')] string $adminEmail,
+        #[Autowire('%app.admin_email%')]
+        string $adminEmail,
     ): Response {
         if ($request->isMethod('POST') && $request->request->all('reply')) {
             $form = $request->request->all('reply');

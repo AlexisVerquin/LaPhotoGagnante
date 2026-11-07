@@ -22,7 +22,8 @@ class ThemeController extends AbstractController
     #[Route('/{id}', 'manage_themes', requirements: ['id' => "\d+"], defaults: ['id' => null])]
     public function manageThemes(
         Request $request,
-        #[MapEntity(mapping: ['id' => 'id'])] ?Theme $theme = null,
+        #[MapEntity(mapping: ['id' => 'id'])]
+        ?Theme $theme = null,
     ): Response {
         if (!$theme) {
             $theme = new Theme()

@@ -196,7 +196,8 @@ final class MainController extends AbstractController
                         'Vous devez etre connecté pour pouvoir voter. <a href="%s" class="alert-link">connectez-vous</a>',
                         $cartUrl,
                     ),
-                ], 200,
+                ],
+                200,
             );
         }
 
@@ -214,7 +215,8 @@ final class MainController extends AbstractController
                 [
                     'success' => false,
                     'message' => 'Les votes seront activés le ' . $this->getVoteOpeningDate($actualTheme)->format('d-m-Y'),
-                ], 200,
+                ],
+                200,
             );
         }
 
