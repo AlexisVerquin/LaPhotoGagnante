@@ -7,6 +7,8 @@ use App\Entity\Theme;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Asset\Packages;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Attribute\AsTwigFunction;
 
 class UploadExtension
@@ -21,6 +23,8 @@ class UploadExtension
     public function __construct(
         private EntityManagerInterface $em,
         private Security $security,
+        private UrlGeneratorInterface $urlGenerator,
+        private Packages $packages,
     ) {
     }
 
@@ -46,7 +50,7 @@ class UploadExtension
     }
 
     /**
-     * @return array{image: string, isVisible: bool|null, vote: int}|null
+     * @return array{imageUrl: string, isVisible: bool|null, vote: int}|null
      */
     #[AsTwigFunction('getPhotoCurrentTheme')]
     public function getPhotoCurrentTheme(): ?array
@@ -64,7 +68,10 @@ class UploadExtension
         }
 
         return [
-            'image' => self::UPLOADS_DIR['themes'] . '/' . $actualTheme->getDirectoryName() . '/' . $hasPhoto->getName(),
+            // Photo validée : fichier public ; en attente : servie par le contrôleur (auteur/admin uniquement)
+            'imageUrl' => $hasPhoto->isVisible()
+                ? $this->packages->getUrl(self::UPLOADS_DIR['themes'] . '/' . $actualTheme->getDirectoryName() . '/' . $hasPhoto->getName())
+                : $this->urlGenerator->generate('app_photo_image', ['id' => $hasPhoto->getId()]),
             'isVisible' => $hasPhoto->isVisible(),
             'vote' => count($hasPhoto->getVotes()),
         ];

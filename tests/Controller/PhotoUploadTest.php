@@ -51,9 +51,11 @@ final class PhotoUploadTest extends FunctionalTestCase
         self::assertInstanceOf(Photo::class, $photo);
         self::assertFalse($photo->isVisible(), 'La photo doit attendre la validation admin');
 
-        $path = static::getContainer()->getParameter('kernel.project_dir')
-            . '/public/uploads/themes/' . $theme->getDirectoryName() . '/' . $photo->getName();
-        self::assertFileExists($path);
+        $path = static::getContainer()->getParameter('app.pending_photos_dir')
+            . '/' . $theme->getDirectoryName() . '/' . $photo->getName();
+        self::assertFileExists($path, 'La photo en attente doit être rangée hors du dossier web');
+        self::assertFileDoesNotExist(static::getContainer()->getParameter('app.public_photos_dir')
+            . '/' . $theme->getDirectoryName() . '/' . $photo->getName());
 
         $exif = @exif_read_data($path) ?: [];
         self::assertArrayNotHasKey('Make', $exif);

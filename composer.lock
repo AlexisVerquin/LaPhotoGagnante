@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dcfea50ae943331eb2521acc6ea9b7da",
+    "content-hash": "f5e66ddddaaa40dca181a544b5755b6f",
     "packages": [
         {
             "name": "composer/semver",
@@ -9754,7 +9754,8 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-10-08T21:09:11+00:00"
+            "time": "2026-10-08T21:09:11+00:00",
+            "published-time": "2026-10-08T21:09:23+00:00"
         },
         {
             "name": "phpstan/phpstan-doctrine",

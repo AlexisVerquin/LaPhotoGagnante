@@ -6,3 +6,8 @@ parameters:
         - public/
         - src/
         - tests/
+    ignoreErrors:
+        # Les entités suivent la convention du maker Symfony (propriétés nullables tant que l'objet
+        # n'est pas persisté, colonnes NOT NULL en base) : écart de type volontaire, signalé à tort.
+        - identifier: doctrine.columnType
+        - identifier: doctrine.associationType

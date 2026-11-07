@@ -16,6 +16,11 @@ class PhotoRepository extends ServiceEntityRepository
         parent::__construct($registry, Photo::class);
     }
 
+    /**
+     * Photo la plus votée aujourd'hui, avec son nombre de votes du jour.
+     *
+     * @return list<array{0: Photo, nbVotes: int}>
+     */
     public function findPhotosOfTheDay(): array
     {
         $dateStart = new \DateTime();
@@ -34,14 +39,6 @@ class PhotoRepository extends ServiceEntityRepository
             ->getQuery()
             ->setMaxResults(1)
             ->getResult();
-    }
-
-    public function getNb()
-    {
-        return $this->createQueryBuilder('p')
-            ->select('COUNT(p)')
-            ->getQuery()
-            ->getSingleScalarResult();
     }
 
     //    /**

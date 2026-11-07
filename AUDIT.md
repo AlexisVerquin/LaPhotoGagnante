@@ -51,12 +51,19 @@ Divers : `docker-compose.yml` (`serverVersion=8:4:0` → `8.4.0`), fichiers `*:Z
 - **Décisions** : voter pour sa propre photo reste autorisé ; l'email vérifié est requis pour participer.
 - Dépôt nettoyé : `rapport.txt`, `.idea/`, certificat Caddy en double.
 
-## 3. À traiter — décisions ou chantiers ⚠️
+## 3. Troisième passe ✅
+
+- **Spam du formulaire de contact** : pot de miel (champ invisible ; un robot qui le remplit reçoit un faux succès, rien n'est enregistré) + 3 messages par heure et par IP.
+- **Photos en attente** : rangées dans `storage/pending/` (hors du dossier web), visibles seulement par leur auteur et les admins via `/photo/{id}/image` ; déplacées dans `public/` à la validation. Commande `app:photos:secure-pending` pour les photos envoyées avant. Les tests ont révélé et fait corriger un bug (dossier de destination non créé).
+- **CI GitHub Actions** : qualité (audit, style, PHPStan à 0 erreur, lints) + tests PHP 8.4/8.5 sur MySQL ; Dependabot.
+- 59 tests au total.
+
+## 4. À traiter — décisions ou chantiers ⚠️
 
 1. ~~Aucun test~~ ✅
 2. ~~Métadonnées EXIF~~ ✅
-3. **Photos en attente servies publiquement** : `public/uploads/themes/<dir>/` est accessible à qui connaît l'URL. Pour une vraie modération, stocker hors de `public/` et servir via un contrôleur.
-4. ~~Limitation des tentatives de connexion~~ ✅ — reste le formulaire de contact (spam), qui n'a aucune limite.
+3. ~~Photos en attente servies publiquement~~ ✅
+4. ~~Limitation des tentatives de connexion et spam du contact~~ ✅
 5. **`alert_controller.js` injecte les messages en `innerHTML`** : aujourd'hui les messages sont contrôlés par le serveur, mais tout futur flash contenant une saisie utilisateur deviendra une XSS. Préférer `textContent` et construire le lien « connectez-vous » en DOM.
 6. ~~Vote pour sa propre photo~~ : autorisé (décision).
 7. ~~Email vérifié pour l'upload~~ : conservé (décision).
@@ -72,7 +79,9 @@ Divers : `docker-compose.yml` (`serverVersion=8:4:0` → `8.4.0`), fichiers `*:Z
 
 ---
 
-## 4. Qualité 💡
+## 5. Qualité 💡
+
+- **CD (déploiement automatique)** : à construire une fois l'hébergement de production choisi.
 
 - Types nullable incohérents avec le mapping Doctrine (`?string` pour une colonne `NOT NULL`) : sans gravité, mais à aligner pour que PHPStan soit propre.
 - Logique « votes ouverts 6 jours avant la fin » dupliquée (`MainController`, `ThemeExtension`) : à mettre dans une méthode de `Theme` ou un service.
@@ -82,10 +91,14 @@ Divers : `docker-compose.yml` (`serverVersion=8:4:0` → `8.4.0`), fichiers `*:Z
 
 ---
 
-## À faire après cette passe
+## Au prochain déploiement
 
 ```bash
-php bin/console doctrine:migrations:migrate
+composer install --no-dev --optimize-autoloader
+php bin/console doctrine:migrations:migrate --no-interaction
+php bin/console app:photos:secure-pending      # photos en attente -> hors du dossier web
+php bin/console app:photos:strip-exif          # EXIF des photos déjà envoyées
 ```
 
-Puis tester à la main : inscription (email reçu ?), envoi de photo, validation admin, vote, changement de mot de passe, suppression de compte, `php bin/console app:set-winner`.
+- Reconstruire l'image Docker (extension `exif` ajoutée) et vérifier que `storage/` est accessible en écriture et **persistant** (volume), comme `public/uploads/`.
+- Tester à la main : inscription (email reçu ?), envoi de photo, validation admin, vote, changement de mot de passe, suppression de compte, formulaire de contact, `php bin/console app:set-winner`.

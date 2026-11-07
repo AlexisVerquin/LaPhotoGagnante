@@ -121,7 +121,7 @@
                                     </div>
                                     <img class="rounded w-100 mb-2"
                                          style="aspect-ratio: 4/5; object-fit: cover;"
-                                         src="{{ asset(getPathCurrentTheme() ~ photo.name) }}"
+                                         src="{{ path('app_photo_image', {id: photo.id}) }}"
                                          alt="{{ photo.title ?? 'Photo en attente de validation' }}">
                                     <p class="text-muted small text-center mb-3">
                                         {{ photo.description ?? 'Pas de description' }}

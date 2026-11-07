@@ -17,6 +17,11 @@
                     </div>
 
                     {{ form_row(form.message) }}
+
+                    {# Pot de miel anti-spam : hors écran, ignoré par les lecteurs d'écran #}
+                    <div class="position-absolute" style="left: -10000px;" aria-hidden="true">
+                        {{ form_row(form.website) }}
+                    </div>
                     <button class="btn btn-fun btn-lg mt-3 w-25">Envoyer</button>
                 {{ form_end(form) }}
 

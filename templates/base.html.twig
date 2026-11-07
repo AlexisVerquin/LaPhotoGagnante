@@ -93,7 +93,7 @@
                     data-uploadfile-target="preview"
                     class="img-fluid"
                     width="600"
-                    src="{% if not currentPhoto %}{{ asset('images/default_images.jpg') }}{% else %}{{ asset(currentPhoto['image']) }}{% endif %}"
+                    src="{% if not currentPhoto %}{{ asset('images/default_images.jpg') }}{% else %}{{ currentPhoto['imageUrl'] }}{% endif %}"
                     alt="Aperçu de la photo pour le concours"
                 >
 

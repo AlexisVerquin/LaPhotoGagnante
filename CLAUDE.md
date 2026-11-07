@@ -15,7 +15,7 @@ Préférence de l'utilisateur : **demander en cas de doute** avant de modifier ;
 
 ## Commandes
 
-Le PHP de la machine hôte n'a ni GD, ni pdo_mysql, ni amqp : **lancer les commandes dans le conteneur** (`docker compose exec php …`, et `-u appuser` pour composer).
+Le PHP de la machine hôte n'a ni GD, ni pdo_mysql, ni amqp : **lancer les commandes dans le conteneur avec `-u appuser`** (`docker compose exec -u appuser php …`). Sans `-u appuser`, les fichiers créés (caches, `storage/`, fichiers reformatés) appartiennent à root.
 
 ```bash
 docker compose up -d                       # stack complète (https://localhost, MailHog sur :8025)
@@ -26,12 +26,18 @@ php bin/console doctrine:migrations:migrate
 php bin/console doctrine:fixtures:load     # admin : alexis.verquin@gmail.com / Password123!
 php bin/console app:set-winner             # désigne le gagnant du dernier thème terminé (cron)
 php bin/console app:photos:strip-exif [--dry-run]   # retire les EXIF des images déjà dans public/uploads
+php bin/console app:photos:secure-pending [--dry-run]  # déplace hors de public/ les photos non validées (1 fois au déploiement)
 vendor/bin/phpstan analyse                 # niveau 6 (phpstan.neon local, phpstan.dist.neon versionné)
 composer cs:check / composer cs:fix        # php-cs-fixer
 vendor/bin/rector process --dry-run
 php bin/console doctrine:schema:validate --skip-sync   # valide le mapping sans BDD
 php bin/console lint:twig templates && php bin/console lint:container
 ```
+
+### CI
+
+`.github/workflows/ci.yml` (push sur `main`/`dev` et PR) : job qualité (composer audit, php-cs-fixer, PHPStan `phpstan.dist.neon`, lint conteneur/Twig/YAML, mapping) + job tests (PHPUnit sur PHP 8.4 et 8.5, service MySQL 8.4). Dependabot (`.github/dependabot.yml`) ouvre des PR vers `dev`. Avant de pousser, rejouer localement : `composer audit`, `php-cs-fixer fix --dry-run`, `phpstan analyse -c phpstan.dist.neon`, `bin/phpunit`.
+Pas encore de CD (déploiement) : la cible d'hébergement n'est pas définie.
 
 ### Tests
 
@@ -45,7 +51,7 @@ php bin/console lint:twig templates && php bin/console lint:container
 ## Domaine (src/Entity)
 
 - `Theme` : un concours. `dateStart`/`dateEnd` en **DATE** (pas datetime). `directoryName` = sous-dossier de `public/uploads/themes/`. `winner` (User, ManyToOne), `ThemeChoice` (SurveyChoice, OneToOne).
-- `Photo` : `is_visible` = validée par l'admin. Une seule par (user, theme). Fichier dans `public/uploads/themes/<directoryName>/<name>`.
+- `Photo` : `is_visible` = validée par l'admin. Une seule par (user, theme). Fichier **en attente** dans `storage/pending/<directoryName>/<name>` (hors web), **validée** dans `public/uploads/themes/<directoryName>/<name>`. Tout passe par `App\Service\PhotoStorage` (`storePending`, `publish` à la validation admin, `locate`). Route `app_photo_image` (`/photo/{id}/image`) : sert l'image, en attente = auteur ou admin uniquement (404 sinon).
 - `Vote` : un vote par (user, theme), modifiable (on change de photo). Ouvert **6 jours avant `dateEnd`**. Voter pour sa propre photo est **autorisé** (décision produit).
 - `Survey` / `SurveyChoice` : sondage du thème suivant (dates en **DATETIME**). 1 vote/jour/membre (`User::lastVoteDate`), compteur `numberVoter`.
 - `Contact` : messages du formulaire de contact (`type` = `contact` | `reply`, `origin` = id du message d'origine).
@@ -60,6 +66,7 @@ Requêtes clés : `ThemeRepository::findActualTheme()` (thème en cours), `findL
 - `src/Twig/` : fonctions Twig globales (`getCurrentTheme`, `getCurrentThemeTime`, `getPhotoCurrentTheme`, `getAvatar`…) appelées dans `base.html.twig` / navbar → **doivent tolérer l'absence de thème et d'utilisateur**.
 - Endpoints AJAX (vote, vote sondage, upload photo/avatar) : POST, jeton CSRF dans l'en-tête `X-CSRF-Token`, réponse JSON. Les contrôleurs Stimulus attendent du JSON (`success`/`message` ou `error`).
 - Uploads (photo, avatar) : passent par `ImageSanitizer` (ré-encodage GD → plus aucune métadonnée EXIF/GPS, orientation appliquée). Participer (upload, vote) exige un **email vérifié** (décision produit).
+- Formulaire de contact : pot de miel (champ caché `website`, robot → faux succès, rien enregistré) + rate limiter `contact_form` (3 messages/heure/IP, `config/packages/framework.yaml`).
 - Connexion : `login_throttling` = 3 échecs / 15 min par (email + IP) (`config/packages/security.yaml`, `symfony/rate-limiter`).
 - Emails : expéditeur global `MAILER_FROM` (config/packages/mailer.yaml), email admin = paramètre `app.admin_email` (`ADMIN_MAIL`). Ne pas remettre de `->from()` en dur.
 
@@ -75,4 +82,4 @@ Requêtes clés : `ThemeRepository::findActualTheme()` (thème en cours), `findL
 
 ## Suivi
 
-`AUDIT.md` : audit du 2026-11-07, liste des corrections faites et des points encore ouverts (perfs, photos en attente servies publiquement, XSS potentielle dans alert_controller…).
+`AUDIT.md` : audit du 2026-11-07, liste des corrections faites et des points encore ouverts (perfs, XSS potentielle dans alert_controller, CD…).

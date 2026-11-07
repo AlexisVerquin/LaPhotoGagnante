@@ -37,3 +37,7 @@ phpstan.neon
 ###> IDE ###
 /.idea/
 ###< IDE ###
+
+###> photos en attente de validation (hors web) ###
+/storage/
+###< photos en attente de validation ###

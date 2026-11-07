@@ -9,6 +9,7 @@ use App\Entity\SurveyChoice;
 use App\Entity\Theme;
 use App\Entity\User;
 use App\Entity\Vote;
+use App\Service\PhotoStorage;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -75,7 +76,9 @@ abstract class FunctionalTestCase extends WebTestCase
     protected function createTheme(string $start = '-27 days', string $end = '+3 days', string $name = 'Reflets'): Theme
     {
         $directory = 'test_' . uniqid();
-        $this->createdDirectories[] = static::getContainer()->getParameter('kernel.project_dir') . '/public/uploads/themes/' . $directory;
+        $container = static::getContainer();
+        $this->createdDirectories[] = $container->getParameter('app.public_photos_dir') . '/' . $directory;
+        $this->createdDirectories[] = $container->getParameter('app.pending_photos_dir') . '/' . $directory;
 
         $theme = new Theme()
             ->setDateStart(new \DateTime($start))
@@ -101,6 +104,11 @@ abstract class FunctionalTestCase extends WebTestCase
 
         $this->em->persist($photo);
         $this->em->flush();
+
+        // Fichier réel : dans public/ si validée, dans la zone privée sinon
+        $storage = static::getContainer()->get(PhotoStorage::class);
+        $path = $visible ? $storage->publicPath($photo) : $storage->pendingPath($photo);
+        new Filesystem()->dumpFile($path, 'fake-jpeg-' . $photo->getName());
 
         // created_at est posé par le callback PrePersist : on le force après coup si besoin
         if ('now' !== $createdAt) {

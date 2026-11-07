@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Entity\Photo;
+use App\Service\PhotoStorage;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,10 +20,19 @@ class PhotoController extends AbstractController
     }
 
     #[Route('/accept/{id}', name: '_accept', methods: ['POST'])]
-    public function acceptPhoto(Request $request, Photo $photo): Response
+    public function acceptPhoto(Request $request, Photo $photo, PhotoStorage $photoStorage): Response
     {
         if (!$this->isCsrfTokenValid('accept-photo-' . $photo->getId(), $request->request->getString('_token'))) {
             $this->addFlash('danger', 'Jeton CSRF invalide');
+
+            return $this->redirectToRoute('admin_dashboard');
+        }
+
+        try {
+            // Déplace le fichier de la zone privée vers public/
+            $photoStorage->publish($photo);
+        } catch (\RuntimeException $e) {
+            $this->addFlash('danger', $e->getMessage());
 
             return $this->redirectToRoute('admin_dashboard');
         }

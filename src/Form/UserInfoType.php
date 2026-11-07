@@ -13,6 +13,9 @@ use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotCompromisedPassword;
 use Symfony\Component\Validator\Constraints\PasswordStrength;
 
+/**
+ * @extends AbstractType<\App\Entity\User>
+ */
 class UserInfoType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void

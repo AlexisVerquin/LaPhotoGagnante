@@ -124,8 +124,7 @@ class DashboardController extends AbstractController
         MailService $mailService,
         LoggerInterface $logger,
         #[Autowire('%app.admin_email%')] string $adminEmail,
-    ): Response
-    {
+    ): Response {
         if ($request->isMethod('POST') && $request->request->all('reply')) {
             $form = $request->request->all('reply');
             $message = trim((string) ($form['message'] ?? ''));

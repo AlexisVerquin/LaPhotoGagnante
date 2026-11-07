@@ -30,6 +30,9 @@ class PhotoService
         return null;
     }
 
+    /**
+     * @return array{0: Photo, nbVotes: int}|null
+     */
     public function getPhotoOfTheDay(): ?array
     {
         $votes = $this->entityManager->getRepository(Photo::class)->findPhotosOfTheDay();

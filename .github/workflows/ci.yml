@@ -1,0 +1,111 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+
+# Un nouveau push annule la CI encore en cours sur la même branche
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PHP_EXTENSIONS: ctype, iconv, intl, mbstring, pdo_mysql, gd, exif, amqp, zip, xsl
+  # Valeurs factices : la CI n'utilise aucun secret réel
+  APP_SECRET: ci-not-a-real-secret
+
+jobs:
+  quality:
+    name: Qualité (lint, PHPStan, style, sécurité)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          tools: composer:v2
+          coverage: none
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      # .env n'est pas versionné : on part de l'exemple
+      - run: cp .env.example .env
+
+      - run: composer validate --no-check-publish
+      - run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Vulnérabilités connues des dépendances
+        run: composer audit
+
+      - name: Style du code (php-cs-fixer)
+        run: vendor/bin/php-cs-fixer fix --dry-run --diff
+
+      - name: Analyse statique (PHPStan)
+        run: vendor/bin/phpstan analyse -c phpstan.dist.neon --no-progress --memory-limit=1G
+
+      - name: Lint Symfony
+        run: |
+          php bin/console lint:container
+          php bin/console lint:twig templates
+          php bin/console lint:yaml config translations --parse-tags
+          php bin/console doctrine:schema:validate --skip-sync
+
+  tests:
+    name: Tests (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.4', '8.5']
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    env:
+      # Les variables réelles priment sur .env.test
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/app?serverVersion=8.4.0&charset=utf8mb4
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          tools: composer:v2
+          coverage: none
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - run: cp .env.example .env
+      - run: composer install --no-interaction --no-progress --prefer-dist
+
+      # tests/bootstrap.php recrée la base app_test via les migrations
+      - name: PHPUnit
+        run: php bin/phpunit

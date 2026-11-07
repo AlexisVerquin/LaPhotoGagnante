@@ -1,0 +1,18 @@
+version: 2
+updates:
+  # Dépendances PHP : une PR groupée par semaine (correctifs et versions mineures)
+  - package-ecosystem: composer
+    directory: /
+    schedule:
+      interval: weekly
+    target-branch: dev
+    groups:
+      composer:
+        update-types: [minor, patch]
+
+  # Versions des actions GitHub utilisées par la CI
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    target-branch: dev

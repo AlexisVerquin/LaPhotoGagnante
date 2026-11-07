@@ -6,18 +6,19 @@ use App\Entity\Photo;
 use App\Entity\SurveyChoice;
 use App\Entity\Theme;
 use App\Entity\User;
-use DateMalformedStringException;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Faker\Factory;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
-    public function __construct(private UserPasswordHasherInterface $passwordHasher) {}
+    public function __construct(private UserPasswordHasherInterface $passwordHasher)
+    {
+    }
 
     /**
-     * @throws DateMalformedStringException
+     * @throws \DateMalformedStringException
      */
     public function load(ObjectManager $manager): void
     {
@@ -25,11 +26,11 @@ class AppFixtures extends Fixture
         $isAdmin = true;
         $userCount = 12;
 
-        //First Theme :
+        // First Theme :
         $themeChoice = new SurveyChoice()
             ->setNumberVoter($userCount)
             ->setName('Symétries naturelles')
-            ->setDescription("La nature fait tellement bien les chôses")
+            ->setDescription('La nature fait tellement bien les chôses')
         ;
 
         $theme = new Theme()
@@ -42,13 +43,13 @@ class AppFixtures extends Fixture
 
         $manager->persist($theme);
 
-        for ($i = 0; $i < $userCount; $i++) {
+        for ($i = 0; $i < $userCount; ++$i) {
             $user = new User();
             $photo = new Photo();
             $user->setCreatedAtValue();
 
             $user
-                ->setEmail(($isAdmin) ?'alexis.verquin@gmail.com' : $faker->email)
+                ->setEmail(($isAdmin) ? 'alexis.verquin@gmail.com' : $faker->email)
                 ->setRoles(($isAdmin) ? ['ROLE_USER', 'ROLE_ADMIN'] : ['ROLE_USER'])
                 ->setName(($isAdmin) ? 'Alexis' : $faker->name)
                 ->setIsActive(true)
@@ -56,21 +57,20 @@ class AppFixtures extends Fixture
                 ->setPassword(
                     $this->passwordHasher->hashPassword(
                         $user,
-                        "Password123!"
-                    )
+                        'Password123!',
+                    ),
                 )
             ;
 
             $photo->setCreatedAtValue();
             $photo
                 ->setIsVisible(true)
-                ->setName($i.'.jpg')
+                ->setName($i . '.jpg')
                 ->setTheme($theme)
             ;
             $user->addPhoto($photo);
             $isAdmin = false;
             $manager->persist($user);
-
         }
         $manager->flush();
     }
