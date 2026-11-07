@@ -62,6 +62,7 @@ sudo nano /srv/photoprix/.env.prod                          # remplacer TOUTES l
 - `DEFAULT_URI` et `SYMFONY_TRUSTED_HOSTS` : votre vrai domaine.
 - `MAILER_DSN` : un vrai serveur SMTP, sinon aucun email (inscription, mot de passe oublié) ne partira.
 - `CLOUDFLARE_TUNNEL_TOKEN` : le jeton de l'étape 2.
+- `LEGAL_HOST_ADDRESS`, `LEGAL_HOST_PHONE` : vos coordonnées d'hébergeur, obligatoires dans les mentions légales. Elles ne sont que dans ce fichier, jamais dans git.
 
 Le script refuse de déployer tant qu'il reste une valeur `change-me`.
 
@@ -133,14 +134,30 @@ docker exec photoprix-prod-php-1 php bin/console app:user:promote votre@email.fr
 `crontab -e` en tant que `github-runner` :
 
 ```cron
-# Désigne le gagnant du dernier concours terminé (sans effet s'il n'y en a pas)
-15 0 * * * docker exec photoprix-prod-php-1 php bin/console app:set-winner >> /srv/photoprix/logs/set-winner.log 2>&1
+# Chaque nuit : désigne le gagnant du concours terminé, annonce le nouveau concours par email,
+# puis supprime ce qui a dépassé sa durée de conservation (photos, messages clôturés)
+15 0 * * * docker exec photoprix-prod-php-1 php bin/console app:daily >> /srv/photoprix/logs/daily.log 2>&1
 
-# Sauvegarde quotidienne de la base (14 jours conservés)
-30 3 * * * docker exec photoprix-prod-database-1 sh -c 'exec mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" --single-transaction "$MYSQL_DATABASE"' | gzip > /srv/photoprix/backups/photoprix-$(date +\%Y\%m\%d-\%H\%M\%S).sql.gz && ls -1t /srv/photoprix/backups/photoprix-*.sql.gz | tail -n +15 | xargs -r rm --
+# Sauvegarde quotidienne de la base et des photos (installée par chaque déploiement)
+30 3 * * * /srv/photoprix/bin/backup.sh >> /srv/photoprix/logs/backup.log 2>&1
 ```
 
-Pensez à copier régulièrement `/srv/photoprix/backups` **hors du serveur** (disque externe, autre machine).
+Chaque sauvegarde produit deux fichiers dans `/srv/photoprix/backups` : `photoprix-*.sql.gz` (la base, 14 gardées) et `fichiers-*.tar`
+(photos publiées, photos en attente et avatars, 7 gardées car plus lourdes). Ces nombres se règlent avec `PHOTOPRIX_BACKUPS_TO_KEEP`
+et `PHOTOPRIX_FILE_BACKUPS_TO_KEEP`. Les photos font au plus 5 Mo : prévoir de la place en conséquence (`du -sh /srv/photoprix/backups`).
+
+Pensez à copier régulièrement `/srv/photoprix/backups` **hors du serveur** (disque externe, autre machine) : une sauvegarde sur le même disque ne protège pas d'une panne de ce disque.
+
+## Preprod réservée à quelques personnes
+
+Pour tester avec un petit groupe avant d'ouvrir à tous, on suit la même procédure avec un sous-domaine, par exemple `preprod.laphotogagnante.fr` :
+
+1. Tunnel Cloudflare : ajouter le hostname `preprod.laphotogagnante.fr` → `php:8080` (au lieu du domaine principal).
+2. `.env.prod` : `DEFAULT_URI=https://preprod.laphotogagnante.fr` et `SYMFONY_TRUSTED_HOSTS=^preprod\.laphotogagnante\.fr$`.
+3. **Restreindre l'accès** : Cloudflare Zero Trust → **Access** → **Applications** → *Self-hosted*, domaine `preprod.laphotogagnante.fr`, politique « Allow » avec la liste des emails invités (gratuit jusqu'à 50 personnes). Cloudflare leur envoie un code de connexion à usage unique : personne d'autre, ni aucun moteur de recherche, ne voit le site.
+4. Google / Facebook : ajouter aussi les URI `https://preprod.laphotogagnante.fr/connect/…/check`, ou laisser leurs identifiants vides en preprod.
+
+Le jour de l'ouverture, il suffit de remplacer le sous-domaine par `laphotogagnante.fr` aux étapes 1, 2 et 4, et de supprimer l'application Access : les données de la preprod sont conservées.
 
 ## Au quotidien
 
@@ -155,9 +172,19 @@ Pensez à copier régulièrement `/srv/photoprix/backups` **hors du serveur** (d
 
 ### Restaurer une sauvegarde
 
+La base :
+
 ```bash
 gunzip -c /srv/photoprix/backups/photoprix-AAAAMMJJ-HHMMSS.sql.gz \
   | docker exec -i photoprix-prod-database-1 sh -c 'exec mysql -uroot -p"$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE"'
 ```
+
+Les photos et avatars (les fichiers présents sont remplacés, les autres restent) :
+
+```bash
+docker exec -i photoprix-prod-php-1 tar xf - -C /app < /srv/photoprix/backups/fichiers-AAAAMMJJ-HHMMSS.tar
+```
+
+Restaurez la base et les fichiers **de la même date** : sinon des photos peuvent manquer en base, ou l'inverse.
 
 ⚠️ Le retour automatique à la version précédente ne défait **pas** les migrations de base de données : en cas de migration ratée, restaurer la sauvegarde faite juste avant (son chemin est affiché dans les logs du déploiement).

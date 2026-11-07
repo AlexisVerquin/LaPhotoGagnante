@@ -23,7 +23,9 @@ class Theme
 
     // Un même membre peut gagner plusieurs fois, et supprimer un thème
     // ne doit surtout pas supprimer son gagnant.
+    // Si c'est le membre qui supprime son compte, le concours reste simplement sans gagnant.
     #[ORM\ManyToOne]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
     private ?User $winner = null;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
@@ -46,6 +48,10 @@ class Theme
 
     #[ORM\Column]
     private ?bool $isAlreadyActived = null;
+
+    /** Date d'envoi de l'email « nouveau concours », pour ne prévenir les membres qu'une fois. */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $notifiedAt = null;
 
     public function __construct()
     {
@@ -186,6 +192,18 @@ class Theme
     public function setIsAlreadyActived(bool $isAlreadyActived): static
     {
         $this->isAlreadyActived = $isAlreadyActived;
+
+        return $this;
+    }
+
+    public function getNotifiedAt(): ?\DateTimeImmutable
+    {
+        return $this->notifiedAt;
+    }
+
+    public function setNotifiedAt(?\DateTimeImmutable $notifiedAt): static
+    {
+        $this->notifiedAt = $notifiedAt;
 
         return $this;
     }

@@ -4,6 +4,9 @@ framework:
         paths:
             - assets/
         missing_import_mode: strict
+        # Pas de script de compatibilité chargé depuis un CDN (ga.jspm.io) :
+        # tous les navigateurs actuels gèrent les import maps.
+        importmap_polyfill: false
 
 when@prod:
     framework:

@@ -99,6 +99,12 @@
                                 {{ form_errors(formUser.email) }}
                                 <div class="form-hint mt-1">Une confirmation vous sera envoyée si vous modifiez cette adresse.</div>
                             </div>
+                            <div class="col-md-12">
+                                <div class="form-check">
+                                    {{ form_widget(formUser.notifyNewTheme, {'attr': {'class': 'form-check-input'}}) }}
+                                    {{ form_label(formUser.notifyNewTheme, null, {'label_attr': {'class': 'form-check-label small'}}) }}
+                                </div>
+                            </div>
                         </div>
 
                         <hr class="form-section-divider">
@@ -141,6 +147,15 @@
                         </div>
 
                     {{ form_end(formUser) }}
+                </div>
+                <div class="section-card p-4 p-md-5 mt-5">
+                    <h2 class="h4 mb-1">Mes données</h2>
+                    <p class="text-muted my-3">
+                        Téléchargez tout ce que {{ site_name }} sait de vous : compte, photos, votes et messages, dans un fichier JSON réutilisable.
+                    </p>
+                    <a href="{{ path('app_user_export') }}" class="btn btn-outline-dark" data-turbo="false">
+                        <i class="bi bi-download me-1" aria-hidden="true"></i>Télécharger mes données
+                    </a>
                 </div>
                 <div class="section-card p-4 p-md-5 mt-5">
                     <h2 class="h4 mb-1">Suppression du compte</h2>

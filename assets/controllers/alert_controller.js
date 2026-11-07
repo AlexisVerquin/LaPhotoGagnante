@@ -45,27 +45,45 @@ export default class extends Controller {
     }
 
     error(event) {
-        this.show('danger', event.detail.message);
+        this.show('danger', event.detail.message, event.detail.link);
     }
 
     info(event) {
         this.show('info', event.detail.message);
     }
 
-    show(type, message) {
+    /**
+     * Le message est toujours inséré comme du texte, jamais comme du HTML : pas de faille XSS possible,
+     * même si un jour il contient une saisie d'utilisateur. Un lien éventuel est passé à part.
+     */
+    show(type, message, link = null) {
         if (!message) return;
 
-        type = normalizeAlertType(type);
+        const alertEl = document.createElement('div');
+        alertEl.className = `alert alert-${normalizeAlertType(type)} alert-dismissible fade show shadow-sm d-flex justify-content-between align-items-start`;
+        alertEl.setAttribute('role', 'alert');
 
-        const wrapper = document.createElement('div');
-        wrapper.innerHTML = `
-        <div class="alert alert-${type} alert-dismissible fade show shadow-sm d-flex justify-content-between align-items-start" role="alert">
-            <div>${message}</div>
-            <div class="ms-2"><button type="button" class="btn-close" data-action="click->alert#close" aria-label="Fermer"></button></div>
-        </div>
-    `;
+        const text = document.createElement('div');
+        text.textContent = message;
+        // Seulement des liens vers le site lui-même (pas de « javascript: » ni de site externe)
+        if (link && typeof link.url === 'string' && link.url.startsWith('/') && !link.url.startsWith('//')) {
+            const anchor = document.createElement('a');
+            anchor.href = link.url;
+            anchor.className = 'alert-link ms-1';
+            anchor.textContent = link.label || link.url;
+            text.append(' ', anchor);
+        }
 
-        const alertEl = wrapper.firstElementChild;
+        const closeWrapper = document.createElement('div');
+        closeWrapper.className = 'ms-2';
+        const closeButton = document.createElement('button');
+        closeButton.type = 'button';
+        closeButton.className = 'btn-close';
+        closeButton.dataset.action = 'click->alert#close';
+        closeButton.setAttribute('aria-label', 'Fermer');
+        closeWrapper.append(closeButton);
+
+        alertEl.append(text, closeWrapper);
         this.containerTarget.appendChild(alertEl);
 
         if (this.timeoutValue > 0) {

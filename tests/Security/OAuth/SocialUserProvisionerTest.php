@@ -74,7 +74,7 @@ final class SocialUserProvisionerTest extends FunctionalTestCase
         $this->provisioner()->provision('facebook', 'fb-sans-email', null, 'Bob');
     }
 
-    public function testDeletedAccountCannotLogIn(): void
+    public function testSuspendedAccountCannotLogIn(): void
     {
         $user = $this->provisioner()->provision('google', 'g-123', 'alice@example.com', 'Alice');
         $user->setIsActive(false);

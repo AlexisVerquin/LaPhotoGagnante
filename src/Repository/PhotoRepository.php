@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Photo;
+use App\Entity\Theme;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -14,6 +15,42 @@ class PhotoRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Photo::class);
+    }
+
+    /**
+     * Les photos validées d'un concours avec leurs auteurs, en une seule requête.
+     *
+     * @return list<Photo>
+     */
+    public function findVisibleForTheme(Theme $theme): array
+    {
+        return $this->createQueryBuilder('p')
+            ->innerJoin('p.user', 'u')
+            ->addSelect('u')
+            ->andWhere('p.theme = :theme')
+            ->andWhere('p.is_visible = true')
+            ->setParameter('theme', $theme)
+            ->orderBy('p.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Les photos gagnantes encore conservées (moins d'un an), de la plus récente à la plus ancienne.
+     *
+     * @return list<Photo>
+     */
+    public function findRecentWinningPhotos(int $limit = 6): array
+    {
+        return $this->createQueryBuilder('p')
+            ->innerJoin('p.theme', 't')
+            ->addSelect('t')
+            ->andWhere('t.winner = p.user')
+            ->andWhere('p.is_visible = true')
+            ->orderBy('t.dateEnd', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
     }
 
     /**

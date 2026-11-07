@@ -1,273 +1,156 @@
-{% extends 'base.html.twig' %}
+{% extends 'legal/layout.html.twig' %}
+{% import 'legal/_macros.html.twig' as l %}
 
-{% block title %}CGU{% endblock %}
+{# Les règles du concours décrites ici doivent rester alignées sur le code (vote, upload, DataRetention). #}
+{% set legal_title = 'Conditions générales d\'utilisation' %}
+{% set legal_icon = 'bi-file-earmark-text' %}
+{% set sections = {
+    'objet': 'Objet',
+    'service': 'Le service',
+    'compte': 'Votre compte',
+    'concours': 'Fonctionnement des concours',
+    'publication': 'Ce que vous pouvez publier',
+    'propriete': 'Vos photos et vos droits',
+    'moderation': 'Modération et signalement',
+    'responsabilite': 'Responsabilité',
+    'donnees': 'Données personnelles',
+    'modification': 'Modification des CGU',
+    'droit': 'Droit applicable',
+} %}
 
-{% set url = "www.site.com" %}
-{% set name = "LaPhotoGagnante" %}
+{% block legal_content %}
+    <section id="objet" class="mb-5">
+        <h2 class="h5 mb-3">1. Objet</h2>
+        <p class="text-muted mb-0">
+            Ces conditions générales d'utilisation (« CGU ») fixent les règles d'utilisation du site {{ site_name }},
+            accessible à l'adresse <a href="{{ site_url }}">{{ site_url|split('//')|last }}</a> (« le Site »).
+            En créant un compte, vous les acceptez. Les informations sur l'éditeur et l'hébergement figurent dans les
+            <a href="{{ path('app_legal_notice') }}">mentions légales</a>.
+        </p>
+    </section>
 
-{% block body %}
-    <div class="container py-5">
+    <hr class="form-section-divider">
 
-        <div class="mb-5 text-center">
-            <span class="hero-eyebrow mb-3">
-                <i class="bi bi-file-earmark-text" aria-hidden="true"></i> Document légal
-            </span>
-            <h1 class="hero-title-v2 h2 mt-3 mb-1">Conditions générales d'utilisation</h1>
-            <p class="text-muted mb-0">Dernière mise à jour : 01/10/2026</p>
-        </div>
+    <section id="service" class="mb-5">
+        <h2 class="h5 mb-3">2. Le service</h2>
+        <p class="text-muted mb-0">
+            {{ site_name }} est une communauté de photographie amateur, gratuite et sans but commercial.
+            Chaque concours a un thème : les membres envoient une photo, votent pour leurs préférées et choisissent ensemble le thème suivant.
+            Aucun prix ni lot n'est attribué : le gagnant est simplement mis à l'honneur sur le Site.
+        </p>
+    </section>
 
-        <div class="row g-4">
-            {# ---------- SOMMAIRE ---------- #}
-            <div class="col-lg-4">
-                <div class="section-card p-4 p-md-5" style="position: sticky; top: 2rem;">
-                    <div class="form-section-title" role="heading" aria-level="2">
-                        <span class="form-section-icon icon-info">
-                            <i class="bi bi-list-ul" aria-hidden="true"></i>
-                        </span>
-                        Sommaire
-                    </div>
-                    <ul class="list-unstyled d-flex flex-column gap-2 mb-0">
-                        <li><a href="#objet" class="text-decoration-none" style="color: var(--ink);">1. Objet</a></li>
-                        <li><a href="#presentation-du-service" class="text-decoration-none" style="color: var(--ink);">2. Présentation du service</a></li>
-                        <li><a href="#editeur-du-site" class="text-decoration-none" style="color: var(--ink);">3. Éditeur du Site</a></li>
-                        <li><a href="#creation-de-compte" class="text-decoration-none" style="color: var(--ink);">4. Création de compte</a></li>
-                        <li><a href="#fonctionnement-des-concours" class="text-decoration-none" style="color: var(--ink);">5. Fonctionnement des concours</a></li>
-                        <li><a href="#regles-de-publication" class="text-decoration-none" style="color: var(--ink);">6. Règles de publication</a></li>
-                        <li><a href="#propriete-intellectuelle" class="text-decoration-none" style="color: var(--ink);">7. Propriété intellectuelle</a></li>
-                        <li><a href="#moderation" class="text-decoration-none" style="color: var(--ink);">8. Modération et suppression</a></li>
-                        <li><a href="#responsabilite" class="text-decoration-none" style="color: var(--ink);">9. Responsabilité</a></li>
-                        <li><a href="#donnees-personnelles" class="text-decoration-none" style="color: var(--ink);">10. Données personnelles</a></li>
-                        <li><a href="#modification-des-cgu" class="text-decoration-none" style="color: var(--ink);">11. Modification des CGU</a></li>
-                        <li><a href="#droit-applicable" class="text-decoration-none" style="color: var(--ink);">12. Droit applicable</a></li>
-                        <li><a href="#contact" class="text-decoration-none" style="color: var(--ink);">13. Contact</a></li>
-                    </ul>
-                </div>
-            </div>
+    <hr class="form-section-divider">
 
-            {# ---------- CONTENU ---------- #}
-            <div class="col-lg-8">
-                <div class="section-card p-4 p-md-5">
+    <section id="compte" class="mb-5">
+        <h2 class="h5 mb-3">3. Votre compte</h2>
+        <ul class="text-muted mb-0">
+            <li>L'inscription est gratuite et réservée aux personnes de {{ legal.min_age }} ans et plus.</li>
+            <li>Elle demande une adresse email, un nom d'utilisateur et un mot de passe, ou un compte Google ou Facebook. La ville et l'avatar sont facultatifs.</li>
+            <li>Pour envoyer une photo ou voter, vous devez avoir confirmé votre adresse email.</li>
+            <li>Vous gardez vos identifiants pour vous et vous êtes responsable de ce qui est fait avec votre compte.</li>
+            <li>Vous pouvez supprimer votre compte à tout moment depuis votre profil : vos photos, votes et messages sont alors effacés définitivement.</li>
+        </ul>
+    </section>
 
-                    <div id="objet" class="mb-5">
-                        <h2 class="h5 mb-3">1. Objet</h2>
-                        <p class="text-muted mb-0">
-                            Les présentes Conditions Générales d'Utilisation (ci-après « CGU ») ont pour objet de
-                            définir les modalités et conditions d'utilisation du site <span class="fw-bold">{{ name }}</span> (ci-après
-                            « le Site »), accessible à l'adresse <span class="fw-bold">{{ url }}</span>, ainsi que les droits et obligations
-                            des utilisateurs dans ce cadre. L'utilisation du Site implique l'acceptation pleine et
-                            entière des présentes CGU par l'utilisateur.
-                        </p>
-                    </div>
+    <hr class="form-section-divider">
 
-                    <hr class="form-section-divider">
+    <section id="concours" class="mb-5">
+        <h2 class="h5 mb-3">4. Fonctionnement des concours</h2>
+        <ul class="text-muted">
+            <li>Chaque concours a un thème et des dates de début et de fin, affichées sur le Site.</li>
+            <li>Chaque membre peut envoyer <strong>une seule photo</strong> par concours. Elle n'est visible qu'après validation par un modérateur.</li>
+            <li>Les votes ouvrent <strong>6 jours avant la fin</strong> du concours. Chaque membre dispose d'un vote par concours, qu'il peut déplacer sur une autre photo tant que le vote est ouvert. Voter pour sa propre photo est permis.</li>
+            <li>À la fin du concours, la photo validée qui a reçu le plus de votes gagne. En cas d'égalité, c'est celle qui a été envoyée en premier.</li>
+            <li>Les membres choisissent aussi le thème suivant par un sondage, à raison d'un vote par jour.</li>
+        </ul>
+        <p class="text-muted mb-0">
+            En cas de problème technique ou d'abus (par exemple des votes truqués), l'éditeur peut adapter le déroulement d'un concours ou annuler des votes ; il l'annonce alors sur le Site.
+        </p>
+    </section>
 
-                    <div id="presentation-du-service" class="mb-5">
-                        <h2 class="h5 mb-3">2. Présentation du service</h2>
-                        <p class="text-muted mb-0">
-                            <span class="fw-bold">{{ name }}</span> est une plateforme communautaire à but récréatif permettant à ses membres
-                            de participer à des concours de photographie organisés autour de thèmes renouvelés
-                            régulièrement. Les utilisateurs peuvent publier des photos, voter pour les photos des
-                            autres membres et voter pour le prochain thème du concours.
-                            <span class="fw-bold" style="color: var(--ink);">L'utilisation du Site est entièrement
-                            gratuite</span> et proposée à des fins récréatives uniquement.
-                        </p>
-                    </div>
+    <hr class="form-section-divider">
 
-                    <hr class="form-section-divider">
+    <section id="publication" class="mb-5">
+        <h2 class="h5 mb-3">5. Ce que vous pouvez publier</h2>
+        <p class="text-muted">En envoyant une photo, vous garantissez :</p>
+        <ul class="text-muted mb-0">
+            <li>en être l'auteur, ou avoir le droit de la publier ;</li>
+            <li>avoir l'accord des personnes reconnaissables sur la photo (et de leurs parents s'il s'agit de mineurs) ;</li>
+            <li>qu'elle ne contient rien d'illégal, d'injurieux, de violent, de pornographique ou de discriminatoire ;</li>
+            <li>qu'elle correspond au thème du concours.</li>
+        </ul>
+    </section>
 
-                    <div id="editeur-du-site" class="mb-5">
-                        <h2 class="h5 mb-3">3. Éditeur du Site</h2>
-                        <ul class="text-muted mb-0">
-                            <li><span class="fw-bold" style="color: var(--ink);">Éditeur :</span> Alexis Verquin</li>
-                            <li>
-                                <span class="fw-bold" style="color: var(--ink);">Contact :</span>
-                                <a href="mailto:alexis.verquin@gmail.com" style="color: #5b3b9e;">alexis.verquin@gmail.com</a>
-                                ou formulaire de contact disponible en pied de page
-                            </li>
-                            <li><span class="fw-bold" style="color: var(--ink);">Hébergeur :</span> <a href="https://www.ovh.com" target="_blank" rel="noopener noreferrer">OVH</a></li>
-                        </ul>
-                    </div>
+    <hr class="form-section-divider">
 
-                    <hr class="form-section-divider">
+    <section id="propriete" class="mb-5">
+        <h2 class="h5 mb-3">6. Vos photos et vos droits</h2>
+        <p class="text-muted">
+            Vous restez propriétaire de vos photos. En les envoyant, vous autorisez seulement l'éditeur, gratuitement et sans exclusivité,
+            à les afficher sur le Site : galerie du concours, accueil et palmarès s'il s'agit de la photo gagnante.
+        </p>
+        <p class="text-muted">
+            Cette autorisation prend fin quand la photo est supprimée : automatiquement à la fin du concours pour les photos non gagnantes,
+            un an après la fin du concours pour la photo gagnante, ou dès que vous supprimez votre compte.
+        </p>
+        <p class="text-muted mb-0">
+            Vos photos ne sont jamais utilisées ailleurs que sur le Site (réseaux sociaux, newsletter, autre support) sans votre accord explicite, demandé à chaque fois.
+            Le code, le nom et l'apparence du Site appartiennent à l'éditeur.
+        </p>
+    </section>
 
-                    <div id="creation-de-compte" class="mb-5">
-                        <h2 class="h5 mb-3">4. Création de compte</h2>
-                        <p class="text-muted">
-                            L'accès à certaines fonctionnalités du Site (participation aux concours, vote, envoi
-                            de photos) nécessite la création d'un compte utilisateur.
-                        </p>
-                        <p class="text-muted mb-2">Pour créer un compte, l'utilisateur doit fournir :</p>
-                        <ul class="text-muted">
-                            <li>une adresse email valide</li>
-                            <li>un nom d'utilisateur (pseudo)</li>
-                            <li>un mot de passe</li>
-                        </ul>
-                        <p class="text-muted mb-0">
-                            La ville est une information facultative pouvant être renseignée sur le profil.
-                            L'utilisateur s'engage à fournir des informations exactes et à jour, et est seul
-                            responsable de la confidentialité de ses identifiants de connexion. Tout compte peut
-                            être <span class="fw-bold" style="color: var(--ink);">supprimé à tout moment par
-                            l'utilisateur lui-même</span>, directement depuis sa page de profil.
-                        </p>
-                    </div>
+    <hr class="form-section-divider">
 
-                    <hr class="form-section-divider">
+    <section id="moderation" class="mb-5">
+        <h2 class="h5 mb-3">7. Modération et signalement</h2>
+        <p class="text-muted">
+            L'éditeur peut refuser ou retirer une photo qui ne respecte pas ces CGU, et suspendre ou supprimer le compte d'un membre en cas de manquement grave ou répété.
+            Une photo refusée n'est jamais publiée et disparaît à la fin du concours ; le membre peut en demander la raison via le formulaire de contact.
+        </p>
+        <p class="text-muted mb-0">
+            Vous voyez un contenu qui pose problème ? Signalez-le avec le <a href="{{ path('app_contact') }}">formulaire de contact</a>
+            en indiquant la photo concernée et la raison : il sera examiné rapidement.
+        </p>
+    </section>
 
-                    <div id="fonctionnement-des-concours" class="mb-5">
-                        <h2 class="h5 mb-3">5. Fonctionnement des concours</h2>
-                        <ul class="text-muted">
-                            <li>Chaque concours est organisé autour d'un thème défini, actif pendant une période donnée.</li>
-                            <li>Les membres peuvent proposer et voter pour les thèmes des concours à venir.</li>
-                            <li>Pendant la durée d'un concours, les membres peuvent publier une ou plusieurs photos en lien avec le thème en cours.</li>
-                            <li>Les photos publiées sont soumises à une <span class="fw-bold" style="color: var(--ink);">validation par un modérateur</span> avant d'être visibles publiquement sur le Site.</li>
-                            <li>Le vote sur les photos est ouvert durant une période définie avant la fin de chaque concours (généralement les derniers jours du concours).</li>
-                            <li>La photo ayant recueilli le plus de votes à la clôture du concours est désignée gagnante.</li>
-                        </ul>
-                        <p class="text-muted mb-0">
-                            L'éditeur se réserve le droit de modifier les modalités d'un concours (durée, règles de
-                            vote) à tout moment, sans préavis, notamment en cas de nécessité technique ou d'abus
-                            constaté.
-                        </p>
-                    </div>
+    <hr class="form-section-divider">
 
-                    <hr class="form-section-divider">
+    <section id="responsabilite" class="mb-5">
+        <h2 class="h5 mb-3">8. Responsabilité</h2>
+        <p class="text-muted mb-0">
+            Le Site est un projet personnel fourni tel quel, sans garantie de disponibilité : il peut être interrompu pour maintenance ou panne.
+            Chaque membre est responsable des photos qu'il publie ; l'éditeur ne l'est que s'il n'a pas agi rapidement après avoir été prévenu d'un contenu illicite.
+        </p>
+    </section>
 
-                    <div id="regles-de-publication" class="mb-5">
-                        <h2 class="h5 mb-3">6. Règles de publication et contenu des utilisateurs</h2>
-                        <p class="text-muted mb-2">En publiant une photo ou tout contenu sur le Site, l'utilisateur garantit :</p>
-                        <ul class="text-muted">
-                            <li>être l'auteur de la photo ou disposer des droits nécessaires pour la publier</li>
-                            <li>que la photo ne porte pas atteinte aux droits d'un tiers (droit à l'image, propriété intellectuelle, vie privée)</li>
-                            <li>que le contenu publié ne présente aucun caractère illicite, injurieux, diffamatoire, violent, pornographique, discriminatoire ou contraire à l'ordre public et aux bonnes mœurs</li>
-                            <li>que le contenu respecte le thème du concours en cours</li>
-                        </ul>
-                        <p class="text-muted mb-0">
-                            L'éditeur se réserve le droit de <span class="fw-bold" style="color: var(--ink);">refuser,
-                            modérer ou supprimer</span> tout contenu ne respectant pas ces règles, sans préavis ni
-                            justification, ainsi que de suspendre ou supprimer le compte d'un utilisateur en cas de
-                            manquement répété.
-                        </p>
-                    </div>
+    <hr class="form-section-divider">
 
-                    <hr class="form-section-divider">
+    <section id="donnees" class="mb-5">
+        <h2 class="h5 mb-3">9. Données personnelles</h2>
+        <p class="text-muted mb-0">
+            L'utilisation de vos données est expliquée dans la <a href="{{ path('app_rgpd') }}">politique de confidentialité</a>.
+        </p>
+    </section>
 
-                    <div id="propriete-intellectuelle" class="mb-5">
-                        <h2 class="h5 mb-3">7. Propriété intellectuelle</h2>
-                        <p class="text-muted">
-                            Chaque utilisateur conserve l'intégralité de ses droits d'auteur sur les photos qu'il
-                            publie sur le Site.
-                        </p>
-                        <p class="text-muted">
-                            En publiant une photo, l'utilisateur accorde à l'éditeur du Site une
-                            <span class="fw-bold" style="color: var(--ink);">licence non exclusive, gratuite et
-                            limitée à l'utilisation strictement nécessaire au fonctionnement du Site</span>
-                            (affichage sur la page du concours, la galerie, l'espace profil de l'utilisateur, et le
-                            cas échéant la mise en avant de la photo gagnante).
-                        </p>
-                        <p class="text-muted">
-                            <span class="fw-bold" style="color: var(--ink);">Les photos publiées ne sont ni cédées,
-                            ni réutilisées, ni exploitées en dehors du Site</span>, à des fins commerciales,
-                            publicitaires ou éditoriales, sans l'accord explicite préalable de l'utilisateur
-                            concerné.
-                        </p>
-                        <p class="text-muted">
-                            Cette licence prend fin à la suppression de la photo ou du compte de l'utilisateur, à
-                            l'exception de la photo du gagnant de chaque concours qui peut être conservée jusqu'à
-                            un maximum d'un an après la fin du concours concerné (voir notre
-                            <a href="{{ path('app_rgpd') }}" style="color: #5b3b9e;">Politique de confidentialité</a>).
-                        </p>
-                        <p class="text-muted mb-0">
-                            Les éléments graphiques, la charte visuelle et le code source du Site restent la
-                            propriété exclusive de l'éditeur, sauf mention contraire.
-                        </p>
-                    </div>
+    <hr class="form-section-divider">
 
-                    <hr class="form-section-divider">
+    <section id="modification" class="mb-5">
+        <h2 class="h5 mb-3">10. Modification des CGU</h2>
+        <p class="text-muted mb-0">
+            Ces CGU peuvent évoluer. Les membres sont prévenus par email de tout changement important ; continuer à utiliser le Site ensuite vaut acceptation.
+            Si vous n'êtes pas d'accord, vous pouvez supprimer votre compte à tout moment.
+        </p>
+    </section>
 
-                    <div id="moderation" class="mb-5">
-                        <h2 class="h5 mb-3">8. Modération et suppression de contenu</h2>
-                        <p class="text-muted mb-2">
-                            L'éditeur se réserve le droit, à tout moment et sans préavis, de :
-                        </p>
-                        <ul class="text-muted">
-                            <li>refuser la publication d'une photo ne respectant pas les présentes CGU ;</li>
-                            <li>supprimer tout contenu déjà publié en cas de non-conformité constatée a posteriori ;</li>
-                            <li>suspendre ou supprimer un compte utilisateur en cas de manquement grave ou répété aux présentes CGU.</li>
-                        </ul>
-                        <p class="text-muted mb-0">
-                            Toute demande de modification ou de suppression d'un contenu ou d'une information vous
-                            concernant peut être adressée via le
-                            <span class="fw-bold" style="color: var(--ink);">formulaire de contact</span>
-                            disponible en pied de page du Site.
-                        </p>
-                    </div>
+    <hr class="form-section-divider">
 
-                    <hr class="form-section-divider">
-
-                    <div id="responsabilite" class="mb-5">
-                        <h2 class="h5 mb-3">9. Responsabilité</h2>
-                        <p class="text-muted mb-2">
-                            Le Site est fourni « en l'état », sans garantie de disponibilité continue. L'éditeur ne
-                            saurait être tenu responsable :
-                        </p>
-                        <ul class="text-muted">
-                            <li>des interruptions temporaires du Site pour maintenance ou en cas de force majeure ;</li>
-                            <li>des contenus publiés par les utilisateurs, dont ils sont seuls responsables ;</li>
-                            <li>d'un usage non conforme du Site par un utilisateur.</li>
-                        </ul>
-                        <p class="text-muted mb-0">
-                            L'éditeur s'efforce d'assurer l'exactitude des informations diffusées sur le Site, sans
-                            garantie absolue.
-                        </p>
-                    </div>
-
-                    <hr class="form-section-divider">
-
-                    <div id="donnees-personnelles" class="mb-5">
-                        <h2 class="h5 mb-3">10. Données personnelles</h2>
-                        <p class="text-muted mb-0">
-                            Le traitement des données personnelles des utilisateurs est décrit en détail dans la
-                            <a href="{{ path('app_rgpd') }}" style="color: #5b3b9e;">Politique de confidentialité</a>
-                            du Site, accessible en pied de page.
-                        </p>
-                    </div>
-
-                    <hr class="form-section-divider">
-
-                    <div id="modification-des-cgu" class="mb-5">
-                        <h2 class="h5 mb-3">11. Modification des CGU</h2>
-                        <p class="text-muted mb-0">
-                            L'éditeur se réserve le droit de modifier les présentes CGU à tout moment. Les
-                            utilisateurs seront informés de toute modification substantielle. La poursuite de
-                            l'utilisation du Site après modification vaut acceptation des nouvelles CGU.
-                        </p>
-                    </div>
-
-                    <hr class="form-section-divider">
-
-                    <div id="droit-applicable" class="mb-5">
-                        <h2 class="h5 mb-3">12. Droit applicable</h2>
-                        <p class="text-muted mb-0">
-                            Les présentes CGU sont soumises au droit français. En cas de litige, et à défaut de
-                            résolution amiable, les tribunaux français seront seuls compétents.
-                        </p>
-                    </div>
-
-                    <hr class="form-section-divider">
-
-                    <div id="contact" class="mb-0">
-                        <h2 class="h5 mb-3">13. Contact</h2>
-                        <p class="text-muted mb-0">
-                            Pour toute question relative aux présentes CGU, ou pour toute demande de modification
-                            ou de suppression de contenu, veuillez utiliser le
-                            <span class="fw-bold" style="color: var(--ink);">formulaire de contact</span>
-                            disponible en pied de page du Site, ou écrire à :
-                            <a href="mailto:alexis.verquin@gmail.com" style="color: #5b3b9e;">alexis.verquin@gmail.com</a>.
-                        </p>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
+    <section id="droit">
+        <h2 class="h5 mb-3">11. Droit applicable</h2>
+        <p class="text-muted mb-0">
+            Ces CGU sont soumises au droit français. En cas de désaccord, contactez d'abord l'éditeur à
+            <a href="mailto:{{ legal.contact_email }}">{{ legal.contact_email }}</a> pour trouver une solution amiable ;
+            à défaut, les tribunaux français sont compétents.
+        </p>
+    </section>
 {% endblock %}

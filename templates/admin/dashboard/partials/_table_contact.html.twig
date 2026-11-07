@@ -12,7 +12,12 @@
                 <tbody class="table-group-divider">
                 {% for contact in contacts %}
                     <tr>
-                        <td class="ps-4 fw-medium text-dark">{{ contact.email }}</td>
+                        <td class="ps-4 fw-medium text-dark">
+                            {{ contact.email }}
+                            {% if contact.closedAt %}
+                                <div class="small text-muted fw-normal">Clôturé, supprimé le {{ contact.closedAt|date_modify('+24 hours')|date('d/m à H\\hi') }}</div>
+                            {% endif %}
+                        </td>
                         <td class="text-secondary text-truncate" style="max-width: 400px;">
                             {{ contact.message }}
                         </td>
@@ -26,14 +31,17 @@
                                    aria-label="Répondre au message de {{ contact.email }}">
                                     <twig:ux:icon name="lucide:edit-3" class="size-4" aria-hidden="true" />
                                 </a>
-                                <a href="{{ path('admin_contact_read', {id:contact.id}) }}"
-                                   class="btn btn-light text-success border d-flex align-items-center justify-content-center"
-                                   data-bs-toggle="tooltip"
-                                   data-turbo="false"
-                                   title="Marquer comme lu"
-                                   aria-label="Marquer comme lu le message de {{ contact.email }}">
-                                    <twig:ux:icon name="lucide:circle-check-big" class="size-4" aria-hidden="true" />
-                                </a>
+                                {% if not contact.closedAt %}
+                                    <form action="{{ path('admin_contact_close', {id: contact.id}) }}" method="post">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('close_contact_' ~ contact.id) }}">
+                                        <button type="submit"
+                                                class="btn btn-light text-success border d-flex align-items-center justify-content-center"
+                                                title="Clôturer (suppression dans 24 h)"
+                                                aria-label="Clôturer la demande de {{ contact.email }}, elle sera supprimée dans 24 heures">
+                                            <twig:ux:icon name="lucide:circle-check-big" class="size-4" aria-hidden="true" />
+                                        </button>
+                                    </form>
+                                {% endif %}
                                 <form
                                     action="{{ path('admin_contact_delete', {id:contact.id}) }}"
                                     onsubmit="return confirm('Supprimer ce message ?')"

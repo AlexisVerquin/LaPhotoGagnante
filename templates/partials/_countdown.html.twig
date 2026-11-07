@@ -1,8 +1,9 @@
+{% set themeTime = getCurrentThemeTime() %}
 <div
     class="{{ (photoOfTheDay) ? 'col-lg-5' : ' col-lg-12 mb-4' }}"
     data-controller="countdown"
-    data-countdown-end-date-value="{{ getCurrentThemeTime()['themeEnd']|date('c') }}"
-    data-countdown-vote-end-date-value="{{ getCurrentThemeTime()['enableVote']|date('c') }}"
+    data-countdown-end-date-value="{{ themeTime['themeEnd']|date('c') }}"
+    data-countdown-vote-end-date-value="{{ themeTime['enableVote']|date('c') }}"
     data-countdown-gallery-url-value="{{ path('app_gallery') }}"
 >
     <div

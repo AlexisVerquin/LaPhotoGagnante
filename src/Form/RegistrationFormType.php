@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\User;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -21,6 +22,12 @@ use Symfony\Component\Validator\Constraints\PasswordStrength;
  */
 class RegistrationFormType extends AbstractType
 {
+    public function __construct(
+        #[Autowire('%app.min_age%')]
+        private int $minAge,
+    ) {
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -37,6 +44,14 @@ class RegistrationFormType extends AbstractType
                     new IsTrue(
                         message: 'alert.aggree-terms-not-checked',
                     ),
+                ],
+            ])
+            // Les CGU réservent l'inscription aux personnes ayant l'âge minimum
+            ->add('ageConfirmation', CheckboxType::class, [
+                'label' => sprintf('J\'ai au moins %d ans', $this->minAge),
+                'mapped' => false,
+                'constraints' => [
+                    new IsTrue(message: sprintf('L\'inscription est réservée aux personnes de %d ans et plus.', $this->minAge)),
                 ],
             ])
             ->add('plainPassword', PasswordType::class, [

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
+use App\Entity\Photo;
 use App\Entity\User;
 use App\Tests\FunctionalTestCase;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -108,9 +109,11 @@ final class UserManageTest extends FunctionalTestCase
         self::assertSame('membre@example.com', $this->reload(User::class, $user->getId())?->getEmail());
     }
 
-    public function testAccountDeletionAnonymisesAndLogsOut(): void
+    public function testAccountDeletionErasesTheAccountAndItsPhotos(): void
     {
         $user = $this->createUser();
+        $userId = $user->getId();
+        $photoId = $this->createPhoto($user, $this->createTheme())->getId();
         $this->client->loginUser($user);
 
         $crawler = $this->client->request('GET', '/user/manage');
@@ -118,13 +121,8 @@ final class UserManageTest extends FunctionalTestCase
         $this->client->submit($form);
 
         self::assertResponseRedirects('/');
-
-        $deleted = $this->reload(User::class, $user->getId());
-        self::assertNotNull($deleted);
-        self::assertStringEndsWith('@deleteduser.fr', (string) $deleted->getEmail());
-        self::assertSame('Anonyme', $deleted->getName());
-        self::assertFalse($deleted->isVerified());
-        self::assertFalse($this->passwordIsValid($deleted, self::PASSWORD), 'L\'ancien mot de passe ne doit plus fonctionner');
+        self::assertNull($this->reload(User::class, $userId), 'Le compte est vraiment supprimé');
+        self::assertNull($this->em->getRepository(Photo::class)->find($photoId), 'Ses photos aussi');
 
         // Il est bien déconnecté : l'espace membre le renvoie vers la connexion.
         $this->client->request('GET', '/user/manage');

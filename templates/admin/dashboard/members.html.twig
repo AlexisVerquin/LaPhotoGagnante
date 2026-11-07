@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Membres{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="mb-4">
+            <span class="hero-eyebrow mb-2">
+                <i class="bi bi-speedometer2" aria-hidden="true"></i> Espace admin
+            </span>
+            <h1 class="hero-title-v2 mt-2 h2">Membres</h1>
+            <p class="text-muted mb-0">{{ members|length }} compte{{ members|length > 1 ? 's' : '' }}. Un compte suspendu ne peut plus se connecter ; la suppression est définitive.</p>
+        </div>
+
+        <div class="section-card p-4 p-md-5 mt-4">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                    <tr>
+                        <th scope="col">Nom</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Statut</th>
+                        <th scope="col" class="text-end">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for member in members %}
+                        <tr>
+                            <td class="fw-medium">{{ member.name }}{% if 'ROLE_ADMIN' in member.roles %} <span class="badge text-bg-dark">admin</span>{% endif %}</td>
+                            <td class="text-secondary">{{ member.email }}</td>
+                            <td>
+                                {% if not member.active %}
+                                    <span class="badge text-bg-danger">Suspendu</span>
+                                {% elseif not member.verified %}
+                                    <span class="badge text-bg-warning">Email non confirmé</span>
+                                {% else %}
+                                    <span class="badge text-bg-success">Actif</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                {% if member != app.user %}
+                                    <div class="d-inline-flex gap-2">
+                                        <form action="{{ path('admin_members_suspend', {id: member.id}) }}" method="post">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('suspend-member-' ~ member.id) }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary"
+                                                    aria-label="{{ member.active ? 'Suspendre' : 'Réactiver' }} le compte de {{ member.name }}">
+                                                {{ member.active ? 'Suspendre' : 'Réactiver' }}
+                                            </button>
+                                        </form>
+                                        <form action="{{ path('admin_members_delete', {id: member.id}) }}" method="post"
+                                              onsubmit="return confirm('Supprimer définitivement le compte de {{ member.name|e('js') }} et toutes ses données ?')">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete-member-' ~ member.id) }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                    aria-label="Supprimer le compte de {{ member.name }}">
+                                                Supprimer
+                                            </button>
+                                        </form>
+                                    </div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

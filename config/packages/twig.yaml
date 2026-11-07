@@ -1,6 +1,10 @@
 twig:
     file_name_pattern: '*.twig'
     form_themes: ['bootstrap_5_layout.html.twig']
+    # Nom et adresse publique du site, utilisés dans les emails et les pages légales
+    globals:
+        site_name: 'LaPhotoGagnante'
+        site_url: 'https://laphotogagnante.fr'
 
 when@test:
     twig:

@@ -96,7 +96,7 @@ final class SocialLoginTest extends FunctionalTestCase
         self::assertSelectorTextContains('#login-error', 'annulée');
     }
 
-    public function testDeletedAccountIsUnlinkedFromGoogle(): void
+    public function testDeletedAccountIsGoneAndGoogleStartsFresh(): void
     {
         $this->fakeProvider('google', new GoogleUser(['sub' => 'g-42', 'email' => 'alice@example.com', 'given_name' => 'Alice']));
         $this->client->request('GET', '/connect/google/check?code=abc&state=xyz');
@@ -106,7 +106,7 @@ final class SocialLoginTest extends FunctionalTestCase
         $crawler = $this->client->request('GET', '/user/manage');
         $this->client->submit($crawler->filter('form[action="/user/delete"]')->form());
 
-        self::assertNull($this->reload(User::class, $user->getId())?->getGoogleId());
+        self::assertSame(0, $this->em->getRepository(User::class)->count());
     }
 
     public function testUnconfiguredProviderIsHidden(): void

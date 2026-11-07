@@ -1,610 +1,222 @@
-{% extends 'base.html.twig' %}
+{% extends 'legal/layout.html.twig' %}
+{% import 'legal/_macros.html.twig' as l %}
 
-{% block title %}Politique de confidentialité{% endblock %}
+{# Structure inspirée des mentions d'information de la CNIL (article 13 du RGPD).
+   Les durées doivent rester alignées sur App\Service\DataRetention. #}
+{% set legal_title = 'Politique de confidentialité' %}
+{% set legal_icon = 'bi-shield-lock' %}
+{% set sections = {
+    'responsable': 'Qui est responsable de vos données',
+    'traitements': 'Quelles données, pourquoi et combien de temps',
+    'destinataires': 'Qui peut voir vos données',
+    'transferts': 'Transferts hors de l\'Union européenne',
+    'cookies': 'Cookies',
+    'securite': 'Sécurité',
+    'droits': 'Vos droits',
+    'mineurs': 'Mineurs',
+    'modifications': 'Modifications',
+} %}
 
-{% set url = "[www.site.com](http://www.site.com)" %}
-{% set name = "LaPhotoGagnante" %}
+{% block legal_content %}
+    <section id="responsable" class="mb-5">
+        <h2 class="h5 mb-3">1. Qui est responsable de vos données</h2>
+        <p class="text-muted">
+            {{ site_name }} (<a href="{{ site_url }}">{{ site_url|split('//')|last }}</a>) est un site personnel et gratuit,
+            édité par <strong>{{ legal.editor_name }}</strong>, qui est responsable du traitement de vos données.
+        </p>
+        <p class="text-muted mb-0">
+            Pour toute question sur vos données, écrivez à
+            <a href="mailto:{{ legal.contact_email }}">{{ legal.contact_email }}</a>
+            ou passez par le <a href="{{ path('app_contact') }}">formulaire de contact</a>.
+            Le site n'a pas de délégué à la protection des données (DPO), ce n'est pas obligatoire pour lui : c'est l'éditeur qui vous répond.
+        </p>
+    </section>
 
-{% block body %}
-<div class="container py-5">
-    <div class="mb-5 text-center">
-        <span class="hero-eyebrow mb-3">
-            <i class="bi bi-shield-lock" aria-hidden="true"></i> Document légal
-        </span>
-        <h1 class="hero-title-v2 h2 mt-3 mb-1">Politique de confidentialité</h1>
-        <p class="text-muted mb-0">Dernière mise à jour : 01/10/2026</p>
-    </div>
+    <hr class="form-section-divider">
 
-    <div class="row g-4">
+    <section id="traitements" class="mb-5">
+        <h2 class="h5 mb-3">2. Quelles données, pourquoi et combien de temps</h2>
+        <p class="text-muted">
+            Nous ne collectons que ce qui sert au fonctionnement du site, aucune donnée sensible, et rien n'est vendu ni utilisé pour de la publicité.
+            Dans les formulaires, les champs obligatoires sont indiqués : sans eux, le service correspondant ne peut pas fonctionner.
+        </p>
 
-        {# ---------- SOMMAIRE ---------- #}
-        <div class="col-lg-4">
-            <div class="section-card p-4 p-md-5" style="position: sticky; top: 2rem;">
-                <div class="form-section-title" role="heading" aria-level="2">
-                    <span class="form-section-icon icon-info">
-                        <i class="bi bi-list-ul" aria-hidden="true"></i>
-                    </span>
-                    Sommaire
-                </div>
+        <div class="table-responsive">
+            <table class="table align-middle small">
+                <caption class="visually-hidden">Traitements de données, base légale et durée de conservation</caption>
+                <thead>
+                <tr>
+                    <th scope="col">Pourquoi</th>
+                    <th scope="col">Quelles données</th>
+                    <th scope="col">Base légale</th>
+                    <th scope="col">Combien de temps</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th scope="row">Votre compte</th>
+                    <td>Email, nom d'utilisateur et mot de passe (chiffré) obligatoires ; ville et avatar facultatifs</td>
+                    <td>Exécution des conditions d'utilisation que vous acceptez</td>
+                    <td>Jusqu'à la suppression de votre compte</td>
+                </tr>
+                <tr>
+                    <th scope="row">Connexion avec Google ou Facebook (facultatif)</th>
+                    <td>Email (déjà vérifié par eux), prénom ou nom, identifiant technique du compte</td>
+                    <td>Exécution des conditions d'utilisation</td>
+                    <td>Jusqu'à la suppression de votre compte</td>
+                </tr>
+                <tr>
+                    <th scope="row">Participer aux concours</th>
+                    <td>Photo envoyée, votes, date du dernier vote au sondage</td>
+                    <td>Exécution des conditions d'utilisation</td>
+                    <td>
+                        Photos non gagnantes : supprimées dès que le gagnant est désigné (au plus tard {{ constant('App\\Service\\DataRetention::PHOTOS_WITHOUT_WINNER_DAYS') }} jours après la fin du concours), avec leurs votes.
+                        Photo gagnante : 1 an après la fin du concours.
+                        Le palmarès (nom du gagnant et thème) reste tant que son compte existe.
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Vous prévenir des nouveaux concours</th>
+                    <td>Email, nom d'utilisateur</td>
+                    <td>Intérêt légitime : informer les membres de l'activité du site. Vous pouvez vous y opposer à tout moment.</td>
+                    <td>Tant que vous êtes inscrit et abonné</td>
+                </tr>
+                <tr>
+                    <th scope="row">Répondre à vos messages</th>
+                    <td>Email, message, compte le cas échéant</td>
+                    <td>Intérêt légitime : répondre à votre demande</td>
+                    <td>24 heures après la clôture de votre demande (1 an au maximum si elle n'est jamais clôturée)</td>
+                </tr>
+                <tr>
+                    <th scope="row">Protéger le site contre les abus</th>
+                    <td>Adresse IP, tentatives de connexion, journaux techniques d'erreurs (aucun suivi de votre navigation)</td>
+                    <td>Intérêt légitime : sécurité du site et de vos comptes</td>
+                    <td>Compteurs anti-abus : de 15 minutes à 1 heure. Journaux techniques : 6 mois au maximum.</td>
+                </tr>
+                <tr>
+                    <th scope="row">Sauvegardes</th>
+                    <td>Copie de la base de données</td>
+                    <td>Intérêt légitime : pouvoir réparer le site après une panne</td>
+                    <td>14 jours, puis remplacées</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
 
-                <ul class="list-unstyled d-flex flex-column gap-2 mb-0">
-                    <li>
-                        <a href="#responsable-de-traitement"
-                           class="text-decoration-none"
-                           style="color: var(--ink);">
-                            1. Responsable de traitement
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#donnees-collectees"
-                           class="text-decoration-none"
-                           style="color: var(--ink);">
-                            2. Données collectées
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#finalites-bases-legales"
-                           class="text-decoration-none"
-                           style="color: var(--ink);">
-                            3. Finalités et bases légales
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#emails-notifications"
-                           class="text-decoration-none"
-                           style="color: var(--ink);">
-                            4. Emails et notifications
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#cookies"
-                           class="text-decoration-none"
-                           style="color: var(--ink);">
-                            5. Cookies et traceurs
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#durees-conservation"
-                           class="text-decoration-none"
-                           style="color: var(--ink);">
-                            6. Durées de conservation
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#destinataires"
-                           class="text-decoration-none"
-                           style="color: var(--ink);">
-                            7. Destinataires des données
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#hebergement-securite"
-                           class="text-decoration-none"
-                           style="color: var(--ink);">
-                            8. Hébergement et sécurité
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#vos-droits"
-                           class="text-decoration-none"
-                           style="color: var(--ink);">
-                            9. Vos droits
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#mineurs"
-                           class="text-decoration-none"
-                           style="color: var(--ink);">
-                            10. Mineurs
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#modification-politique"
-                           class="text-decoration-none"
-                           style="color: var(--ink);">
-                            11. Modification
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#contact"
-                           class="text-decoration-none"
-                           style="color: var(--ink);">
-                            12. Contact
-                        </a>
-                    </li>
+        <p class="text-muted" id="emails">
+            <strong>Emails.</strong> Vous recevez les emails nécessaires à votre compte (confirmation d'adresse, mot de passe oublié, réponse à vos messages)
+            et, sauf refus de votre part, un email au lancement de chaque concours. Pour ne plus recevoir ces derniers, décochez la case dans votre profil
+            ou cliquez sur le lien en bas de l'email : c'est immédiat.
+        </p>
+        <p class="text-muted" id="connexion-google-facebook">
+            <strong>Connexion avec Google ou Facebook.</strong> Nous n'avons accès ni à votre mot de passe, ni à vos contacts, ni à vos publications,
+            et nous ne publions rien en votre nom. Google et Facebook savent en revanche que vous vous êtes connecté chez nous, selon leurs propres règles de confidentialité.
+        </p>
+        <p class="text-muted mb-0" id="suppression-donnees">
+            <strong>Supprimer vos données.</strong> Depuis votre profil, « Supprimer mon compte » efface définitivement votre compte, vos photos, vos votes,
+            vos messages et votre avatar ; les concours que vous avez gagnés restent, sans votre nom. Pour révoquer aussi l'accès chez le fournisseur :
+            paramètres de sécurité de votre compte Google, ou « Applications et sites web » sur Facebook.
+        </p>
+    </section>
+
+    <hr class="form-section-divider">
+
+    <section id="destinataires" class="mb-5">
+        <h2 class="h5 mb-3">3. Qui peut voir vos données</h2>
+        <ul class="text-muted">
+            <li><strong>Tout le monde</strong> : votre nom d'utilisateur, votre ville et votre avatar s'ils sont renseignés, et vos photos une fois validées.</li>
+            <li><strong>L'éditeur</strong>, seul administrateur du site : pour valider les photos, modérer et répondre aux messages.</li>
+            <li>
+                <strong>Nos prestataires</strong>, uniquement pour ce qui les concerne :
+                <ul>
+                    <li>hébergement du site : {{ l.value(legal.host_name, 'hébergeur') }}, {{ l.value(legal.host_country, 'pays du serveur') }} ;</li>
+                    <li>Cloudflare, Inc. (États-Unis) : achemine les visites jusqu'au serveur et le protège des attaques, il voit donc passer votre adresse IP ;</li>
+                    <li>envoi des emails : {{ legal.mail_provider }}.</li>
                 </ul>
-            </div>
-        </div>
-
-
-        {# ---------- CONTENU ---------- #}
-        <div class="col-lg-8">
-            <div class="section-card p-4 p-md-5">
-
-                {# ---------- 1. RESPONSABLE DE TRAITEMENT ---------- #}
-                <div id="responsable-de-traitement" class="mb-5">
-                    <h2 class="h5 mb-3">1. Responsable de traitement</h2>
-
-                    <p class="text-muted">
-                        Le responsable du traitement des données personnelles collectées sur
-                        <span class="fw-bold">{{ name }}</span> (ci-après « le Site ») est :
-                    </p>
-
-                    <ul class="text-muted mb-0">
-                        <li>
-                            <span class="fw-bold" style="color: var(--ink);">
-                                Nom / raison sociale :
-                            </span>
-                            Alexis Verquin
-                        </li>
-                        <li>
-                            <span class="fw-bold" style="color: var(--ink);">
-                                Contact :
-                            </span>
-                            <a href="mailto:alexis.verquin@gmail.com"
-                               style="color: #5b3b9e;">
-                                alexis.verquin@gmail.com
-                            </a>
-                        </li>
-                        <li>
-                            <span class="fw-bold" style="color: var(--ink);">
-                                Adresse :
-                            </span>
-                            Non applicable / à compléter
-                        </li>
-                    </ul>
-
-                    <p class="text-muted mb-0 mt-3">
-                        Pour toute question relative à vos données personnelles, vous pouvez
-                        utiliser le formulaire de contact disponible en pied de page du Site.
-                    </p>
-                </div>
-
-                <hr class="form-section-divider">
-
-
-                {# ---------- 2. DONNÉES COLLECTÉES ---------- #}
-                <div id="donnees-collectees" class="mb-5">
-                    <h2 class="h5 mb-3">2. Données collectées</h2>
-
-                    <p class="text-muted">
-                        Dans le cadre de l'utilisation du Site, nous collectons les données
-                        suivantes :
-                    </p>
-
-                    <div class="table-responsive">
-                        <table class="table align-middle">
-                            <caption class="visually-hidden">Données personnelles collectées et leur caractère obligatoire</caption>
-                            <thead>
-                            <tr>
-                                <th scope="col">Donnée</th>
-                                <th scope="col">Obligatoire</th>
-                                <th scope="col">Finalité</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <td>Adresse email</td>
-                                <td>Oui</td>
-                                <td>Création de compte, connexion et envoi de notifications</td>
-                            </tr>
-                            <tr>
-                                <td>Nom d'utilisateur (pseudo)</td>
-                                <td>Oui</td>
-                                <td>Identification publique sur le Site</td>
-                            </tr>
-                            <tr>
-                                <td>Mot de passe</td>
-                                <td>Oui</td>
-                                <td>Sécurisation de l'accès au compte</td>
-                            </tr>
-                            <tr>
-                                <td>Ville</td>
-                                <td>Non</td>
-                                <td>Information facultative affichée sur le profil</td>
-                            </tr>
-                            <tr>
-                                <td>Avatar</td>
-                                <td>Non</td>
-                                <td>Photo de profil facultative</td>
-                            </tr>
-                            <tr>
-                                <td>Identifiant de compte Google ou Facebook</td>
-                                <td>Non, seulement si vous utilisez « Continuer avec Google / Facebook »</td>
-                                <td>Vous reconnaître lors de vos prochaines connexions</td>
-                            </tr>
-                            <tr>
-                                <td>Photos publiées</td>
-                                <td>Oui, si participation</td>
-                                <td>Participation aux concours photo</td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <p class="text-muted" id="connexion-google-facebook">
-                        <span class="fw-bold" style="color: var(--ink);">Connexion avec Google ou Facebook.</span>
-                        Si vous choisissez cette option, Google ou Facebook nous transmet uniquement
-                        votre adresse email (déjà vérifiée par eux), votre prénom ou nom (utilisé pour
-                        proposer votre nom d'utilisateur, modifiable ensuite) et un identifiant technique
-                        de votre compte. Nous n'avons accès ni à votre mot de passe, ni à vos contacts,
-                        ni à vos publications, et nous ne publions rien en votre nom.
-                    </p>
-
-                    <p class="text-muted" id="suppression-donnees">
-                        <span class="fw-bold" style="color: var(--ink);">Supprimer vos données.</span>
-                        Vous pouvez supprimer votre compte à tout moment depuis votre profil
-                        (« Supprimer mon compte ») : vos données personnelles sont alors effacées et le lien
-                        avec Google ou Facebook est retiré. Vous pouvez aussi en faire la demande via le
-                        formulaire de contact. Pour révoquer l'accès côté fournisseur : paramètres de
-                        sécurité de votre compte Google, ou « Applications et sites web » sur Facebook.
-                    </p>
-
-                    <p class="text-muted mb-0">
-                        Nous ne collectons
-                        <span class="fw-bold" style="color: var(--ink);">
-                            aucune donnée sensible
-                        </span>
-                        (origine, santé, opinions religieuses, politiques, etc.) et ne
-                        demandons aucune information au-delà de ce qui est strictement
-                        nécessaire au fonctionnement du Site.
-                    </p>
-                </div>
-
-                <hr class="form-section-divider">
-
-
-                {# ---------- 3. FINALITÉS ET BASES LÉGALES ---------- #}
-                <div id="finalites-bases-legales" class="mb-5">
-                    <h2 class="h5 mb-3">3. Finalités et bases légales du traitement</h2>
-
-                    <div class="table-responsive">
-                        <table class="table align-middle">
-                            <caption class="visually-hidden">Finalités des traitements et bases légales</caption>
-                            <thead>
-                            <tr>
-                                <th scope="col">Finalité</th>
-                                <th scope="col">Base légale</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <td>Création et gestion du compte utilisateur</td>
-                                <td>Exécution du contrat</td>
-                            </tr>
-                            <tr>
-                                <td>Participation aux concours photo</td>
-                                <td>Exécution du contrat</td>
-                            </tr>
-                            <tr>
-                                <td>Envoi d'un email lors du démarrage d'un nouveau thème ou concours</td>
-                                <td>Intérêt légitime, avec possibilité de désinscription</td>
-                            </tr>
-                            <tr>
-                                <td>Réponse aux demandes via le formulaire de contact</td>
-                                <td>Intérêt légitime / consentement</td>
-                            </tr>
-                            <tr>
-                                <td>Sécurité du Site et protection contre les abus</td>
-                                <td>Intérêt légitime</td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <hr class="form-section-divider">
-
-
-                {# ---------- 4. EMAILS ---------- #}
-                <div id="emails-notifications" class="mb-5">
-                    <h2 class="h5 mb-3">4. Emails et notifications</h2>
-
-                    <p class="text-muted">
-                        Votre adresse email est utilisée uniquement pour :
-                    </p>
-
-                    <ul class="text-muted">
-                        <li>vous permettre de vous connecter à votre compte ;</li>
-                        <li>vous informer du démarrage d'un nouveau thème de concours.</li>
-                    </ul>
-
-                    <p class="text-muted">
-                        <span class="fw-bold" style="color: var(--ink);">
-                            Vous pouvez vous désinscrire de ces notifications à tout moment
-                        </span>,
-                        soit en cliquant sur le lien de désinscription présent dans les emails,
-                        soit depuis les paramètres de votre profil sur le Site.
-                    </p>
-
-                    <p class="text-muted mb-0">
-                        Votre adresse email
-                        <span class="fw-bold" style="color: var(--ink);">
-                            n'est jamais transmise à des tiers
-                        </span>
-                        et n'est pas utilisée à des fins commerciales ou publicitaires.
-                    </p>
-                </div>
-
-                <hr class="form-section-divider">
-
-
-                {# ---------- 5. COOKIES ---------- #}
-                <div id="cookies" class="mb-5">
-                    <h2 class="h5 mb-3">5. Cookies et traceurs</h2>
-
-                    <p class="text-muted">
-                        Le Site n'utilise
-                        <span class="fw-bold" style="color: var(--ink);">
-                            aucun cookie de tracking, publicitaire ou de mesure d'audience
-                        </span>.
-                    </p>
-
-                    <p class="text-muted mb-0">
-                        Seuls des cookies techniques strictement nécessaires au fonctionnement
-                        du Site peuvent être utilisés, notamment le cookie de session généré
-                        par le framework Symfony permettant de maintenir votre connexion
-                        pendant votre navigation.
-                    </p>
-
-                    <p class="text-muted mb-0 mt-3">
-                        Ces cookies ne sont pas utilisés à des fins publicitaires ou de suivi
-                        comportemental et relèvent de l'exemption applicable aux cookies
-                        strictement nécessaires au fonctionnement du service.
-                    </p>
-                </div>
-
-                <hr class="form-section-divider">
-
-
-                {# ---------- 6. DURÉES ---------- #}
-                <div id="durees-conservation" class="mb-5">
-                    <h2 class="h5 mb-3">6. Durées de conservation</h2>
-
-                    <div class="table-responsive">
-                        <table class="table align-middle">
-                            <caption class="visually-hidden">Durées de conservation des données</caption>
-                            <thead>
-                            <tr>
-                                <th scope="col">Donnée</th>
-                                <th scope="col">Durée de conservation</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <td>
-                                    Données de compte
-                                    (email, pseudo, ville, avatar, mot de passe)
-                                </td>
-                                <td>
-                                    Jusqu'à la suppression du compte par l'utilisateur
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Photos publiées lors d'un concours</td>
-                                <td>
-                                    Le temps du concours concerné, puis suppression
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Photo gagnante d'un concours</td>
-                                <td>
-                                    Maximum 1 an après la fin du concours
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Messages envoyés via le formulaire de contact</td>
-                                <td>
-                                    Le temps nécessaire au traitement de la demande
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <p class="text-muted mb-0">
-                        À l'issue de ces durées, les données sont supprimées ou anonymisées.
-                    </p>
-                </div>
-
-                <hr class="form-section-divider">
-
-
-                {# ---------- 7. DESTINATAIRES ---------- #}
-                <div id="destinataires" class="mb-5">
-                    <h2 class="h5 mb-3">7. Destinataires des données</h2>
-
-                    <p class="text-muted">
-                        Vos données ne sont accessibles qu'à l'éditeur du Site, dans le cadre
-                        strict du fonctionnement du service, notamment pour la validation des
-                        photos, l'envoi des notifications et la modération.
-                    </p>
-
-                    <p class="text-muted">
-                        <span class="fw-bold" style="color: var(--ink);">
-                            Les photos que vous publiez ne sont utilisées que sur le Site
-                        </span>
-                        et ne sont ni cédées, ni réutilisées, ni publiées sur un autre
-                        support, réseau social ou service tiers sans votre accord explicite.
-                    </p>
-
-                    <p class="text-muted mb-0">
-                        Aucune donnée n'est vendue, louée ou partagée à des fins commerciales
-                        avec des tiers.
-                    </p>
-                </div>
-
-                <hr class="form-section-divider">
-
-
-                {# ---------- 8. HÉBERGEMENT ---------- #}
-                <div id="hebergement-securite" class="mb-5">
-                    <h2 class="h5 mb-3">8. Hébergement et sécurité</h2>
-
-                    <ul class="text-muted">
-                        <li>
-                            <span class="fw-bold" style="color: var(--ink);">
-                                Hébergeur :
-                            </span>
-                            OVH
-                        </li>
-                        <li>
-                            <span class="fw-bold" style="color: var(--ink);">
-                                Adresse :
-                            </span>
-                            À compléter avec l'adresse exacte de l'hébergeur si nécessaire
-                        </li>
-                    </ul>
-
-                    <p class="text-muted mb-0">
-                        Des mesures techniques raisonnables sont mises en œuvre pour protéger
-                        vos données, notamment la protection des mots de passe, les connexions
-                        sécurisées et la restriction des accès aux données d'administration.
-                    </p>
-                </div>
-
-                <hr class="form-section-divider">
-
-
-                {# ---------- 9. VOS DROITS ---------- #}
-                <div id="vos-droits" class="mb-5">
-                    <h2 class="h5 mb-3">9. Vos droits</h2>
-
-                    <p class="text-muted">
-                        Conformément au RGPD, vous disposez des droits suivants sur vos données
-                        personnelles :
-                    </p>
-
-                    <ul class="text-muted">
-                        <li>
-                            <span class="fw-bold" style="color: var(--ink);">
-                                Droit d'accès :
-                            </span>
-                            obtenir une copie des données vous concernant ;
-                        </li>
-                        <li>
-                            <span class="fw-bold" style="color: var(--ink);">
-                                Droit de rectification :
-                            </span>
-                            corriger des données inexactes ou incomplètes ;
-                        </li>
-                        <li>
-                            <span class="fw-bold" style="color: var(--ink);">
-                                Droit à l'effacement :
-                            </span>
-                            demander la suppression de vos données ;
-                        </li>
-                        <li>
-                            <span class="fw-bold" style="color: var(--ink);">
-                                Droit d'opposition :
-                            </span>
-                            vous opposer à certains traitements ;
-                        </li>
-                        <li>
-                            <span class="fw-bold" style="color: var(--ink);">
-                                Droit à la limitation :
-                            </span>
-                            demander la limitation du traitement de vos données ;
-                        </li>
-                        <li>
-                            <span class="fw-bold" style="color: var(--ink);">
-                                Droit à la portabilité :
-                            </span>
-                            recevoir les données que vous nous avez fournies dans un format
-                            structuré.
-                        </li>
-                    </ul>
-
-                    <h3 class="h6 mt-4 mb-3">Comment exercer vos droits</h3>
-
-                    <p class="text-muted">
-                        <span class="fw-bold" style="color: var(--ink);">
-                            Suppression de compte :
-                        </span>
-                        vous pouvez supprimer vous-même votre compte à tout moment depuis
-                        votre page de profil.
-                    </p>
-
-                    <p class="text-muted">
-                        Pour toute autre demande (accès, rectification, opposition,
-                        limitation ou portabilité), utilisez le formulaire de contact
-                        disponible en pied de page du Site ou écrivez à :
-                        <a href="mailto:alexis.verquin@gmail.com"
-                           style="color: #5b3b9e;">
-                            alexis.verquin@gmail.com
-                        </a>.
-                    </p>
-
-                    <p class="text-muted">
-                        Nous nous engageons à répondre à votre demande dans un délai maximum
-                        d'un mois.
-                    </p>
-
-                    <p class="text-muted mb-0">
-                        Vous disposez également du droit d'introduire une réclamation auprès
-                        de la
-                        <span class="fw-bold" style="color: var(--ink);">
-                            CNIL (Commission Nationale de l'Informatique et des Libertés)
-                        </span>
-                        si vous estimez que vos droits ne sont pas respectés.
-                        <a href="https://www.cnil.fr"
-                           target="_blank"
-                           rel="noopener noreferrer"
-                           style="color: #5b3b9e;">
-                            www.cnil.fr
-                        </a>
-                    </p>
-                </div>
-
-                <hr class="form-section-divider">
-
-
-                {# ---------- 10. MINEURS ---------- #}
-                <div id="mineurs" class="mb-5">
-                    <h2 class="h5 mb-3">10. Mineurs</h2>
-
-                    <p class="text-muted mb-0">
-                        Le Site n'est pas spécifiquement destiné à un public mineur.
-                        Si vous êtes mineur, l'inscription doit se faire avec l'accord de
-                        votre représentant légal.
-                    </p>
-                </div>
-
-                <hr class="form-section-divider">
-
-
-                {# ---------- 11. MODIFICATION ---------- #}
-                <div id="modification-politique" class="mb-5">
-                    <h2 class="h5 mb-3">11. Modification de la politique de confidentialité</h2>
-
-                    <p class="text-muted mb-0">
-                        Cette politique peut être mise à jour à tout moment, notamment afin
-                        de tenir compte d'une évolution légale ou réglementaire.
-                        La date de dernière mise à jour figure en haut de ce document.
-                        Nous vous invitons à consulter régulièrement cette page.
-                    </p>
-                </div>
-
-                <hr class="form-section-divider">
-
-
-                {# ---------- 12. CONTACT ---------- #}
-                <div id="contact" class="mb-0">
-                    <h2 class="h5 mb-3">12. Contact</h2>
-
-                    <p class="text-muted mb-0">
-                        Pour toute question relative à cette politique ou à vos données
-                        personnelles, utilisez le formulaire de contact disponible en pied
-                        de page du Site ou écrivez à :
-                        <a href="mailto:alexis.verquin@gmail.com"
-                           style="color: #5b3b9e;">
-                            alexis.verquin@gmail.com
-                        </a>.
-                    </p>
-                </div>
-
-            </div>
-        </div>
-    </div>
-</div>
+            </li>
+            <li><strong>Google ou Facebook</strong>, seulement si vous choisissez de vous connecter avec eux.</li>
+        </ul>
+        <p class="text-muted mb-0">
+            Polices, icônes et images sont servies par le site lui-même : aucun autre service (Google Fonts, réseaux de diffusion…) ne reçoit votre adresse IP quand vous naviguez.
+            Vos photos ne sont jamais publiées ailleurs que sur le site sans votre accord explicite.
+        </p>
+    </section>
+
+    <hr class="form-section-divider">
+
+    <section id="transferts" class="mb-5">
+        <h2 class="h5 mb-3">4. Transferts hors de l'Union européenne</h2>
+        <p class="text-muted mb-0">
+            Cloudflare, Inc. est une société américaine : les données qui transitent par elle (adresse IP, contenu des pages) peuvent être traitées aux États-Unis.
+            Ce transfert est encadré par le cadre de protection des données UE–États-Unis (Data Privacy Framework), auquel Cloudflare est adhérent,
+            et par les clauses contractuelles types de la Commission européenne.
+        </p>
+    </section>
+
+    <hr class="form-section-divider">
+
+    <section id="cookies" class="mb-5">
+        <h2 class="h5 mb-3">5. Cookies</h2>
+        <p class="text-muted">
+            Le site n'utilise <strong>aucun cookie de publicité, de suivi ou de mesure d'audience</strong>, c'est pourquoi il ne vous demande pas votre accord.
+            Seuls des cookies indispensables à son fonctionnement sont déposés :
+        </p>
+        <ul class="text-muted mb-0">
+            <li>le cookie de session, qui vous garde connecté pendant votre visite et retient votre langue ;</li>
+            <li>un jeton de sécurité, posé un court instant quand vous envoyez un formulaire, pour empêcher qu'un autre site agisse à votre place ;</li>
+            <li>éventuellement un cookie de Cloudflare destiné à distinguer les visiteurs des robots malveillants.</li>
+        </ul>
+    </section>
+
+    <hr class="form-section-divider">
+
+    <section id="securite" class="mb-5">
+        <h2 class="h5 mb-3">6. Sécurité</h2>
+        <p class="text-muted mb-0">
+            Connexion chiffrée (HTTPS), mots de passe stockés sous forme chiffrée, blocage après plusieurs tentatives de connexion ratées,
+            photos en attente de validation inaccessibles au public, suppression des métadonnées des photos (dont la position GPS)
+            et accès d'administration réservé à l'éditeur.
+        </p>
+    </section>
+
+    <hr class="form-section-divider">
+
+    <section id="droits" class="mb-5">
+        <h2 class="h5 mb-3">7. Vos droits</h2>
+        <p class="text-muted">
+            Vous pouvez demander à accéder à vos données, les corriger, les effacer, en limiter l'utilisation, vous opposer à leur traitement
+            (notamment aux emails de nouveau concours) et les récupérer dans un format réutilisable (portabilité).
+            Vous pouvez aussi donner des directives sur ce que deviennent vos données après votre décès.
+        </p>
+        <p class="text-muted">
+            La plupart de ces droits s'exercent directement depuis votre profil : modifier vos informations, vous désabonner,
+            télécharger toutes vos données (fichier JSON) ou supprimer votre compte.
+            Pour le reste, écrivez à <a href="mailto:{{ legal.contact_email }}">{{ legal.contact_email }}</a>
+            ou utilisez le <a href="{{ path('app_contact') }}">formulaire de contact</a> : nous répondons dans un délai d'un mois au plus.
+        </p>
+        <p class="text-muted mb-0">
+            Si vous estimez, après nous avoir contactés, que vos droits ne sont pas respectés, vous pouvez adresser une réclamation à la CNIL
+            (<a href="https://www.cnil.fr/fr/plaintes" rel="noopener">www.cnil.fr</a>).
+        </p>
+    </section>
+
+    <hr class="form-section-divider">
+
+    <section id="mineurs" class="mb-5">
+        <h2 class="h5 mb-3">8. Mineurs</h2>
+        <p class="text-muted mb-0">
+            L'inscription est réservée aux personnes de {{ legal.min_age }} ans et plus.
+            Si vous apprenez qu'un enfant plus jeune s'est inscrit, contactez-nous : son compte sera supprimé.
+        </p>
+    </section>
+
+    <hr class="form-section-divider">
+
+    <section id="modifications">
+        <h2 class="h5 mb-3">9. Modifications</h2>
+        <p class="text-muted mb-0">
+            Cette politique peut évoluer, par exemple si le site propose de nouvelles fonctionnalités.
+            La date de dernière mise à jour figure en haut de la page, et les membres sont prévenus par email de tout changement important.
+        </p>
+    </section>
 {% endblock %}

@@ -81,6 +81,9 @@ final class VoteTest extends FunctionalTestCase
 
         self::assertFalse($data['success']);
         self::assertSame(0, $this->em->getRepository(Vote::class)->count());
+        // Pas de HTML dans le message : le lien de connexion est transmis à part (anti-XSS)
+        self::assertStringNotContainsString('<', $data['message']);
+        self::assertSame('/login', $data['link']['url']);
     }
 
     public function testCannotVoteForAPhotoNotYetValidated(): void

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nouveau concours : {{ themeName }}</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #F5F3EF;">
+
+<!-- Wrapper -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #F5F3EF;">
+    <tr>
+        <td align="center" style="padding: 40px 16px;">
+
+            <!-- Card -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 560px; background-color: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 45px -25px rgba(45, 42, 50, 0.35);">
+
+                <!-- Bandeau -->
+                <tr>
+                    <td style="background-color: #2D2A32; padding: 28px 40px;">
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td style="width: 36px;">
+                                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                                        <tr>
+                                            <td style="width: 36px; height: 36px; border-radius: 10px; background-color: #FF6B6B; text-align: center; vertical-align: middle;">
+                                                <span style="font-size: 18px; line-height: 36px; color: #ffffff;">📷</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td style="padding-left: 12px; font-family: 'Poppins', Helvetica, Arial, sans-serif; font-weight: 800; font-size: 18px; color: #ffffff;">
+                                    {{ site_name }}
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Icône centrale -->
+                <tr>
+                    <td align="center" style="padding: 40px 40px 0 40px;">
+                        <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td style="width: 72px; height: 72px; border-radius: 50%; background-color: #FFF9EA; text-align: center; vertical-align: middle;">
+                                    <span style="font-size: 32px; line-height: 72px;">📸</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Contenu -->
+                <tr>
+                    <td align="center" style="padding: 24px 40px 40px 40px;">
+
+                        <h1 style="margin: 0 0 14px 0; font-family: 'Poppins', Helvetica, Arial, sans-serif; font-weight: 800; font-size: 22px; color: #2D2A32; text-align: center;">
+                            Nouveau concours : {{ themeName }}
+                        </h1>
+
+                        <p style="margin: 0 0 28px 0; font-family: Helvetica, Arial, sans-serif; font-size: 15px; line-height: 1.6; color: #55505A; text-align: center;">
+                            Bonjour {{ userName }}, un nouveau concours vient de commencer ! Vous avez jusqu'au {{ themeEnd|date('d/m/Y') }} pour envoyer votre photo, et les votes ouvriront quelques jours avant la fin.
+                        </p>
+
+                        <!-- CTA -->
+                        <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 8px;">
+                            <tr>
+                                <td style="background-color: #FF6B6B; border-radius: 50px;">
+                                    <a href="{{ siteUrl }}" target="_blank" style="display: inline-block; padding: 14px 32px; font-family: 'Poppins', Helvetica, Arial, sans-serif; font-weight: 700; font-size: 15px; color: #2D2A32; text-decoration: none;">
+                                        Je participe
+                                    </a>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </td>
+                </tr>
+
+                <!-- Séparateur -->
+                <tr>
+                    <td style="padding: 0 40px;">
+                        <hr style="border: none; border-top: 2px dashed #EFEAE0; margin: 0;">
+                    </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                    <td style="padding: 28px 40px 36px 40px;">
+                        <p style="margin: 0; font-family: Helvetica, Arial, sans-serif; font-size: 12px; line-height: 1.6; color: #5f5a63; text-align: center;">
+                            Vous recevez cet email car vous êtes inscrit sur {{ site_name }} et avez accepté d'être prévenu des nouveaux concours.<br>
+                            <a href="{{ unsubscribeUrl }}" style="color: #5b3b9e;">Ne plus recevoir ces emails</a><br><br>
+                            {{ site_name }} — {{ site_url|split('//')|last }}
+                        </p>
+                    </td>
+                </tr>
+
+            </table>
+            <!-- /Card -->
+
+        </td>
+    </tr>
+</table>
+<!-- /Wrapper -->
+
+</body>
+</html>

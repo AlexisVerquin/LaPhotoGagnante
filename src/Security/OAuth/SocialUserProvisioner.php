@@ -6,6 +6,7 @@ namespace App\Security\OAuth;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Security\UserChecker;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
@@ -31,7 +32,7 @@ final class SocialUserProvisioner
 
     /**
      * @throws CustomUserMessageAuthenticationException si le fournisseur ne transmet pas d'email
-     *                                                  ou si le compte a été supprimé
+     *                                                  ou si le compte est suspendu
      */
     public function provision(string $provider, string $providerId, ?string $email, ?string $displayName): User
     {
@@ -82,7 +83,7 @@ final class SocialUserProvisioner
     private function assertActive(User $user): void
     {
         if (false === $user->isActive()) {
-            throw new CustomUserMessageAuthenticationException('Ce compte a été supprimé.');
+            throw new CustomUserMessageAuthenticationException(UserChecker::SUSPENDED_MESSAGE);
         }
     }
 

@@ -1,0 +1,31 @@
+# Informations affichées dans les mentions légales, les CGU et la politique de confidentialité.
+# Une valeur à ~ (vide) s'affiche « À compléter » en surligné sur les pages : rien ne doit rester vide en production.
+parameters:
+    app.legal:
+        # Date affichée en haut des trois documents : à changer à chaque modification
+        updated_at: '2026-11-07'
+
+        editor_name: 'Alexis Verquin'
+        # Adresse publique de contact (une adresse du domaine est préférable à une adresse personnelle)
+        contact_email: 'alexis.verquin@gmail.com'
+        # Éditeur non professionnel : l'adresse peut ne pas être publiée si l'hébergeur est identifié
+        editor_address: '%env(LEGAL_EDITOR_ADDRESS)%'
+
+        # Le site tourne sur un serveur personnel : nom, adresse et téléphone de qui l'héberge.
+        # Adresse et téléphone ne sont pas dans git : ils viennent de l'environnement (.env.local, .env.prod)
+        host_name: 'Alexis Verquin'
+        host_address: '%env(LEGAL_HOST_ADDRESS)%'
+        host_phone: '%env(LEGAL_HOST_PHONE)%'
+        # Pays où se trouve le serveur (et donc les données)
+        host_country: France
+
+        # Prestataire d'envoi des emails
+        mail_provider: 'OVH SAS, 2 rue Kellermann, 59100 Roubaix, France'
+
+        # Âge minimum pour s'inscrire : se règle dans config/services.yaml (app.min_age)
+        min_age: '%app.min_age%'
+
+# Disponible dans tous les gabarits sous le nom « legal »
+twig:
+    globals:
+        legal: '%app.legal%'

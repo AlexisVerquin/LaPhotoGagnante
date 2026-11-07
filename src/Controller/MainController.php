@@ -72,7 +72,7 @@ final class MainController extends AbstractController
             'nbUsers' => $nbUsers,
             'nbVotes' => $nbVotes,
             'nbThemes' => $nbThemes,
-            'allThemes' => $themeRepository->findAll(),
+            'recentWinners' => $this->em->getRepository(Photo::class)->findRecentWinningPhotos(),
         ]);
     }
 
@@ -94,6 +94,8 @@ final class MainController extends AbstractController
 
         return $this->render('main/gallery.html.twig', [
             'actualTheme' => $actualTheme,
+            'photos' => $this->em->getRepository(Photo::class)->findVisibleForTheme($actualTheme),
+            'voteCounts' => $this->em->getRepository(Vote::class)->countByPhotoForTheme($actualTheme),
             'voteUser' => $voteUser,
             'enableVote' => $this->isVoteOpen($actualTheme),
         ]);
@@ -187,18 +189,12 @@ final class MainController extends AbstractController
         $user = $this->getUser();
 
         if (!$user instanceof User) {
-            $cartUrl = $this->generateUrl('app_login');
-
-            return $this->json(
-                [
-                    'success' => false,
-                    'message' => sprintf(
-                        'Vous devez etre connecté pour pouvoir voter. <a href="%s" class="alert-link">connectez-vous</a>',
-                        $cartUrl,
-                    ),
-                ],
-                200,
-            );
+            // Pas de HTML dans le message : le lien est transmis à part et construit côté navigateur
+            return $this->json([
+                'success' => false,
+                'message' => 'Vous devez être connecté pour pouvoir voter.',
+                'link' => ['url' => $this->generateUrl('app_login'), 'label' => 'Se connecter'],
+            ]);
         }
 
         if (!$user->isVerified()) {
@@ -287,6 +283,12 @@ final class MainController extends AbstractController
     public function cgu(): Response
     {
         return $this->render('main/cgu.html.twig');
+    }
+
+    #[Route('/mentions-legales', name: 'app_legal_notice')]
+    public function legalNotice(): Response
+    {
+        return $this->render('main/legal_notice.html.twig');
     }
 
     #[Route('/rgpd', name: 'app_rgpd')]

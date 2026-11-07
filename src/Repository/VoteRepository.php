@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Theme;
 use App\Entity\Vote;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -40,4 +41,22 @@ class VoteRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    /**
+     * Nombre de votes de chaque photo d'un concours, en une seule requête.
+     *
+     * @return array<int, int> id de la photo => nombre de votes
+     */
+    public function countByPhotoForTheme(Theme $theme): array
+    {
+        $rows = $this->createQueryBuilder('v')
+            ->select('IDENTITY(v.photo) AS photo', 'COUNT(v.id) AS votes')
+            ->andWhere('v.theme = :theme')
+            ->setParameter('theme', $theme)
+            ->groupBy('v.photo')
+            ->getQuery()
+            ->getArrayResult();
+
+        return array_column(array_map(static fn (array $r): array => [(int) $r['photo'], (int) $r['votes']], $rows), 1, 0);
+    }
 }

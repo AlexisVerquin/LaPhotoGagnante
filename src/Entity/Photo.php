@@ -36,7 +36,8 @@ class Photo implements DateInterface
     /**
      * @var Collection<int, Vote>
      */
-    #[ORM\OneToMany(targetEntity: Vote::class, mappedBy: 'photo')]
+    // EXTRA_LAZY : compter les votes fait un COUNT en base au lieu de les charger tous
+    #[ORM\OneToMany(targetEntity: Vote::class, mappedBy: 'photo', fetch: 'EXTRA_LAZY')]
     private Collection $votes;
 
     #[ORM\Column(length: 50, nullable: true)]

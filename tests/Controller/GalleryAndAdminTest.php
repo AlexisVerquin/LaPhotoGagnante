@@ -45,6 +45,23 @@ final class GalleryAndAdminTest extends FunctionalTestCase
         self::assertResponseIsSuccessful();
     }
 
+    public function testHomePageShowsRealRecentWinners(): void
+    {
+        $winner = $this->createUser('gagnant@example.com', name: 'Gagnant');
+        $theme = $this->createTheme('-40 days', '-5 days', 'Brume');
+        $theme->setWinner($winner);
+        $photo = $this->createPhoto($winner, $theme);
+        $this->createPhoto($this->createUser('autre@example.com', name: 'Autre'), $theme);
+
+        $crawler = $this->client->request('GET', '/');
+
+        self::assertResponseIsSuccessful();
+        $winners = $crawler->filter('.polaroid-mini img');
+        self::assertCount(1, $winners);
+        self::assertStringContainsString((string) $photo->getName(), (string) $winners->attr('src'));
+        self::assertStringNotContainsString('picsum', (string) $crawler->html());
+    }
+
     public function testAdminValidatesAPhotoWithAPostForm(): void
     {
         $theme = $this->createTheme();

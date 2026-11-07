@@ -79,17 +79,17 @@ Divers : `docker-compose.yml` (`serverVersion=8:4:0` → `8.4.0`), fichiers `*:Z
 2. ~~Métadonnées EXIF~~ ✅
 3. ~~Photos en attente servies publiquement~~ ✅
 4. ~~Limitation des tentatives de connexion et spam du contact~~ ✅
-5. **`alert_controller.js` injecte les messages en `innerHTML`** : aujourd'hui les messages sont contrôlés par le serveur, mais tout futur flash contenant une saisie utilisateur deviendra une XSS. Préférer `textContent` et construire le lien « connectez-vous » en DOM.
+5. ~~`alert_controller.js` injecte les messages en `innerHTML`~~ ✅ messages insérés en texte (`textContent`), lien interne transmis à part.
 6. ~~Vote pour sa propre photo~~ : autorisé (décision).
 7. ~~Email vérifié pour l'upload~~ : conservé (décision).
 8. **Uniformiser `Survey.dateStart/End`** (DATETIME) et `Theme.dateStart/End` (DATE) : deux logiques de dates différentes, source de bugs comme le n°12.
-9. **Performances** : `findActualTheme()` est exécutée 5 à 6 fois par page (base, navbar, compte à rebours ×2, contrôleur…) ; `findAll()` des thèmes sur l'accueil ; `count($photo->getVotes())` charge tous les votes (N+1). Mettre en cache le thème courant par requête et utiliser des `COUNT` SQL.
+9. ~~Performances~~ ✅ concours en cours chargé une fois par requête (accueil 23 → 17 requêtes), galerie à nombre de requêtes constant (12 photos : 38 → 10), garde-fous dans `tests/Controller/QueryCountTest.php`.
 10. **Messages en dur** en français dans les contrôleurs alors que l'application est traduite (fr/en) : passer par `TranslatorInterface`.
-11. **Lecture d'un message admin (`/contact/read/{id}`) en GET** qui modifie l'état : passer en POST + CSRF (risque faible, admin uniquement).
+11. ~~Lecture d'un message admin en GET~~ ✅ remplacée par « Clôturer » (POST + CSRF).
 12. ~~Fichiers inutiles suivis par git~~ ✅
 13. **`.env` non suivi** mais `.env.example` l'est : à l'inverse de la convention Symfony (`.env` versionné sans secrets, `.env.local` pour les secrets). Pas grave, mais à documenter.
-14. `docker-compose` : transport Messenger différent entre `php` (`/%2f`) et `messenger` (`/%2f/messages`), identifiants RabbitMQ en dur alors que des variables existent. Services exposés sur l'hôte (3306, 6379, 5672) : OK en dev, à fermer en prod.
-15. Entité `Theme` : propriété `$ThemeChoice` avec une majuscule, `isAlreadyActived` jamais lu ; `User::$isActive` jamais lu. Nettoyage à prévoir.
+14. `docker-compose.yml` (dev) : transport Messenger différent entre `php` (`/%2f`) et `messenger` (`/%2f/messages`), identifiants RabbitMQ en dur. (Prod : ✅ `compose.prod.yaml` séparé, aucun port ouvert.)
+15. Entité `Theme` : propriété `$ThemeChoice` avec une majuscule, `isAlreadyActived` jamais lu. (`User::$isActive` : ✅ sert maintenant à la suspension.)
 16. ~~Conteneur `messenger` marqué *unhealthy*~~ ✅ (il héritait du healthcheck HTTP de FrankenPHP ; désactivé pour ce service).
 
 ---
