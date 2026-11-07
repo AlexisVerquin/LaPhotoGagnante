@@ -7,8 +7,10 @@ set -Eeuo pipefail
 
 ENV_FILE="${PHOTOPRIX_ENV_FILE:-/srv/photoprix/.env.prod}"
 BACKUP_DIR="${PHOTOPRIX_BACKUP_DIR:-/srv/photoprix/backups}"
-BACKUPS_TO_KEEP="${PHOTOPRIX_BACKUPS_TO_KEEP:-14}"
 IMAGE="photoprix-app"
+# Nom du projet Docker Compose (celui de compose.prod.yaml, sauf surcharge pour un test local)
+export PHOTOPRIX_PROJECT="${COMPOSE_PROJECT_NAME:-photoprix-prod}"
+export PHOTOPRIX_BACKUP_DIR="$BACKUP_DIR"
 
 cd "$(dirname "$0")/.."
 
@@ -25,16 +27,14 @@ compose() { docker compose -f compose.prod.yaml --env-file "$ENV_FILE" "$@"; }
 APP_HOST="$(sed -nE 's#^DEFAULT_URI="?https?://([^/"]+).*#\1#p' "$ENV_FILE" | head -n1)"
 APP_HOST="${APP_HOST:-localhost}"
 
-# --- 1. Sauvegarde de la base (si elle tourne déjà) ------------------------------------------
+# --- 1. Sauvegarde de la base et des photos (si le site tourne déjà) ------------------------------
+# Le script est aussi copié à côté de .env.prod, là où le cron quotidien l'appelle
+install -D -m 755 deploy/backup.sh "$(dirname "$ENV_FILE")/bin/backup.sh"
+
 if compose ps --status running --services 2>/dev/null | grep -qx database; then
-    log "Sauvegarde de la base de données"
-    mkdir -p "$BACKUP_DIR"
-    backup="$BACKUP_DIR/photoprix-$(date +%Y%m%d-%H%M%S).sql.gz"
-    compose exec -T database sh -c 'exec mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" --single-transaction --routines "$MYSQL_DATABASE"' \
-        | gzip > "$backup"
-    echo "Sauvegarde : $backup"
-    # On ne garde que les dernières sauvegardes.
-    ls -1t "$BACKUP_DIR"/photoprix-*.sql.gz | tail -n +"$((BACKUPS_TO_KEEP + 1))" | xargs -r rm --
+    log "Sauvegarde de la base et des photos"
+    ./deploy/backup.sh
+    backup="$(ls -1t "$BACKUP_DIR"/photoprix-*.sql.gz | head -n1)"
 fi
 
 # --- 2. Construction de la nouvelle image -----------------------------------------------------

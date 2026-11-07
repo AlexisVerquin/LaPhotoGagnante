@@ -57,7 +57,10 @@ Job `docker` : construit l'image de prod (cible `prod` du Dockerfile) à chaque 
 - `compose.prod.yaml` (projet `photoprix-prod`) : php (FrankenPHP, cible `prod`, port 8080 non-root), messenger, MySQL, RabbitMQ, cloudflared. Config hors dépôt : `/srv/photoprix/.env.prod` (modèle `deploy/.env.prod.example`). Données en volumes nommés (`uploads`, `pending_photos`, `database_data`).
 - Derrière le proxy : `SYMFONY_TRUSTED_PROXIES=private_ranges` + `SYMFONY_TRUSTED_HEADERS=x-forwarded-for,x-forwarded-proto` **obligatoires**, sinon tous les visiteurs partagent l'IP du tunnel et les rate limiters bloquent tout le monde. `SYMFONY_TRUSTED_HOSTS` = domaine.
 - Tester la stack prod en local : `COMPOSE_PROJECT_NAME=photoprix-prodtest PHOTOPRIX_ENV_FILE=<fichier de test> ./deploy/deploy.sh` (nom de projet différent pour ne pas toucher la stack de dev), puis `down -v`.
-- Premier admin : `app:user:promote email` (`--revoke` pour retirer). Cron serveur : `app:daily` + sauvegarde quotidienne (cf. guide).
+- Premier admin : `app:user:promote email` (`--revoke` pour retirer). Cron serveur : `app:daily` + `/srv/photoprix/bin/backup.sh` (cf. guide).
+- `deploy/backup.sh` : base (`photoprix-*.sql.gz`, 14 gardées) + fichiers (`fichiers-*.tar` = `public/uploads` + `storage`, 7 gardées) ; trouve les conteneurs par leurs étiquettes Compose (`PHOTOPRIX_PROJECT`), appelé par `deploy.sh` qui l'installe aussi dans `/srv/photoprix/bin/`. Sauvegarde et restauration testées sur une stack prod locale.
+- Healthcheck MySQL en `-h 127.0.0.1`, jamais `localhost` : au premier démarrage, le serveur temporaire d'initialisation répond au socket et les migrations échouaient (« Connection refused »).
+- Preprod : même stack sur `preprod.laphotogagnante.fr`, accès limité par Cloudflare Access (cf. guide).
 
 ### Tests
 
@@ -103,7 +106,7 @@ Requêtes clés : `ThemeRepository::findActualTheme()` (thème en cours), `findL
 - **Performances** : `ThemeRepository::findActualTheme()` est mémorisé le temps d'une requête (réinitialisé entre requêtes et par `App\Doctrine\ThemeCacheInvalidator` quand un concours change). Galerie : `PhotoRepository::findVisibleForTheme` (auteurs joints) + `VoteRepository::countByPhotoForTheme`. `tests/Controller/QueryCountTest.php` échoue si le N+1 revient.
 - **Alertes** : `alert_controller.js` n'utilise jamais `innerHTML` ; un lien s'envoie à part (`{message, link: {url, label}}`, URL interne uniquement), jamais dans le texte du message.
 - **Aucune ressource externe** dans les pages (RGPD : l'IP des visiteurs ne doit partir chez aucun tiers) : polices et icônes sont dans `assets/fonts/`, `importmap_polyfill: false`, pas d'image de démo distante. Seule exception : le rechargement à chaud FrankenPHP, en dev uniquement.
-- **Pages légales** (`/cgu`, `/rgpd`, `/mentions-legales`, gabarit `templates/legal/layout.html.twig`) : les infos (éditeur, hébergeur, date de mise à jour) sont dans le paramètre `app.legal` de `config/packages/legal.yaml` (global Twig `legal`) ; une valeur vide s'affiche « À compléter ». Changer `updated_at` à chaque modification. Le registre CNIL est dans `docs/registre-traitements.md`.
+- **Pages légales** (`/cgu`, `/rgpd`, `/mentions-legales`, gabarit `templates/legal/layout.html.twig`) : les infos (éditeur, hébergeur, date de mise à jour) sont dans le paramètre `app.legal` de `config/packages/legal.yaml` (global Twig `legal`) ; **adresse et téléphone ne sont jamais dans git** : variables `LEGAL_EDITOR_ADDRESS`, `LEGAL_HOST_ADDRESS`, `LEGAL_HOST_PHONE` (`.env.local`, `.env.prod`) ; une valeur vide s'affiche « À compléter ». Changer `updated_at` à chaque modification. Le registre CNIL est dans `docs/registre-traitements.md`.
 - Twig globales : `site_name`, `site_url` (`config/packages/twig.yaml`), à utiliser dans les emails plutôt que du texte en dur.
 
 - Toute action qui modifie l'état : **POST/DELETE + CSRF** (y compris côté admin).

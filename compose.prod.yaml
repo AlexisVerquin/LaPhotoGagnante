@@ -57,7 +57,9 @@ services:
         volumes:
             - database_data:/var/lib/mysql
         healthcheck:
-            test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p\"$$MYSQL_ROOT_PASSWORD\""]
+            # 127.0.0.1 (réseau) et pas localhost (socket) : au premier démarrage, MySQL lance d'abord un serveur
+            # temporaire sans réseau pour s'initialiser, qui répondrait au socket alors qu'il n'est pas encore prêt
+            test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\""]
             interval: 5s
             timeout: 5s
             retries: 20

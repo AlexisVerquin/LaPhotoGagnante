@@ -19,8 +19,8 @@ Liste établie le 2026-11-07. Pour chaque point : ce qui existe déjà, pour rep
   - À faire : mesurer la consommation au repos (`docker stats`), test de charge (k6 / ab) sur accueil, galerie, vote, upload ; estimer le stockage (photos ≤ 5 Mo × membres × mois) ; tenir compte du débit montant de la box.
 
 - [ ] **5. Mise en place des sauvegardes**
-  - Existe : sauvegarde mysqldump avant chaque déploiement + cron quotidien proposé (14 jours conservés) dans `deploy/README.md`.
-  - À faire : sauvegarder aussi les **photos** (volumes `uploads` et `pending_photos`) ; copie **hors du serveur** (autre disque, cloud chiffré : restic / borg vers B2, S3, OVH Object Storage…) ; tester une restauration complète.
+  - Fait : `deploy/backup.sh` sauvegarde la base **et les photos** (avant chaque déploiement + cron quotidien), restauration documentée et testée.
+  - Reste : copie hors du serveur (restic / borg vers un disque externe ou un stockage distant chiffré) ; tester une restauration sur le vrai serveur.
 
 - [ ] **6. Migration du site en cas de changement d'hébergement**
   - Existe : tout est dans Docker (`compose.prod.yaml`), configuration dans un seul fichier hors dépôt (`/srv/photoprix/.env.prod`).
@@ -39,8 +39,7 @@ Liste établie le 2026-11-07. Pour chaque point : ce qui existe déjà, pour rep
 
 À renseigner dans `config/packages/legal.yaml` : tant qu'une valeur manque, les pages affichent « À compléter ».
 
-- [ ] **Hébergeur** : nom, adresse, téléphone. Le site est auto-hébergé, donc c'est l'éditeur : décider s'il publie son adresse (question pour l'avocat).
-- [ ] **Pays du serveur** (France ?).
+- [x] **Hébergeur** et **pays du serveur** : renseignés ; adresse et téléphone via `LEGAL_HOST_ADDRESS` / `LEGAL_HOST_PHONE` dans `.env.local` et `/srv/photoprix/.env.prod` (jamais dans git).
 - [ ] **Email public de contact** : aujourd'hui l'adresse Gmail personnelle ; créer `contact@laphotogagnante.fr` chez OVH ?
 - [ ] **Prestataire d'envoi des emails** : OVH indiqué, à confirmer (et `MAILER_DSN` de prod).
 - [ ] **Âge minimum** : 15 ans retenu (majorité numérique), à confirmer.
@@ -49,8 +48,10 @@ Liste établie le 2026-11-07. Pour chaque point : ce qui existe déjà, pour rep
 ## Mise en production
 
 - [ ] Pousser `dev` puis fusionner dans `main` (le déploiement automatique ne démarre qu'après).
+- [ ] **Preprod** pour quelques personnes : `preprod.laphotogagnante.fr` + Cloudflare Access (`deploy/README.md`, section « Preprod »).
 - [ ] Installer le serveur en suivant `deploy/README.md` : DNS OVH → Cloudflare, tunnel, `.env.prod`, runner GitHub, environnement `production`.
-- [ ] Cron `app:daily` + sauvegarde quotidienne (`deploy/README.md` § 6).
+- [ ] Cron `app:daily` + `/srv/photoprix/bin/backup.sh` (`deploy/README.md` § 6).
+- [ ] Copier les sauvegardes **hors du serveur** (disque externe, autre machine) : elles sont aujourd'hui sur le même disque que le site.
 - [ ] Journaux : la politique annonce 6 mois maximum, mais Docker ne limite que leur taille ; vérifier sur le serveur, ou ajouter une suppression par date.
 - [ ] Google et Facebook : déclarer les URI de redirection de production, publier l'app Google, passer l'app Facebook en mode Live (examen Meta éventuel).
 - [ ] Créer la boîte `no-reply@laphotogagnante.fr` (envoi des emails), et SPF / DKIM / DMARC dans Cloudflare.

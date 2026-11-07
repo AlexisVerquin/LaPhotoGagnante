@@ -9,14 +9,15 @@ parameters:
         # Adresse publique de contact (une adresse du domaine est préférable à une adresse personnelle)
         contact_email: 'alexis.verquin@gmail.com'
         # Éditeur non professionnel : l'adresse peut ne pas être publiée si l'hébergeur est identifié
-        editor_address: ~
+        editor_address: '%env(LEGAL_EDITOR_ADDRESS)%'
 
-        # Le site tourne sur un serveur personnel : nom, adresse et téléphone de qui l'héberge
-        host_name: ~
-        host_address: ~
-        host_phone: ~
+        # Le site tourne sur un serveur personnel : nom, adresse et téléphone de qui l'héberge.
+        # Adresse et téléphone ne sont pas dans git : ils viennent de l'environnement (.env.local, .env.prod)
+        host_name: 'Alexis Verquin'
+        host_address: '%env(LEGAL_HOST_ADDRESS)%'
+        host_phone: '%env(LEGAL_HOST_PHONE)%'
         # Pays où se trouve le serveur (et donc les données)
-        host_country: ~
+        host_country: France
 
         # Prestataire d'envoi des emails
         mail_provider: 'OVH SAS, 2 rue Kellermann, 59100 Roubaix, France'

@@ -24,7 +24,7 @@ final class LegalPagesTest extends FunctionalTestCase
 
             self::assertResponseIsSuccessful();
             self::assertStringContainsString('laphotogagnante.fr', $html, $page);
-            self::assertDoesNotMatchRegularExpression('/site\.com|lorem ipsum|\[Nom du site\]|non applicable/i', $html, $page);
+            self::assertDoesNotMatchRegularExpression('/site\.com|lorem ipsum|\[Nom du site\]|non applicable|À compléter/i', $html, $page);
         }
     }
 
@@ -36,5 +36,14 @@ final class LegalPagesTest extends FunctionalTestCase
             $links = $crawler->filter('a[href="/rgpd"]')->count() - $crawler->filter('footer a[href="/rgpd"]')->count();
             self::assertGreaterThanOrEqual(1, $links, $page . ' : lien vers la politique à côté du formulaire');
         }
+    }
+
+    public function testPrivateContactDetailsComeFromTheEnvironment(): void
+    {
+        $this->client->request('GET', '/mentions-legales');
+
+        // Valeurs de .env.test : en production elles viennent de .env.prod, jamais de git
+        self::assertSelectorTextContains('#hebergement', '01 23 45 67 89');
+        self::assertSelectorTextContains('#hebergement', '59000 Lille');
     }
 }
