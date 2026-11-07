@@ -42,27 +42,37 @@ Divers : `docker-compose.yml` (`serverVersion=8:4:0` → `8.4.0`), fichiers `*:Z
 
 ---
 
-## 2. À traiter — décisions ou chantiers ⚠️
+## 2. Deuxième passe (même jour) ✅
 
-1. **Aucun test.** `tests/` est vide. Priorité : tests fonctionnels sur le vote, l'upload, la désignation du gagnant (règles métier les plus sensibles).
-2. **Métadonnées EXIF des photos** (dont GPS) conservées et servies publiquement. Contradictoire avec la politique RGPD affichée. Recommandé : ré-encoder l'image avec GD/Imagick à l'upload (supprime les EXIF, normalise le format).
+- **Tests** : 46 tests PHPUnit (vote, vote sondage, upload, galerie, admin, profil, suppression de compte, connexion, commande gagnant, dates des concours, nettoyage EXIF, cohérence migrations/mapping). Vérifiés : 10 d'entre eux échouent sur le code d'avant l'audit.
+- **EXIF** : `App\Service\ImageSanitizer` ré-encode chaque photo et avatar envoyés (GD) : plus aucune métadonnée (GPS, appareil, date), orientation appliquée avant. Commande `app:photos:strip-exif` pour les fichiers existants. Extension `exif` ajoutée au Dockerfile.
+- **Connexion** : blocage après **3 échecs** pour 15 min (`login_throttling`, `symfony/rate-limiter`).
+- **Dépendances** : 22 alertes de sécurité Symfony (dont 2 graves) → mise à jour de correctifs 8.1.x, `composer audit` propre.
+- **Décisions** : voter pour sa propre photo reste autorisé ; l'email vérifié est requis pour participer.
+- Dépôt nettoyé : `rapport.txt`, `.idea/`, certificat Caddy en double.
+
+## 3. À traiter — décisions ou chantiers ⚠️
+
+1. ~~Aucun test~~ ✅
+2. ~~Métadonnées EXIF~~ ✅
 3. **Photos en attente servies publiquement** : `public/uploads/themes/<dir>/` est accessible à qui connaît l'URL. Pour une vraie modération, stocker hors de `public/` et servir via un contrôleur.
-4. **Pas de limitation de tentatives de connexion** : ajouter `login_throttling` (nécessite `symfony/rate-limiter`). Idem pour le formulaire de contact (spam) et la demande de réinitialisation.
+4. ~~Limitation des tentatives de connexion~~ ✅ — reste le formulaire de contact (spam), qui n'a aucune limite.
 5. **`alert_controller.js` injecte les messages en `innerHTML`** : aujourd'hui les messages sont contrôlés par le serveur, mais tout futur flash contenant une saisie utilisateur deviendra une XSS. Préférer `textContent` et construire le lien « connectez-vous » en DOM.
-6. **Règle métier à confirmer** : un membre peut voter pour **sa propre photo**. Faut-il l'interdire ?
-7. **Règle ajoutée à confirmer** : l'upload exige désormais un **email vérifié** (comme le vote du sondage). À retirer si ce n'est pas voulu.
+6. ~~Vote pour sa propre photo~~ : autorisé (décision).
+7. ~~Email vérifié pour l'upload~~ : conservé (décision).
 8. **Uniformiser `Survey.dateStart/End`** (DATETIME) et `Theme.dateStart/End` (DATE) : deux logiques de dates différentes, source de bugs comme le n°12.
 9. **Performances** : `findActualTheme()` est exécutée 5 à 6 fois par page (base, navbar, compte à rebours ×2, contrôleur…) ; `findAll()` des thèmes sur l'accueil ; `count($photo->getVotes())` charge tous les votes (N+1). Mettre en cache le thème courant par requête et utiliser des `COUNT` SQL.
 10. **Messages en dur** en français dans les contrôleurs alors que l'application est traduite (fr/en) : passer par `TranslatorInterface`.
 11. **Lecture d'un message admin (`/contact/read/{id}`) en GET** qui modifie l'état : passer en POST + CSRF (risque faible, admin uniquement).
-12. **Fichiers suivis par git inutiles** : `rapport.txt` (sortie PHPStan), `.idea/`, `caddy-local-root.crt` et `.caddy-local-root.crt` en double. À supprimer du dépôt si vous êtes d'accord.
+12. ~~Fichiers inutiles suivis par git~~ ✅
 13. **`.env` non suivi** mais `.env.example` l'est : à l'inverse de la convention Symfony (`.env` versionné sans secrets, `.env.local` pour les secrets). Pas grave, mais à documenter.
 14. `docker-compose` : transport Messenger différent entre `php` (`/%2f`) et `messenger` (`/%2f/messages`), identifiants RabbitMQ en dur alors que des variables existent. Services exposés sur l'hôte (3306, 6379, 5672) : OK en dev, à fermer en prod.
 15. Entité `Theme` : propriété `$ThemeChoice` avec une majuscule, `isAlreadyActived` jamais lu ; `User::$isActive` jamais lu. Nettoyage à prévoir.
+16. ~~Conteneur `messenger` marqué *unhealthy*~~ ✅ (il héritait du healthcheck HTTP de FrankenPHP ; désactivé pour ce service).
 
 ---
 
-## 3. Qualité 💡
+## 4. Qualité 💡
 
 - Types nullable incohérents avec le mapping Doctrine (`?string` pour une colonne `NOT NULL`) : sans gravité, mais à aligner pour que PHPStan soit propre.
 - Logique « votes ouverts 6 jours avant la fin » dupliquée (`MainController`, `ThemeExtension`) : à mettre dans une méthode de `Theme` ou un service.

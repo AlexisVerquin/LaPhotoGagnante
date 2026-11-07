@@ -96,6 +96,9 @@ services:
         container_name: ${PROJECT_NAME}_messenger
         restart: unless-stopped
         command: php bin/console messenger:consume async --time-limit=3600 -vv
+        # Pas de serveur HTTP dans ce conteneur : le healthcheck de l'image FrankenPHP ne s'applique pas
+        healthcheck:
+            disable: true
         environment:
             APP_ENV: ${APP_ENV}
             MAILER_DSN: smtp://mailhog:1025

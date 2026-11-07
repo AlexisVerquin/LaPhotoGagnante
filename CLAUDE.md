@@ -15,11 +15,17 @@ Préférence de l'utilisateur : **demander en cas de doute** avant de modifier ;
 
 ## Commandes
 
+Le PHP de la machine hôte n'a ni GD, ni pdo_mysql, ni amqp : **lancer les commandes dans le conteneur** (`docker compose exec php …`, et `-u appuser` pour composer).
+
 ```bash
 docker compose up -d                       # stack complète (https://localhost, MailHog sur :8025)
+docker compose exec php php bin/phpunit    # tests (recrée la base app_test via les migrations)
+docker compose exec -e SKIP_DB_RESET=1 php php bin/phpunit tests/Service   # tests sans base, plus rapide
+docker compose exec -u appuser php composer audit
 php bin/console doctrine:migrations:migrate
 php bin/console doctrine:fixtures:load     # admin : alexis.verquin@gmail.com / Password123!
 php bin/console app:set-winner             # désigne le gagnant du dernier thème terminé (cron)
+php bin/console app:photos:strip-exif [--dry-run]   # retire les EXIF des images déjà dans public/uploads
 vendor/bin/phpstan analyse                 # niveau 6 (phpstan.neon local, phpstan.dist.neon versionné)
 composer cs:check / composer cs:fix        # php-cs-fixer
 vendor/bin/rector process --dry-run
@@ -27,13 +33,20 @@ php bin/console doctrine:schema:validate --skip-sync   # valide le mapping sans 
 php bin/console lint:twig templates && php bin/console lint:container
 ```
 
-Pas de tests pour l'instant (`tests/` vide).
+### Tests
+
+- PHPUnit 13, `tests/FunctionalTestCase.php` : base vidée avant chaque test (ORMPurger), compteur de connexion remis à zéro, fabriques `createUser/createTheme/createPhoto/createVote`, `reload()`.
+- Base `app_test` (compte root via `${MYSQL_ROOT_PASSWORD}` dans `.env.test`), Messenger `in-memory://` en test.
+- `tests/TestImage.php` fabrique des JPEG avec EXIF (Make, Orientation, GPS) pour tester le nettoyage.
+- Les jetons CSRF des endpoints AJAX se récupèrent dans la page HTML (`data-vote-csrf-value`, `data-token`…).
+- Ne pas mettre `cache.app` en `cache.adapter.array` en test : les services sont réinitialisés entre requêtes, le rate limiter ne compterait plus.
+- Un test vérifie que les migrations correspondent au mapping : toute modif d'entité sans migration le fait échouer.
 
 ## Domaine (src/Entity)
 
 - `Theme` : un concours. `dateStart`/`dateEnd` en **DATE** (pas datetime). `directoryName` = sous-dossier de `public/uploads/themes/`. `winner` (User, ManyToOne), `ThemeChoice` (SurveyChoice, OneToOne).
 - `Photo` : `is_visible` = validée par l'admin. Une seule par (user, theme). Fichier dans `public/uploads/themes/<directoryName>/<name>`.
-- `Vote` : un vote par (user, theme), modifiable (on change de photo). Ouvert **6 jours avant `dateEnd`**.
+- `Vote` : un vote par (user, theme), modifiable (on change de photo). Ouvert **6 jours avant `dateEnd`**. Voter pour sa propre photo est **autorisé** (décision produit).
 - `Survey` / `SurveyChoice` : sondage du thème suivant (dates en **DATETIME**). 1 vote/jour/membre (`User::lastVoteDate`), compteur `numberVoter`.
 - `Contact` : messages du formulaire de contact (`type` = `contact` | `reply`, `origin` = id du message d'origine).
 - `User` : identifiant = email. Suppression de compte = **anonymisation** (pas de DELETE), cf. `UserManageController::removeUser`.
@@ -46,7 +59,9 @@ Requêtes clés : `ThemeRepository::findActualTheme()` (thème en cours), `findL
 - `src/Controller/` : public (`MainController` = accueil, galerie, votes ; `PhotoController` = upload), membre (`UserManageController`, sous `/user`), `Admin/` (sous `/admin`, `ROLE_ADMIN`).
 - `src/Twig/` : fonctions Twig globales (`getCurrentTheme`, `getCurrentThemeTime`, `getPhotoCurrentTheme`, `getAvatar`…) appelées dans `base.html.twig` / navbar → **doivent tolérer l'absence de thème et d'utilisateur**.
 - Endpoints AJAX (vote, vote sondage, upload photo/avatar) : POST, jeton CSRF dans l'en-tête `X-CSRF-Token`, réponse JSON. Les contrôleurs Stimulus attendent du JSON (`success`/`message` ou `error`).
-- Emails : expéditeur global `MAILER_FROM` (config/packages/mailer.yaml), email admin = paramètre `app.admin_email` (`ADMIN_EMAIL`). Ne pas remettre de `->from()` en dur.
+- Uploads (photo, avatar) : passent par `ImageSanitizer` (ré-encodage GD → plus aucune métadonnée EXIF/GPS, orientation appliquée). Participer (upload, vote) exige un **email vérifié** (décision produit).
+- Connexion : `login_throttling` = 3 échecs / 15 min par (email + IP) (`config/packages/security.yaml`, `symfony/rate-limiter`).
+- Emails : expéditeur global `MAILER_FROM` (config/packages/mailer.yaml), email admin = paramètre `app.admin_email` (`ADMIN_MAIL`). Ne pas remettre de `->from()` en dur.
 
 ## Conventions / pièges
 
@@ -60,4 +75,4 @@ Requêtes clés : `ThemeRepository::findActualTheme()` (thème en cours), `findL
 
 ## Suivi
 
-`AUDIT.md` : audit du 2026-11-07, liste des corrections faites et des points encore ouverts (tests, EXIF/RGPD, rate limiting, perfs…).
+`AUDIT.md` : audit du 2026-11-07, liste des corrections faites et des points encore ouverts (perfs, photos en attente servies publiquement, XSS potentielle dans alert_controller…).

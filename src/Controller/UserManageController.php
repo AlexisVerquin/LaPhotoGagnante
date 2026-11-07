@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\UserInfoType;
 use App\Security\EmailVerifier;
+use App\Service\ImageSanitizer;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
@@ -92,6 +93,7 @@ final class UserManageController extends AbstractController
         Request $request,
         SluggerInterface $slugger,
         EntityManagerInterface $em,
+        ImageSanitizer $imageSanitizer,
         #[Autowire('%kernel.project_dir%/public/uploads/avatars')] string $avatarFileDirectory,
     ): Response {
         $submittedToken = $request->headers->get('X-CSRF-Token');
@@ -123,7 +125,7 @@ final class UserManageController extends AbstractController
 
         // 5. Déplacement du fichier
         try {
-            $file->move(
+            $movedFile = $file->move(
                 $avatarFileDirectory,
                 $newFilename,
             );
@@ -131,6 +133,16 @@ final class UserManageController extends AbstractController
             $logger->error($e->getMessage());
 
             return $this->json(['error' => 'Erreur lors de l\'enregistrement du fichier'], 500);
+        }
+
+        // Supprime les métadonnées EXIF (position GPS, appareil, date…)
+        try {
+            $imageSanitizer->sanitize($movedFile->getPathname());
+        } catch (\RuntimeException $e) {
+            $logger->warning($e->getMessage());
+            @unlink($movedFile->getPathname());
+
+            return $this->json(['error' => 'Image illisible, merci d\'essayer avec un autre fichier'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $user = $this->getUser();

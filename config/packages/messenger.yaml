@@ -24,3 +24,11 @@ framework:
 
             # Route your messages to the transports
             # 'App\Message\YourMessage': async
+
+when@test:
+    framework:
+        messenger:
+            transports:
+                # Aucun envoi réel en test : les emails restent en mémoire
+                async: 'in-memory://'
+                failed: 'in-memory://'

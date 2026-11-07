@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Photo;
 use App\Entity\Theme;
 use App\Entity\User;
+use App\Service\ImageSanitizer;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -30,6 +31,7 @@ final class PhotoController extends AbstractController
         SluggerInterface $slugger,
         #[Autowire('%kernel.project_dir%/public/uploads/themes')] string $photoFileDirectory,
         LoggerInterface $logger,
+        ImageSanitizer $imageSanitizer,
     ): Response {
         $submittedToken = $request->headers->get('X-CSRF-Token');
 
@@ -78,7 +80,7 @@ final class PhotoController extends AbstractController
         $newFilename = sprintf('%s-%s.%s', $safeFilename, uniqid(), $file->guessExtension());
 
         try {
-            $file->move(
+            $movedFile = $file->move(
                 $photoFileDirectory . '/' . $infoTheme->getDirectoryName(),
                 $newFilename,
             );
@@ -86,6 +88,16 @@ final class PhotoController extends AbstractController
             $logger->error($e->getMessage());
 
             return $this->json(['error' => 'Erreur lors de l\'enregistrement du fichier'], 500);
+        }
+
+        // Supprime les métadonnées EXIF (position GPS, appareil, date…) avant toute publication
+        try {
+            $imageSanitizer->sanitize($movedFile->getPathname());
+        } catch (\RuntimeException $e) {
+            $logger->warning($e->getMessage());
+            @unlink($movedFile->getPathname());
+
+            return $this->json(['error' => 'Image illisible, merci d\'essayer avec un autre fichier'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $photo = new Photo();

@@ -18,6 +18,7 @@ RUN install-php-extensions \
     opcache \
     redis \
     gd \
+    exif \
     xsl \
     amqp
 

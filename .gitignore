@@ -33,3 +33,7 @@ phpstan.neon
 ###> local / OS ###
 *:Zone.Identifier
 ###< local / OS ###
+
+###> IDE ###
+/.idea/
+###< IDE ###
