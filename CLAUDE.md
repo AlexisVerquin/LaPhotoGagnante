@@ -113,7 +113,7 @@ Requêtes clés : `ThemeRepository::findActualTheme()` (thème en cours), `findL
 - Le serveur web de dev (FrankenPHP) tourne en root et écrit dans `var/cache` : si `cache:clear` échoue en « Permission denied », `docker compose exec php chown -R 1000:1000 /app/var`.
 - Après modification d'entité : créer une migration (`make:migration` nécessite la BDD Docker ; sinon l'écrire à la main dans `migrations/`).
 - php-cs-fixer : **une seule config, `.php-cs-fixer.dist.php`** (versionnée, utilisée par la CI : `@Symfony` + `@PHP84Migration` + `concat_space` à un espace). Un `.php-cs-fixer.php` local serait prioritaire et masquerait les écarts avec la CI (incident de novembre 2026 : 21 fichiers rejetés par la CI alors que le local disait OK). Vérifier avec `--config=.php-cs-fixer.dist.php` en cas de doute.
-- git : travail sur `dev`, PR vers `main`. Le dépôt est en `core.autocrlf=true` (avertissements LF/CRLF normaux).
+- git : travail sur `dev`, PR vers `main`. **Messages de commit courts et en anglais** (une ligne `feat:`/`fix:`/`docs:`…, quelques puces au plus). Le dépôt est en `core.autocrlf=true` (avertissements LF/CRLF normaux).
 
 ## Suivi
 
