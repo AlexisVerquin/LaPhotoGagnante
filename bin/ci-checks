@@ -1,0 +1,72 @@
+#!/usr/bin/env sh
+#
+# Vérifications de la CI : SOURCE UNIQUE, exécutée telle quelle
+#   - par GitHub Actions (.github/workflows/ci.yml)
+#   - en local par bin/ci
+# Ajouter / modifier une vérification ICI, jamais directement dans le workflow.
+#
+# Usage (dans un environnement PHP avec les dépendances installées) :
+#   bin/ci-checks quality   # composer, style, PHPStan, lints
+#   bin/ci-checks tests     # PHPUnit (base MySQL requise, cf. .env.test / DATABASE_URL)
+#   bin/ci-checks all       # les deux
+#
+# Toutes les vérifications d'un groupe sont lancées même si l'une échoue,
+# pour voir tous les problèmes en une fois ; le code de sortie est 1 s'il y a eu un échec.
+
+set -u
+
+FAILED=""
+
+run() {
+    label="$1"
+    shift
+    if [ -n "${GITHUB_ACTIONS:-}" ]; then
+        echo "::group::$label"
+    else
+        printf '\n\033[1;34m▶ %s\033[0m\n' "$label"
+    fi
+
+    if "$@"; then
+        status=ok
+    else
+        status=fail
+        FAILED="$FAILED\n  ✘ $label"
+    fi
+
+    if [ -n "${GITHUB_ACTIONS:-}" ]; then
+        echo "::endgroup::"
+        [ "$status" = fail ] && echo "::error::Échec : $label"
+    else
+        [ "$status" = ok ] && printf '\033[32m✔ %s\033[0m\n' "$label" || printf '\033[31m✘ %s\033[0m\n' "$label"
+    fi
+    return 0
+}
+
+quality() {
+    run "Composer : validation" composer validate --no-check-publish
+    run "Composer : vulnérabilités connues" composer audit
+    run "Style (php-cs-fixer)" vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no
+    run "Analyse statique (PHPStan)" vendor/bin/phpstan analyse -c phpstan.dist.neon --no-progress --memory-limit=1G
+    run "Lint : conteneur Symfony" php bin/console lint:container
+    run "Lint : Twig" php bin/console lint:twig templates
+    run "Lint : YAML" php bin/console lint:yaml config translations --parse-tags
+    run "Mapping Doctrine" php bin/console doctrine:schema:validate --skip-sync
+}
+
+tests() {
+    run "Tests (PHPUnit)" php bin/phpunit
+}
+
+case "${1:-all}" in
+    quality) quality ;;
+    tests) tests ;;
+    all) quality; tests ;;
+    *) echo "Usage : $0 [quality|tests|all]" >&2; exit 2 ;;
+esac
+
+if [ -n "$FAILED" ]; then
+    printf "\n\033[1;31mÉchecs :%b\033[0m\n" "$FAILED"
+    exit 1
+fi
+
+printf '\n\033[1;32mToutes les vérifications sont passées.\033[0m\n'

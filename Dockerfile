@@ -3,7 +3,10 @@
 # ---------------------------------------------------------------------------
 # Base commune : FrankenPHP (PHP + Caddy) et extensions
 # ---------------------------------------------------------------------------
-FROM dunglas/frankenphp:1-php8.5 AS base
+# Version de PHP : 8.5 par défaut ; bin/ci --php 8.4 construit aussi une image 8.4 (comme la CI)
+ARG PHP_VERSION=8.5
+
+FROM dunglas/frankenphp:1-php${PHP_VERSION} AS base
 
 ARG USER_ID=1000
 ARG GROUP_ID=1000

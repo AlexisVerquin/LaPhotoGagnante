@@ -42,24 +42,11 @@ jobs:
       # .env n'est pas versionné : on part de l'exemple
       - run: cp .env.example .env
 
-      - run: composer validate --no-check-publish
       - run: composer install --no-interaction --no-progress --prefer-dist
 
-      - name: Vulnérabilités connues des dépendances
-        run: composer audit
-
-      - name: Style du code (php-cs-fixer)
-        run: vendor/bin/php-cs-fixer fix --dry-run --diff
-
-      - name: Analyse statique (PHPStan)
-        run: vendor/bin/phpstan analyse -c phpstan.dist.neon --no-progress --memory-limit=1G
-
-      - name: Lint Symfony
-        run: |
-          php bin/console lint:container
-          php bin/console lint:twig templates
-          php bin/console lint:yaml config translations --parse-tags
-          php bin/console doctrine:schema:validate --skip-sync
+      # Même script qu'en local (bin/ci) : la liste des vérifications est dans bin/ci-checks
+      - name: Vérifications (composer, style, PHPStan, lints)
+        run: bin/ci-checks quality
 
   docker:
     name: Image de production
@@ -123,5 +110,5 @@ jobs:
       - run: composer install --no-interaction --no-progress --prefer-dist
 
       # tests/bootstrap.php recrée la base app_test via les migrations
-      - name: PHPUnit
-        run: php bin/phpunit
+      - name: Tests (PHPUnit)
+        run: bin/ci-checks tests

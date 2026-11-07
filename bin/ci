@@ -1,0 +1,137 @@
+#!/usr/bin/env bash
+#
+# Rejoue en local les vérifications de la CI GitHub (bin/ci-checks).
+#
+#   bin/ci                     Rapide : vos fichiers en cours (y compris non commités),
+#                              dans le conteneur de dev (docker compose up -d requis).
+#   bin/ci --clean             Comme GitHub : clone propre du dernier COMMIT (fins de ligne LF,
+#                              sans .env ni vendor/ ni cache), base MySQL 8.4 jetable, PHP 8.5.
+#   bin/ci --clean --php all   Idem sur PHP 8.4 puis 8.5 (la matrice de la CI).
+#   bin/ci --clean --docker    Ajoute la construction de l'image de production.
+#
+# Options : --quality (sans les tests)  --tests (seulement les tests)
+#           --php 8.4|8.5|all           --docker
+#
+set -Eeuo pipefail
+
+cd "$(dirname "$0")/.."
+ROOT="$PWD"
+
+MODE=quick
+GROUP=all
+PHP_VERSIONS=(8.5)
+BUILD_PROD_IMAGE=false
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --clean) MODE=clean ;;
+        --quality) GROUP=quality ;;
+        --tests) GROUP=tests ;;
+        --docker) BUILD_PROD_IMAGE=true ;;
+        --php)
+            shift
+            case "${1:-}" in
+                all) PHP_VERSIONS=(8.4 8.5) ;;
+                8.4|8.5) PHP_VERSIONS=("$1") ;;
+                *) echo "--php attend 8.4, 8.5 ou all" >&2; exit 2 ;;
+            esac
+            ;;
+        -h|--help) sed -n '2,15p' "$0"; exit 0 ;;
+        *) echo "Option inconnue : $1 (bin/ci --help)" >&2; exit 2 ;;
+    esac
+    shift
+done
+
+title() { printf '\n\033[1;35m==== %s ====\033[0m\n' "$*"; }
+
+# ---------------------------------------------------------------------------------------------
+# Mode rapide : arbre de travail courant, conteneur de dev
+# ---------------------------------------------------------------------------------------------
+if [[ "$MODE" == quick ]]; then
+    if ! docker compose ps --status running --services 2>/dev/null | grep -qx php; then
+        echo "Le conteneur de dev n'est pas démarré : docker compose up -d (ou bin/ci --clean)" >&2
+        exit 1
+    fi
+    [[ ${#PHP_VERSIONS[@]} -gt 1 || "${PHP_VERSIONS[0]}" != 8.5 ]] && echo "(--php ignoré en mode rapide : PHP du conteneur de dev)"
+
+    title "Vérifications sur l'arbre de travail (mode rapide)"
+    status=0
+    docker compose exec -T -u appuser php bin/ci-checks "$GROUP" || status=$?
+    if $BUILD_PROD_IMAGE; then
+        title "Image de production"
+        docker build --target prod -t photoprix-ci-prod:local . || status=1
+    fi
+    exit $status
+fi
+
+# ---------------------------------------------------------------------------------------------
+# Mode clean : reproduit l'environnement GitHub Actions
+# ---------------------------------------------------------------------------------------------
+SHA="$(git rev-parse --short HEAD)"
+if [[ -n "$(git status --porcelain)" ]]; then
+    printf '\033[33mAttention : des modifications non commitées existent ; --clean teste le commit %s, sans elles.\033[0m\n' "$SHA"
+fi
+
+# Clone réutilisé d'un lancement à l'autre (var/ est ignoré par git) ; vendor/ conservé pour aller plus vite
+CLONE="$ROOT/var/ci/clone"
+if [[ ! -d "$CLONE/.git" ]]; then
+    mkdir -p "$ROOT/var/ci"
+    git -c core.autocrlf=false clone -q "$ROOT" "$CLONE"
+fi
+git -C "$CLONE" -c core.autocrlf=false fetch -q "$ROOT" HEAD
+git -C "$CLONE" -c core.autocrlf=false checkout -q --force FETCH_HEAD
+git -C "$CLONE" clean -q -ffdx -e vendor/
+
+NETWORK="photoprix-ci"
+MYSQL="photoprix-ci-mysql"
+cleanup() {
+    docker rm -f "$MYSQL" >/dev/null 2>&1 || true
+    docker network rm "$NETWORK" >/dev/null 2>&1 || true
+}
+trap cleanup EXIT
+
+if [[ "$GROUP" != quality ]]; then
+    title "Base MySQL 8.4 jetable"
+    cleanup
+    docker network create "$NETWORK" >/dev/null
+    docker run -d --rm --name "$MYSQL" --network "$NETWORK" -e MYSQL_ROOT_PASSWORD=root mysql:8.4 >/dev/null
+    for _ in $(seq 1 60); do
+        docker exec "$MYSQL" mysqladmin ping -h 127.0.0.1 -uroot -proot --silent >/dev/null 2>&1 && break
+        sleep 2
+    done
+    docker exec "$MYSQL" mysqladmin ping -h 127.0.0.1 -uroot -proot --silent >/dev/null 2>&1 \
+        || { echo "MySQL ne démarre pas" >&2; exit 1; }
+else
+    docker network create "$NETWORK" >/dev/null 2>&1 || true
+fi
+
+status=0
+for php in "${PHP_VERSIONS[@]}"; do
+    title "PHP $php — commit $SHA (clone propre)"
+    image="photoprix-ci:php$php"
+    docker build -q --target base --build-arg PHP_VERSION="$php" -t "$image" . >/dev/null
+
+    docker run --rm -u 1000:1000 --network "$NETWORK" \
+        -e HOME=/tmp \
+        -e APP_SECRET=ci-not-a-real-secret \
+        -e DATABASE_URL="mysql://root:root@$MYSQL:3306/app?serverVersion=8.4.0&charset=utf8mb4" \
+        -v photoprix_ci_composer_cache:/tmp/.composer/cache \
+        -v "$CLONE":/app -w /app \
+        "$image" sh -c "cp .env.example .env \
+            && composer install --no-interaction --no-progress --prefer-dist -q \
+            && bin/ci-checks $GROUP" \
+        || status=1
+done
+
+if $BUILD_PROD_IMAGE; then
+    title "Image de production"
+    docker build --target prod -t photoprix-ci-prod:local "$CLONE" || status=1
+fi
+
+title "Résultat"
+if [[ $status -eq 0 ]]; then
+    printf '\033[1;32mOK : la CI GitHub devrait passer pour le commit %s.\033[0m\n' "$SHA"
+else
+    printf '\033[1;31mÉCHEC : la CI GitHub échouera pour le commit %s.\033[0m\n' "$SHA"
+fi
+exit $status
