@@ -53,6 +53,12 @@ h1, h2, h3, .navbar-brand {
     color: var(--ink);
 }
 
+/* Au focus clavier, Bootstrap remplace le fond par une couleur de survol non définie ici : on garde le jaune */
+.btn-sunshine:focus-visible {
+    background-color: var(--sunshine);
+    color: var(--ink);
+}
+
 .btn-sunshine:hover {
     background-color: rgb(255 201 60 / 0.24);
     border: 1px solid var(--sunshine);
@@ -246,7 +252,8 @@ h1, h2, h3, .navbar-brand {
 /* ---------- Badge "du jour" ---------- */
 .badge-today {
     background: var(--coral);
-    color: white;
+    /* Encre plutôt que blanc : 5,1:1 sur le corail au lieu de 2,8:1 (WCAG AA) */
+    color: var(--ink);
     font-weight: 700;
     padding: .35rem .8rem;
     border-radius: 50px;
@@ -537,7 +544,8 @@ h1, h2, h3, .navbar-brand {
 }
 
 .navbar-style-custom .nav-link.active {
-    color: var(--coral) !important;
+    /* Corail foncé : le corail clair n'atteint que 2,8:1 sur blanc, il en faut 4,5 */
+    color: #C15151 !important;
 }
 
 .navbar-cta {
@@ -733,7 +741,7 @@ h1, h2, h3, .navbar-brand {
 
 .form-hint {
     font-size: .8rem;
-    color: #9a9490;
+    color: #797471; /* 4,6:1 sur blanc (WCAG AA) */
 }
 
 /*ADMIN THEME*/
@@ -1010,7 +1018,7 @@ h1, h2, h3, .navbar-brand {
 
 .icon-swatch-code {
     font-size: .72rem;
-    color: #9a9490;
+    color: #797471;
     background: none;
     padding: 0;
     word-break: break-all;
@@ -1067,3 +1075,24 @@ h1, h2, h3, .navbar-brand {
 .logout:hover {
     color: var(--coral);
 }
+
+/* ---------- Accessibilité ---------- */
+
+/* Focus clavier toujours visible, sur fond clair comme sombre : contour encre + liseré blanc */
+/* !important : la règle .btn:focus-visible de Bootstrap retire le contour des boutons */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 3px solid var(--ink) !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 2px #fff !important;
+}
+
+/* Les personnes sensibles au mouvement peuvent couper les animations dans leur système */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
