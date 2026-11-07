@@ -23,7 +23,7 @@ jobs:
     name: Qualité (lint, PHPStan, style, sécurité)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -52,7 +52,7 @@ jobs:
     name: Image de production
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: docker/setup-buildx-action@v3
       # On construit l'image comme sur le serveur, pour qu'un Dockerfile cassé se voie avant le déploiement.
       - uses: docker/build-push-action@v6
@@ -89,7 +89,7 @@ jobs:
       DATABASE_URL: mysql://root:root@127.0.0.1:3306/app?serverVersion=8.4.0&charset=utf8mb4
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: shivammathur/setup-php@v2
         with:
