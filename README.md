@@ -1,4 +1,4 @@
-# 📷 PhotoPrix
+# 📷 LaPhotoGagnante
 
 Plateforme communautaire et gratuite de concours photo. Chaque mois, un nouveau thème est lancé : les membres publient leurs photos, votent pour leurs préférées et élisent le thème du mois suivant.
 

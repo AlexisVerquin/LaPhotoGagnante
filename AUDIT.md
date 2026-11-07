@@ -1,4 +1,4 @@
-# Audit du code PhotoPrix — 7 novembre 2026
+# Audit du code LaPhotoGagnante — 7 novembre 2026
 
 Branche auditée : `dev` (commit `21f2f26`). Périmètre : `src/`, `templates/`, `assets/controllers/`, `config/`, Docker.
 

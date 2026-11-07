@@ -1,4 +1,4 @@
-# Déploiement de PhotoPrix (serveur maison + Cloudflare)
+# Déploiement de LaPhotoGagnante (serveur maison + Cloudflare)
 
 ## Fonctionnement
 
