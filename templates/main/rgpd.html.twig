@@ -4,6 +4,7 @@
 {# Structure inspirée des mentions d'information de la CNIL (article 13 du RGPD).
    Les durées doivent rester alignées sur App\Service\DataRetention. #}
 {% set legal_title = 'Politique de confidentialité' %}
+{% set legal_description = 'Quelles données LaPhotoGagnante collecte, pourquoi, combien de temps elles sont gardées et comment exercer vos droits.' %}
 {% set legal_icon = 'bi-shield-lock' %}
 {% set sections = {
     'responsable': 'Qui est responsable de vos données',
@@ -41,7 +42,7 @@
             Dans les formulaires, les champs obligatoires sont indiqués : sans eux, le service correspondant ne peut pas fonctionner.
         </p>
 
-        <div class="table-responsive">
+        <div class="table-responsive" tabindex="0" role="region" aria-label="Tableau des données collectées (défilable horizontalement)">
             <table class="table align-middle small">
                 <caption class="visually-hidden">Traitements de données, base légale et durée de conservation</caption>
                 <thead>

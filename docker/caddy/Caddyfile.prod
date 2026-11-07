@@ -19,8 +19,15 @@
 	@phpInUploads path /uploads/*.php /uploads/*/*.php /uploads/*/*/*.php
 	respond @phpInUploads 403
 
-	@uploads path /uploads/* /assets/*
+	@uploads path /uploads/*
 	header @uploads Cache-Control "public, max-age=604800"
+
+	# AssetMapper met une empreinte dans le nom des fichiers : ils ne changent jamais, on les garde un an
+	@assets path /assets/*
+	header @assets Cache-Control "public, max-age=31536000, immutable"
+
+	@icons path /favicon.ico /favicon.svg /apple-touch-icon.png
+	header @icons Cache-Control "public, max-age=604800"
 
 	php_server
 }

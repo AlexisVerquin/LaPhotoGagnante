@@ -47,9 +47,11 @@ Liste établie le 2026-11-07. Pour chaque point : ce qui existe déjà, pour rep
 
 ## Mise en production
 
-- [ ] Pousser `dev` puis fusionner dans `main` (le déploiement automatique ne démarre qu'après).
+- [ ] Après la mise en ligne : déclarer le site dans Google Search Console (et Bing Webmaster Tools), y soumettre `https://laphotogagnante.fr/sitemap.xml`, vérifier le score Lighthouse SEO sur le vrai domaine (100 attendu)
+
+- [ ] Pousser `dev` puis fusionner dans `master` : la CI tourne sur `master`, et le serveur déploie quand elle est verte.
 - [ ] **Preprod** pour quelques personnes : `preprod.laphotogagnante.fr` + Cloudflare Access (`deploy/README.md`, section « Preprod »).
-- [ ] Installer le serveur en suivant `deploy/README.md` : DNS OVH → Cloudflare, tunnel, `.env.prod`, runner GitHub, environnement `production`.
+- [ ] Installer le serveur en suivant `deploy/README.md` : DNS OVH → Cloudflare, tunnel, `.env.prod`, clone + cron de mise à jour automatique (pas de runner GitHub : dépôt public).
 - [ ] Cron `app:daily` + `/srv/photoprix/bin/backup.sh` (`deploy/README.md` § 6).
 - [ ] Copier les sauvegardes **hors du serveur** (disque externe, autre machine) : elles sont aujourd'hui sur le même disque que le site.
 - [ ] Journaux : la politique annonce 6 mois maximum, mais Docker ne limite que leur taille ; vérifier sur le serveur, ou ajouter une suppression par date.

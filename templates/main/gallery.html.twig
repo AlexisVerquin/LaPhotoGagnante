@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Galerie du concours{% endblock %}
+{% block title %}Galerie du concours « {{ actualTheme.themeChoice.name ?? '' }} »{% endblock %}
+{% block meta_description %}Découvrez les photos du concours « {{ actualTheme.themeChoice.name ?? '' }} » sur {{ site_name }} et votez pour votre préférée, jusqu'au {{ actualTheme.dateEnd|date('d/m/Y') }}.{% endblock %}
 
 {% set pathCurrentTheme = getPathCurrentTheme() %}
 {% set pathAvatar = getPathAvatar() %}
@@ -40,7 +41,7 @@
                                 <div class="card-head gap-3 d-flex align-items-center ms-2 mb-3">
                                     <img class="rounded-circle navbar-avatar"
                                          src="{{ getAvatar(photo.user) }}"
-                                         alt="">
+                                         alt="" width="44" height="44" loading="lazy">
                                     <div class="fw-bold">{{ photo.user.name }}</div>
                                 </div>
 
@@ -48,6 +49,7 @@
                                     <p>{{ photo.title }}</p>
                                     <img class="rounded w-100"
                                          src="{{ asset(pathCurrentTheme ~ '/' ~ photo.name) }}"
+                                         {% if loop.index > 2 %}loading="lazy"{% endif %} decoding="async"
                                          alt="Photo de {{ photo.user.name }} pour le thème {{ actualTheme.themeChoice.name }}">
                                     <p>{{ photo.description }}</p>
                                 </div>

@@ -81,8 +81,8 @@ Plateforme communautaire et gratuite de concours photo. Chaque mois, un nouveau 
 
 ```bash
 # 1. Cloner le dépôt
-git clone [URL_DU_DEPOT]
-cd photoprix
+git clone https://github.com/AlexisVerquin/LaPhotoGagnante.git
+cd LaPhotoGagnante
 
 # 2. Installer les dépendances PHP
 composer install
@@ -203,7 +203,7 @@ Voir les pages **Politique de confidentialité** et **CGU** du site pour le dét
 
 ## Déploiement
 
-Production sur un serveur maison derrière **Cloudflare Tunnel**, déployée automatiquement par GitHub Actions après chaque CI verte sur `main`.
+Production sur un serveur maison derrière **Cloudflare Tunnel**, déployée automatiquement par GitHub Actions après chaque CI verte sur `master`.
 Installation du serveur, configuration et exploitation : voir **[deploy/README.md](deploy/README.md)**.
 
 ---

@@ -1,6 +1,6 @@
 # CLAUDE.md — LaPhotoGagnante
 
-Nom affiché : **LaPhotoGagnante** (anciennement PhotoPrix). Le nom **technique** reste `photoprix` (dépôt, conteneurs, image Docker, `/srv/photoprix`, variables `PHOTOPRIX_*`) : décision du 2026-11-07, à renommer plus tard si besoin.
+Nom affiché : **LaPhotoGagnante** (anciennement PhotoPrix). Dépôt GitHub **public** : `AlexisVerquin/LaPhotoGagnante` (portfolio), branche par défaut `master`. Le nom **technique** reste `photoprix` (dossier local, conteneurs, image Docker, `/srv/photoprix`, variables `PHOTOPRIX_*`) : décision du 2026-11-07, à renommer plus tard si besoin.
 Domaine de production : **laphotogagnante.fr** (enregistré chez OVH, DNS chez Cloudflare pour le tunnel). Adresses email : `@laphotogagnante.fr` (`MAILER_FROM`, `ADMIN_MAIL`).
 
 Plateforme communautaire de concours photo mensuel (projet perso d'Alexis Verquin, en développement). Chaque mois : un thème, les membres envoient **une photo**, l'admin la valide, les membres votent, un gagnant est désigné ; un sondage choisit le thème suivant.
@@ -44,7 +44,7 @@ php bin/console lint:twig templates && php bin/console lint:container
 
 ### CI
 
-`.github/workflows/ci.yml` (push sur `main`/`dev` et PR) : job qualité + job tests (PHP 8.4 et 8.5, service MySQL 8.4) + job image de prod. Dependabot (`.github/dependabot.yml`) ouvre des PR vers `dev`.
+`.github/workflows/ci.yml` (push sur `master`/`dev` et PR) : job qualité + job tests (PHP 8.4 et 8.5, service MySQL 8.4) + job image de prod. Dependabot (`.github/dependabot.yml`) ouvre des PR vers `dev`.
 - **La liste des vérifications est dans `bin/ci-checks`** (`quality` | `tests` | `all`), appelé tel quel par le workflow : ajouter une vérification là, jamais directement dans le YAML.
 - **Rejouer la CI en local avant de pousser** : `bin/ci` (rapide, arbre de travail, conteneur de dev) ; `bin/ci --clean` (comme GitHub : clone LF propre du dernier commit dans `var/ci/clone`, MySQL jetable, ~1 min) ; options `--php 8.4|all`, `--quality`, `--tests`, `--docker`.
 Job `docker` : construit l'image de prod (cible `prod` du Dockerfile) à chaque push.
@@ -52,15 +52,29 @@ Job `docker` : construit l'image de prod (cible `prod` du Dockerfile) à chaque 
 ### CD (production)
 
 - Serveur **maison derrière Cloudflare Tunnel**, aucun port ouvert. Guide d'installation : `deploy/README.md`.
-- `.github/workflows/deploy.yml` : après une CI verte sur `main` (push), job sur le **runner auto-hébergé** (labels `self-hosted, photoprix`, environnement GitHub `production`) → `deploy/deploy.sh`.
+- **Pas de runner GitHub** (dépôt public : une PR extérieure ne doit rien pouvoir exécuter sur le serveur). `deploy/auto-update.sh`, lancé toutes les 5 min par le cron de l'utilisateur `photoprix` depuis le clone `/srv/photoprix/app`, déploie le dernier commit de `master` si la CI « CI » est `completed/success` (API publique GitHub, sans jeton) ; état dans `/srv/photoprix/state/` (`deployed-sha`, `failed-sha` : un commit en échec n'est pas retenté). Testé de bout en bout (déploiement, rien à faire, CI absente, échec + non-retentative).
 - `deploy/deploy.sh` : sauvegarde mysqldump → `docker compose -f compose.prod.yaml build` → migrations → `up -d` → `app:photos:secure-pending` → vérification HTTP → rollback sur l'image `photoprix-app:previous` si échec (les migrations ne sont pas annulées).
 - `compose.prod.yaml` (projet `photoprix-prod`) : php (FrankenPHP, cible `prod`, port 8080 non-root), messenger, MySQL, RabbitMQ, cloudflared. Config hors dépôt : `/srv/photoprix/.env.prod` (modèle `deploy/.env.prod.example`). Données en volumes nommés (`uploads`, `pending_photos`, `database_data`).
 - Derrière le proxy : `SYMFONY_TRUSTED_PROXIES=private_ranges` + `SYMFONY_TRUSTED_HEADERS=x-forwarded-for,x-forwarded-proto` **obligatoires**, sinon tous les visiteurs partagent l'IP du tunnel et les rate limiters bloquent tout le monde. `SYMFONY_TRUSTED_HOSTS` = domaine.
 - Tester la stack prod en local : `COMPOSE_PROJECT_NAME=photoprix-prodtest PHOTOPRIX_ENV_FILE=<fichier de test> ./deploy/deploy.sh` (nom de projet différent pour ne pas toucher la stack de dev), puis `down -v`.
-- Premier admin : `app:user:promote email` (`--revoke` pour retirer). Cron serveur : `app:daily` + `/srv/photoprix/bin/backup.sh` (cf. guide).
+- Premier admin : `app:user:promote email` (`--revoke` pour retirer). Cron serveur : `auto-update.sh` (5 min), `app:daily`, `/srv/photoprix/bin/backup.sh` (cf. guide).
 - `deploy/backup.sh` : base (`photoprix-*.sql.gz`, 14 gardées) + fichiers (`fichiers-*.tar` = `public/uploads` + `storage`, 7 gardées) ; trouve les conteneurs par leurs étiquettes Compose (`PHOTOPRIX_PROJECT`), appelé par `deploy.sh` qui l'installe aussi dans `/srv/photoprix/bin/`. Sauvegarde et restauration testées sur une stack prod locale.
 - Healthcheck MySQL en `-h 127.0.0.1`, jamais `localhost` : au premier démarrage, le serveur temporaire d'initialisation répond au socket et les migrations échouaient (« Connection refused »).
 - Preprod : même stack sur `preprod.laphotogagnante.fr`, accès limité par Cloudflare Access (cf. guide).
+
+### Si tu tournes sur le serveur auto-hébergé (preprod / prod)
+
+Repère : le dépôt est cloné dans `/srv/photoprix/app` et `/srv/photoprix/.env.prod` existe. Le rôle n'est alors **pas de développer** mais d'installer et d'exploiter, en suivant `deploy/README.md` pas à pas.
+
+- **Ne jamais modifier ni commiter de code dans `/srv/photoprix/app`** : `auto-update.sh` y fait un `git checkout --force` du dernier `master`, tout changement local serait écrasé. Un correctif se fait sur le PC de dev (branche `dev`), passe la CI, est fusionné dans `master`, puis arrive tout seul.
+- **Jamais `docker-compose.yml` (stack de dev) sur le serveur** : il publie MySQL, RabbitMQ et MailHog avec des mots de passe par défaut. Seulement `compose.prod.yaml`, via `deploy/deploy.sh` ou `auto-update.sh`.
+- **Jamais de fixtures** (`doctrine:fixtures:load` vide la base et crée un admin au mot de passe public).
+- `.env.prod` ne quitte jamais le serveur (chmod 600) : ne pas l'afficher en entier, ne pas le copier dans un fichier versionné. Les coordonnées légales (`LEGAL_*`) et les secrets n'existent que là.
+- Les commandes s'exécutent en tant qu'utilisateur `photoprix` (groupe `docker`) : `sudo -iu photoprix`. Console Symfony : `docker exec photoprix-prod-php-1 php bin/console …`.
+- État et diagnostic : `deploy/auto-update.sh --status`, `tail -f /srv/photoprix/logs/deploy.log`, `docker logs photoprix-prod-php-1`, sauvegardes dans `/srv/photoprix/backups`.
+- Preprod : domaine `preprod.laphotogagnante.fr` dans `DEFAULT_URI` et `SYMFONY_TRUSTED_HOSTS`, accès restreint par Cloudflare Access (section « Preprod » du guide).
+- **Jamais validé en conditions réelles avant cette installation** (à vérifier en priorité) : envoi d'emails par le SMTP OVH, tunnel Cloudflare, cron (`auto-update.sh`, `app:daily`, `backup.sh`), connexion Google / Facebook sur le domaine, parcours complet d'un membre (inscription → email → photo → validation → vote → désinscription → suppression). Tout le reste a été testé sur une copie locale de la stack de prod.
+- Toute découverte utile (piège d'installation, réglage du serveur) : la signaler à Alexis en fin de session, pour qu'il l'ajoute à `deploy/README.md` depuis le PC de dev (pas de modification du clone du serveur).
 
 ### Tests
 
@@ -107,7 +121,8 @@ Requêtes clés : `ThemeRepository::findActualTheme()` (thème en cours), `findL
 - **Alertes** : `alert_controller.js` n'utilise jamais `innerHTML` ; un lien s'envoie à part (`{message, link: {url, label}}`, URL interne uniquement), jamais dans le texte du message.
 - **Aucune ressource externe** dans les pages (RGPD : l'IP des visiteurs ne doit partir chez aucun tiers) : polices et icônes sont dans `assets/fonts/`, `importmap_polyfill: false`, pas d'image de démo distante. Seule exception : le rechargement à chaud FrankenPHP, en dev uniquement.
 - **Pages légales** (`/cgu`, `/rgpd`, `/mentions-legales`, gabarit `templates/legal/layout.html.twig`) : les infos (éditeur, hébergeur, date de mise à jour) sont dans le paramètre `app.legal` de `config/packages/legal.yaml` (global Twig `legal`) ; **adresse et téléphone ne sont jamais dans git** : variables `LEGAL_EDITOR_ADDRESS`, `LEGAL_HOST_ADDRESS`, `LEGAL_HOST_PHONE` (`.env.local`, `.env.prod`) ; une valeur vide s'affiche « À compléter ». Changer `updated_at` à chaque modification. Le registre CNIL est dans `docs/registre-traitements.md`.
-- Twig globales : `site_name`, `site_url` (`config/packages/twig.yaml`), à utiliser dans les emails plutôt que du texte en dur.
+- Twig globales : `site_name`, `site_url` (`site_url` = paramètre `app.site_url` de `config/services.yaml`), à utiliser dans les emails plutôt que du texte en dur.
+- **SEO** (`base.html.twig`) : chaque page définit `{% block title %}` (ou `full_title`) et `{% block meta_description %}` ; une page privée ajoute `{% block noindex %}{% endblock %}`. Le canonical pointe toujours vers `site_url` et tout autre domaine (preprod, localhost) est en `noindex` ; `/robots.txt` et `/sitemap.xml` sont générés par `SeoController` (ajouter là toute nouvelle page publique). `tests/Controller/SeoTest.php` vérifie titres/descriptions uniques.
 
 - Toute action qui modifie l'état : **POST/DELETE + CSRF** (y compris côté admin).
 - Toujours vérifier `$this->getUser() instanceof User` (et `isVerified()` pour participer/voter) plutôt qu'un `@var`.
@@ -118,7 +133,7 @@ Requêtes clés : `ThemeRepository::findActualTheme()` (thème en cours), `findL
 - Le serveur web de dev (FrankenPHP) tourne en root et écrit dans `var/cache` : si `cache:clear` échoue en « Permission denied », `docker compose exec php chown -R 1000:1000 /app/var`.
 - Après modification d'entité : créer une migration (`make:migration` nécessite la BDD Docker ; sinon l'écrire à la main dans `migrations/`).
 - php-cs-fixer : **une seule config, `.php-cs-fixer.dist.php`** (versionnée, utilisée par la CI : `@Symfony` + `@PHP84Migration` + `concat_space` à un espace). Un `.php-cs-fixer.php` local serait prioritaire et masquerait les écarts avec la CI (incident de novembre 2026 : 21 fichiers rejetés par la CI alors que le local disait OK). Vérifier avec `--config=.php-cs-fixer.dist.php` en cas de doute.
-- git : travail sur `dev`, PR vers `main`. **Messages de commit courts et en anglais** (une ligne `feat:`/`fix:`/`docs:`…, quelques puces au plus). Le dépôt est en `core.autocrlf=true` (avertissements LF/CRLF normaux).
+- git : travail sur `dev`, PR vers `master`. **Messages de commit courts et en anglais** (une ligne `feat:`/`fix:`/`docs:`…, quelques puces au plus). Le dépôt est en `core.autocrlf=true` (avertissements LF/CRLF normaux).
 
 ## Suivi
 

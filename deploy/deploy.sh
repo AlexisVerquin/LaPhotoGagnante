@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Met en ligne la nouvelle version, lancé par le runner GitHub ou à la main sur le serveur.
+# Met en ligne la version présente dans le dossier, lancé par auto-update.sh ou à la main sur le serveur.
 # Sauvegarde, construction, migrations, redémarrage, puis retour à l'ancienne version si le site ne répond plus.
 #
 set -Eeuo pipefail

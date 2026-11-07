@@ -18,6 +18,8 @@ parameters:
     env(LEGAL_HOST_PHONE): ''
     # Âge minimum pour s'inscrire (15 ans = majorité numérique en France), repris dans les CGU
     app.min_age: 15
+    # Adresse publique du site : liens des emails, canonical, sitemap. Seul ce domaine est indexé par les moteurs.
+    app.site_url: 'https://laphotogagnante.fr'
     # Laissés vides, les boutons Google / Facebook n'apparaissent pas.
     env(OAUTH_GOOGLE_CLIENT_ID): ''
     env(OAUTH_GOOGLE_CLIENT_SECRET): ''

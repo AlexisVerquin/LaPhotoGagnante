@@ -64,7 +64,7 @@ Divers : `docker-compose.yml` (`serverVersion=8:4:0` → `8.4.0`), fichiers `*:Z
 - **Bug corrigé** : PHP limitait les envois à 2 Mo alors que le site accepte 5 Mo (`docker/php/app.ini`).
 - Stack `compose.prod.yaml` derrière Cloudflare Tunnel (aucun port ouvert), configuration hors dépôt, volumes persistants.
 - Proxies de confiance configurés : sans cela, les limites de connexion et de contact auraient bloqué tous les visiteurs à la fois.
-- Déploiement automatique après CI verte sur `main` via un runner GitHub sur le serveur ; sauvegarde avant migration, vérification et retour arrière automatique. Testé en local : premier déploiement, mise à jour, sauvegarde, retour arrière, limite de connexion par visiteur.
+- Déploiement automatique après CI verte sur `master` via un runner GitHub sur le serveur ; sauvegarde avant migration, vérification et retour arrière automatique. Testé en local : premier déploiement, mise à jour, sauvegarde, retour arrière, limite de connexion par visiteur.
 - Commande `app:user:promote` pour créer le premier administrateur. Guide : `deploy/README.md`.
 
 ## 4 bis. Connexion Google / Facebook ✅
@@ -106,5 +106,5 @@ Divers : `docker-compose.yml` (`serverVersion=8:4:0` → `8.4.0`), fichiers `*:Z
 
 ## Mise en production
 
-Suivre `deploy/README.md` (installation unique du serveur), puis fusionner `dev` dans `main` : le déploiement est automatique.
+Suivre `deploy/README.md` (installation unique du serveur), puis fusionner `dev` dans `master` : le déploiement est automatique.
 Tester à la main après la première mise en ligne : inscription (email reçu ?), envoi de photo, validation admin, vote, changement de mot de passe, suppression de compte, formulaire de contact.

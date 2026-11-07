@@ -8,15 +8,16 @@ Visiteur ──HTTPS──▶ Cloudflare ──tunnel (connexion sortante)──
                                                                                      ├─ database (MySQL)
                                                                                      └─ rabbitmq
 
-git push / merge sur main ─▶ CI GitHub (qualité, tests, image) ─▶ si OK : workflow « Déploiement »
-                                                                    └─▶ runner GitHub installé sur le serveur
-                                                                         └─▶ deploy/deploy.sh
+git push / merge sur master ─▶ CI GitHub (qualité, tests, image)
+                                        ▲
+serveur, toutes les 5 min : deploy/auto-update.sh ── nouveau commit sur master et CI verte ? ─▶ deploy/deploy.sh
 ```
 
-- **Aucun port à ouvrir** sur la box ni sur le serveur : `cloudflared` et le runner GitHub se connectent vers l'extérieur.
+- **Aucun port à ouvrir** sur la box ni sur le serveur : `cloudflared` et la mise à jour automatique se connectent vers l'extérieur.
+- **Aucun runner GitHub** sur le serveur : le dépôt étant public, une pull request extérieure ne doit jamais pouvoir exécuter du code chez vous. C'est le serveur qui va chercher `master`, que vous seul fusionnez.
 - `deploy/deploy.sh` : sauvegarde de la base → construction de l'image → migrations → redémarrage → vérification → **retour à la version précédente** si le site ne répond pas.
 - Les données (base, photos, avatars, photos en attente) sont dans des volumes Docker : un déploiement ne les touche pas.
-- Le déploiement ne part que depuis `main`, et seulement si toute la CI est verte.
+- Le déploiement ne part que depuis `master`, et seulement si toute la CI est verte (vérifié via l'API publique de GitHub, sans jeton). Un commit en échec n'est pas retenté : on attend le suivant.
 
 ## Installation (une seule fois)
 
@@ -86,7 +87,7 @@ Chaque bouton n'apparaît que si son identifiant est renseigné dans `.env.prod`
 5. Passer l'app en mode **Live** (en mode *Développement*, seuls les comptes ajoutés comme testeurs peuvent se connecter).
 6. Copier l'ID de l'app et la clé secrète dans `OAUTH_FACEBOOK_CLIENT_ID` / `OAUTH_FACEBOOK_CLIENT_SECRET`.
 
-Puis redéployer (Actions → Déploiement → Run workflow) pour prendre en compte les nouvelles valeurs.
+Puis redémarrer le site pour prendre en compte les nouvelles valeurs : `cd /srv/photoprix/app && PHOTOPRIX_ENV_FILE=/srv/photoprix/.env.prod ./deploy/deploy.sh`.
 
 > **Récapitulatif des URI de redirection à déclarer** (production + dev local, les deux peuvent coexister) :
 >
@@ -97,31 +98,33 @@ Puis redéployer (Actions → Déploiement → Run workflow) pour prendre en com
 >
 > En local, les identifiants vont dans `.env.local` ; en production dans `/srv/photoprix/.env.prod`. Les mêmes applications Google / Facebook peuvent servir aux deux.
 
-### 4. Runner GitHub sur le serveur
+### 4. Mise à jour automatique
 
-1. Créer un utilisateur dédié, autorisé à utiliser Docker :
+1. Outils nécessaires (présents d'office sur la plupart des serveurs Debian / Ubuntu) : `git`, `curl`, `python3`, `flock`.
+2. Un utilisateur dédié, autorisé à utiliser Docker, et le dépôt cloné à côté de la configuration :
    ```bash
-   sudo useradd -m -s /bin/bash github-runner
-   sudo usermod -aG docker github-runner
-   sudo chown -R github-runner:github-runner /srv/photoprix
+   sudo useradd -m -s /bin/bash photoprix
+   sudo usermod -aG docker photoprix
+   sudo git clone https://github.com/AlexisVerquin/LaPhotoGagnante.git /srv/photoprix/app
+   sudo mkdir -p /srv/photoprix/logs
+   sudo chown -R photoprix:photoprix /srv/photoprix
    sudo chmod 600 /srv/photoprix/.env.prod
    ```
-   ⚠️ Appartenir au groupe `docker` revient à être administrateur de la machine : n'utilisez ce runner **que pour ce dépôt, qui doit rester privé**.
-2. GitHub → dépôt → **Settings** → **Actions** → **Runners** → **New self-hosted runner** → Linux. Suivre les commandes affichées **en tant que `github-runner`** (`sudo -iu github-runner`), en ajoutant le label `photoprix` :
-   ```bash
-   ./config.sh --url https://github.com/AlexisVerquin/photoprix --token <jeton> --name serveur-maison --labels photoprix --unattended
+   Appartenir au groupe `docker` revient à être administrateur de la machine : seul le code de `master` est exécuté par ce compte.
+3. `sudo crontab -u photoprix -e` :
+   ```cron
+   # Toutes les 5 minutes : déploie le dernier commit de master si sa CI est verte (silencieux sinon)
+   */5 * * * * /srv/photoprix/app/deploy/auto-update.sh >> /srv/photoprix/logs/deploy.log 2>&1
    ```
-3. L'installer comme service (redémarre avec le serveur) :
-   ```bash
-   sudo ./svc.sh install github-runner
-   sudo ./svc.sh start
-   ```
-4. GitHub → **Settings** → **Environments** → **New environment** `production` → *Deployment branches* : `main` uniquement. (Optionnel : *Required reviewers* pour valider chaque mise en production d'un clic.)
 
 ### 5. Premier déploiement
 
-Le workflow de déploiement doit être présent sur `main` (fusionner `dev` dans `main`). Ensuite :
-GitHub → **Actions** → **Déploiement** → **Run workflow** (branche `main`).
+Fusionnez `dev` dans `master` et attendez que la CI soit verte : le serveur déploie tout seul dans les 5 minutes.
+Pour ne pas attendre, ou suivre le déploiement en direct :
+
+```bash
+sudo -iu photoprix /srv/photoprix/app/deploy/auto-update.sh
+```
 
 Puis, une fois le site en ligne : s'inscrire sur le site, confirmer son email, et se donner le rôle admin :
 
@@ -131,7 +134,7 @@ docker exec photoprix-prod-php-1 php bin/console app:user:promote votre@email.fr
 
 ### 6. Tâches planifiées
 
-`crontab -e` en tant que `github-runner` :
+`sudo crontab -u photoprix -e`, à la suite de la ligne de mise à jour automatique :
 
 ```cron
 # Chaque nuit : désigne le gagnant du concours terminé, annonce le nouveau concours par email,
@@ -161,13 +164,15 @@ Le jour de l'ouverture, il suffit de remplacer le sous-domaine par `laphotogagna
 
 ## Au quotidien
 
-| Besoin | Commande (sur le serveur, dans le clone du runner ou n'importe quel clone) |
+| Besoin | Commande (sur le serveur, en tant que `photoprix`) |
 |---|---|
 | État des conteneurs | `docker compose -f compose.prod.yaml --env-file /srv/photoprix/.env.prod ps` |
 | Logs du site | `docker logs -f --tail 100 photoprix-prod-php-1` |
 | Logs des emails | `docker logs -f --tail 100 photoprix-prod-messenger-1` |
 | Console Symfony | `docker exec -it photoprix-prod-php-1 php bin/console …` |
-| Redéployer à la main | `PHOTOPRIX_ENV_FILE=/srv/photoprix/.env.prod ./deploy/deploy.sh` |
+| Où en est le déploiement ? | `/srv/photoprix/app/deploy/auto-update.sh --status` et `tail -f /srv/photoprix/logs/deploy.log` |
+| Retenter un commit en échec (après correction de la config) | `rm /srv/photoprix/state/failed-sha`, puis attendre 5 min ou lancer `auto-update.sh` |
+| Redéployer à la main la version présente | `cd /srv/photoprix/app && PHOTOPRIX_ENV_FILE=/srv/photoprix/.env.prod ./deploy/deploy.sh` |
 | Revenir à la version précédente | `docker tag photoprix-app:previous photoprix-app:latest && docker compose -f compose.prod.yaml --env-file /srv/photoprix/.env.prod up -d --no-build php messenger` |
 
 ### Restaurer une sauvegarde

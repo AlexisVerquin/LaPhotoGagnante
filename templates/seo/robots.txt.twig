@@ -1,0 +1,22 @@
+{% if indexable %}
+User-agent: *
+# Espace membre, administration et actions : rien à indexer
+Disallow: /admin
+Disallow: /user
+Disallow: /login
+Disallow: /connect
+Disallow: /reset-password
+Disallow: /verify
+Disallow: /desinscription
+Disallow: /locale
+Disallow: /photo/
+Disallow: /upload
+# Les photos des membres restent sur le site, pas dans les moteurs d'images
+Disallow: /uploads/
+
+Sitemap: {{ site_url }}/sitemap.xml
+{% else %}
+# Pas le site de production : rien à indexer
+User-agent: *
+Disallow: /
+{% endif %}

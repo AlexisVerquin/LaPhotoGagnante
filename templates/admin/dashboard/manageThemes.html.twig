@@ -1,6 +1,8 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Gestion des thèmes{% endblock %}
+{# Page privée : pas d'indexation par les moteurs de recherche #}
+{% block noindex %}{% endblock %}
 
 {% block body %}
     <div class="container py-5">

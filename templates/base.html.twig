@@ -3,10 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Accueil{% endblock %} | LaPhotoGagnante</title>
+    {# ---------- SEO ---------- #}
+    {% set seo_title = block('full_title') is defined ? block('full_title')|trim
+        : (block('title') is defined ? block('title')|trim ~ ' | ' ~ site_name : site_name) %}
+    {% set seo_description = (block('meta_description') is defined ? block('meta_description')|trim : '')
+        ?: site_name ~ ' : concours photo amateur gratuit. Un thème par concours, une photo par membre, et c\'est la communauté qui vote pour élire la photo gagnante.' %}
+    {# Toujours l'adresse de production : la preprod ne fait jamais concurrence au vrai site #}
+    {% set seo_url = site_url ~ app.request.pathInfo %}
+    {# |raw : le contenu des blocs est déjà échappé par Twig, l'échapper à nouveau doublerait les apostrophes #}
+    <title>{{ seo_title|raw }}</title>
+    <meta name="description" content="{{ seo_description|raw }}">
+    <link rel="canonical" href="{{ seo_url }}">
+    {# Hors du vrai domaine (dev, preprod) ou sur une page privée : rien n'est indexé #}
+    {% if app.request.host != site_url|split('//')|last or block('noindex') is defined %}
+        <meta name="robots" content="noindex, nofollow">
+    {% endif %}
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ site_name }}">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:title" content="{{ seo_title|raw }}">
+    <meta property="og:description" content="{{ seo_description|raw }}">
+    <meta property="og:url" content="{{ seo_url }}">
+    <meta property="og:image" content="{{ site_url ~ asset('images/og-image.jpg') }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="{{ site_name }}, concours photo amateur gratuit">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon.ico" sizes="32x32">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="theme-color" content="#FF6B6B">
+    {% block structured_data %}{% endblock %}
+
     {# Polices et icônes servies par le site : aucune requête vers Google ou un CDN #}
     <link rel="stylesheet" href="{{ asset('styles/fonts.css') }}">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
     <link rel="stylesheet" href="{{ asset('fonts/bootstrap-icons/bootstrap-icons.min.css') }}">
     {% block stylesheets %}
     {% endblock %}

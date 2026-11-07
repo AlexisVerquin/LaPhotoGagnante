@@ -1,6 +1,32 @@
 {% extends 'base.html.twig' %}
 
+{# Boutons de modération d'un membre : affichés sous le nom sur mobile, dans leur colonne ailleurs #}
+{% macro actions(member) %}
+    {% if member != app.user %}
+        <div class="d-inline-flex flex-wrap gap-2">
+            <form action="{{ path('admin_members_suspend', {id: member.id}) }}" method="post">
+                <input type="hidden" name="_token" value="{{ csrf_token('suspend-member-' ~ member.id) }}">
+                <button type="submit" class="btn btn-sm btn-outline-secondary"
+                        aria-label="{{ member.active ? 'Suspendre' : 'Réactiver' }} le compte de {{ member.name }}">
+                    {{ member.active ? 'Suspendre' : 'Réactiver' }}
+                </button>
+            </form>
+            <form action="{{ path('admin_members_delete', {id: member.id}) }}" method="post"
+                  onsubmit="return confirm('Supprimer définitivement le compte de {{ member.name|e('js') }} et toutes ses données ?')">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete-member-' ~ member.id) }}">
+                <button type="submit" class="btn btn-sm btn-outline-danger"
+                        aria-label="Supprimer le compte de {{ member.name }}">
+                    Supprimer
+                </button>
+            </form>
+        </div>
+    {% endif %}
+{% endmacro %}
+
+
 {% block title %}Membres{% endblock %}
+{# Page privée : pas d'indexation par les moteurs de recherche #}
+{% block noindex %}{% endblock %}
 
 {% block body %}
     <div class="container py-5">
@@ -18,16 +44,21 @@
                     <thead>
                     <tr>
                         <th scope="col">Nom</th>
-                        <th scope="col">Email</th>
+                        <th scope="col" class="d-none d-md-table-cell">Email</th>
                         <th scope="col">Statut</th>
-                        <th scope="col" class="text-end">Actions</th>
+                        <th scope="col" class="text-end d-none d-sm-table-cell">Actions</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for member in members %}
                         <tr>
-                            <td class="fw-medium">{{ member.name }}{% if 'ROLE_ADMIN' in member.roles %} <span class="badge text-bg-dark">admin</span>{% endif %}</td>
-                            <td class="text-secondary">{{ member.email }}</td>
+                            <td class="fw-medium">
+                                {{ member.name }}{% if 'ROLE_ADMIN' in member.roles %} <span class="badge text-bg-dark">admin</span>{% endif %}
+                                {# Sur mobile, l'email passe sous le nom pour que les actions restent visibles #}
+                                <div class="d-md-none small text-secondary fw-normal text-break">{{ member.email }}</div>
+                                <div class="d-sm-none mt-2">{{ _self.actions(member) }}</div>
+                            </td>
+                            <td class="text-secondary d-none d-md-table-cell">{{ member.email }}</td>
                             <td>
                                 {% if not member.active %}
                                     <span class="badge text-bg-danger">Suspendu</span>
@@ -37,26 +68,8 @@
                                     <span class="badge text-bg-success">Actif</span>
                                 {% endif %}
                             </td>
-                            <td class="text-end">
-                                {% if member != app.user %}
-                                    <div class="d-inline-flex gap-2">
-                                        <form action="{{ path('admin_members_suspend', {id: member.id}) }}" method="post">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('suspend-member-' ~ member.id) }}">
-                                            <button type="submit" class="btn btn-sm btn-outline-secondary"
-                                                    aria-label="{{ member.active ? 'Suspendre' : 'Réactiver' }} le compte de {{ member.name }}">
-                                                {{ member.active ? 'Suspendre' : 'Réactiver' }}
-                                            </button>
-                                        </form>
-                                        <form action="{{ path('admin_members_delete', {id: member.id}) }}" method="post"
-                                              onsubmit="return confirm('Supprimer définitivement le compte de {{ member.name|e('js') }} et toutes ses données ?')">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('delete-member-' ~ member.id) }}">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                    aria-label="Supprimer le compte de {{ member.name }}">
-                                                Supprimer
-                                            </button>
-                                        </form>
-                                    </div>
-                                {% endif %}
+                            <td class="text-end d-none d-sm-table-cell">
+                                {{ _self.actions(member) }}
                             </td>
                         </tr>
                     {% endfor %}
