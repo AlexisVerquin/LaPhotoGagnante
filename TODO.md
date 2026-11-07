@@ -47,6 +47,8 @@ Liste établie le 2026-11-07. Pour chaque point : ce qui existe déjà, pour rep
 
 ## Mise en production
 
+- [ ] Après la mise en ligne : déclarer le site dans Google Search Console (et Bing Webmaster Tools), y soumettre `https://laphotogagnante.fr/sitemap.xml`, vérifier le score Lighthouse SEO sur le vrai domaine (100 attendu)
+
 - [ ] Pousser `dev` puis fusionner dans `master` : la CI tourne sur `master`, et le serveur déploie quand elle est verte.
 - [ ] **Preprod** pour quelques personnes : `preprod.laphotogagnante.fr` + Cloudflare Access (`deploy/README.md`, section « Preprod »).
 - [ ] Installer le serveur en suivant `deploy/README.md` : DNS OVH → Cloudflare, tunnel, `.env.prod`, clone + cron de mise à jour automatique (pas de runner GitHub : dépôt public).
