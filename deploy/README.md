@@ -53,6 +53,29 @@ sudo nano /srv/photoprix/.env.prod                          # remplacer TOUTES l
 
 Le script refuse de déployer tant qu'il reste une valeur `change-me`.
 
+### 3 bis. Connexion Google / Facebook (facultatif)
+
+Chaque bouton n'apparaît que si son identifiant est renseigné dans `.env.prod`. Remplacez `https://votre-domaine.fr` par votre domaine.
+
+**Google** — [console.cloud.google.com](https://console.cloud.google.com) :
+1. Créer un projet, puis **APIs et services** → **Écran de consentement OAuth** : type *Externe*, nom « LaPhotoGagnante », email d'assistance, logo facultatif, liens vers `https://votre-domaine.fr/rgpd` et `https://votre-domaine.fr/cgu`. Champs d'application : `openid`, `email`, `profile` (aucune validation Google nécessaire pour ceux-ci). **Publier** l'application (sinon seuls les comptes de test peuvent se connecter).
+2. **Identifiants** → **Créer des identifiants** → **ID client OAuth** → *Application Web* :
+   - Origine JavaScript autorisée : `https://votre-domaine.fr`
+   - URI de redirection autorisé : `https://votre-domaine.fr/connect/google/check`
+3. Copier l'ID et le secret dans `OAUTH_GOOGLE_CLIENT_ID` / `OAUTH_GOOGLE_CLIENT_SECRET`.
+
+**Facebook** — [developers.facebook.com](https://developers.facebook.com) :
+1. **Créer une app** → cas d'usage *Authentifier et demander des données aux utilisateurs avec Facebook Login*.
+2. **Paramètres de l'app** → **Général** : URL de politique de confidentialité `https://votre-domaine.fr/rgpd`, URL des conditions `https://votre-domaine.fr/cgu`, **instructions de suppression des données** `https://votre-domaine.fr/rgpd#suppression-donnees`, domaine de l'app `votre-domaine.fr`.
+3. **Facebook Login** → **Paramètres** : URI de redirection OAuth valide `https://votre-domaine.fr/connect/facebook/check` (laisser *Strict Mode* activé).
+4. Autorisations : `email` et `public_profile` (accès standard, pas de validation d'app requise).
+5. Passer l'app en mode **Live** (en mode *Développement*, seuls les comptes ajoutés comme testeurs peuvent se connecter).
+6. Copier l'ID de l'app et la clé secrète dans `OAUTH_FACEBOOK_CLIENT_ID` / `OAUTH_FACEBOOK_CLIENT_SECRET`.
+
+Puis redéployer (Actions → Déploiement → Run workflow) pour prendre en compte les nouvelles valeurs.
+
+> Pour tester en local (`https://localhost`), ajoutez aussi `https://localhost/connect/google/check` (Google) et `https://localhost/connect/facebook/check` (Facebook) comme URI de redirection, et mettez les identifiants dans `.env.local`.
+
 ### 4. Runner GitHub sur le serveur
 
 1. Créer un utilisateur dédié, autorisé à utiliser Docker :

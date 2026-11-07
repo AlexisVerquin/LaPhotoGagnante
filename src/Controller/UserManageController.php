@@ -196,6 +196,9 @@ final class UserManageController extends AbstractController
                     ->setCity(null)
                     ->setBio(null)
                     ->setIsActive(false)
+                    // Délie Google / Facebook : une nouvelle connexion créera un nouveau compte
+                    ->setGoogleId(null)
+                    ->setFacebookId(null)
                     // Mot de passe inutilisable : plus aucune connexion possible sur ce compte
                     ->setPassword(bin2hex(random_bytes(32)))
                 ;

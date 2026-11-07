@@ -81,6 +81,14 @@ class User implements DateInterface, UserInterface, PasswordAuthenticatedUserInt
     #[ORM\Column]
     private ?bool $isActive = true;
 
+    /** Identifiant du compte Google lié (connexion « Continuer avec Google ») */
+    #[ORM\Column(length: 255, unique: true, nullable: true)]
+    private ?string $googleId = null;
+
+    /** Identifiant du compte Facebook lié (connexion « Continuer avec Facebook ») */
+    #[ORM\Column(length: 255, unique: true, nullable: true)]
+    private ?string $facebookId = null;
+
     public function __construct()
     {
         $this->photos = new ArrayCollection();
@@ -297,6 +305,30 @@ class User implements DateInterface, UserInterface, PasswordAuthenticatedUserInt
     public function setIsActive(bool $isActive): static
     {
         $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    public function getGoogleId(): ?string
+    {
+        return $this->googleId;
+    }
+
+    public function setGoogleId(?string $googleId): static
+    {
+        $this->googleId = $googleId;
+
+        return $this;
+    }
+
+    public function getFacebookId(): ?string
+    {
+        return $this->facebookId;
+    }
+
+    public function setFacebookId(?string $facebookId): static
+    {
+        $this->facebookId = $facebookId;
 
         return $this;
     }

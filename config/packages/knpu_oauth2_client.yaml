@@ -1,0 +1,18 @@
+# Connexion / inscription via Google et Facebook (OAuth2).
+# Un fournisseur sans identifiant (variable vide) est simplement masqué sur le site.
+# Création des applications et URL de redirection : voir deploy/README.md
+knpu_oauth2_client:
+    clients:
+        google:
+            type: google
+            client_id: '%env(OAUTH_GOOGLE_CLIENT_ID)%'
+            client_secret: '%env(OAUTH_GOOGLE_CLIENT_SECRET)%'
+            redirect_route: app_oauth_check
+            redirect_params: { provider: google }
+        facebook:
+            type: facebook
+            client_id: '%env(OAUTH_FACEBOOK_CLIENT_ID)%'
+            client_secret: '%env(OAUTH_FACEBOOK_CLIENT_SECRET)%'
+            redirect_route: app_oauth_check
+            redirect_params: { provider: facebook }
+            graph_api_version: v22.0

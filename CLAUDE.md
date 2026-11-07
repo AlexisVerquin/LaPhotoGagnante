@@ -81,6 +81,7 @@ Requêtes clés : `ThemeRepository::findActualTheme()` (thème en cours), `findL
 - Endpoints AJAX (vote, vote sondage, upload photo/avatar) : POST, jeton CSRF dans l'en-tête `X-CSRF-Token`, réponse JSON. Les contrôleurs Stimulus attendent du JSON (`success`/`message` ou `error`).
 - Uploads (photo, avatar) : passent par `ImageSanitizer` (ré-encodage GD → plus aucune métadonnée EXIF/GPS, orientation appliquée). Participer (upload, vote) exige un **email vérifié** (décision produit).
 - Formulaire de contact : pot de miel (champ caché `website`, robot → faux succès, rien enregistré) + rate limiter `contact_form` (3 messages/heure/IP, `config/packages/framework.yaml`).
+- **Connexion / inscription Google et Facebook** (`knpuniversity/oauth2-client-bundle`, `config/packages/knpu_oauth2_client.yaml`) : `/connect/{provider}` → fournisseur → `/connect/{provider}/check` intercepté par `App\Security\OAuth\SocialAuthenticator` ; `SocialUserProvisioner` retrouve le compte (par `googleId`/`facebookId`, sinon par email → liaison automatique, sinon création : email vérifié, mot de passe aléatoire, nom unique). Pas d'email transmis → refus. Bouton masqué si `OAUTH_<PROVIDER>_CLIENT_ID` vide (fonction Twig `oauth_enabled`). Suppression de compte → délie les deux. Tests : `FakeOAuthClient` remplace `knpu.oauth2.client.<provider>` dans le conteneur.
 - Connexion : `login_throttling` = 3 échecs / 15 min par (email + IP) (`config/packages/security.yaml`, `symfony/rate-limiter`).
 - Emails : expéditeur global `MAILER_FROM` (config/packages/mailer.yaml), email admin = paramètre `app.admin_email` (`ADMIN_MAIL`). Ne pas remettre de `->from()` en dur.
 
@@ -91,6 +92,8 @@ Requêtes clés : `ThemeRepository::findActualTheme()` (thème en cours), `findL
 - Toujours gérer le cas « aucun concours en cours » (`findActualTheme()` peut renvoyer `null`).
 - Comparer les colonnes `DATE` avec un paramètre typé `Types::DATE_MUTABLE`.
 - Ne pas utiliser l'option de formulaire `data` pour des valeurs par défaut (elle écrase l'entité en édition) : les poser dans le contrôleur.
+- Migrations écrites à la main : leur horodatage doit être **le vrai moment** (pas une heure arrondie dans le futur), sinon une migration générée ensuite peut s'exécuter avant elle (incident du 2026-11-07).
+- Le serveur web de dev (FrankenPHP) tourne en root et écrit dans `var/cache` : si `cache:clear` échoue en « Permission denied », `docker compose exec php chown -R 1000:1000 /app/var`.
 - Après modification d'entité : créer une migration (`make:migration` nécessite la BDD Docker ; sinon l'écrire à la main dans `migrations/`).
 - git : travail sur `dev`, PR vers `main`. Le dépôt est en `core.autocrlf=true` (avertissements LF/CRLF normaux).
 

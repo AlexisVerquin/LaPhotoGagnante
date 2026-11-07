@@ -19,6 +19,11 @@ security:
         main:
             lazy: true
             provider: app_user_provider
+            # « Continuer avec Google / Facebook » (App\Security\OAuth)
+            custom_authenticators:
+                - App\Security\OAuth\SocialAuthenticator
+            # Page vers laquelle renvoyer un visiteur non connecté
+            entry_point: form_login
             form_login:
                 login_path: app_login
                 check_path: app_login

@@ -67,6 +67,12 @@ Divers : `docker-compose.yml` (`serverVersion=8:4:0` → `8.4.0`), fichiers `*:Z
 - Déploiement automatique après CI verte sur `main` via un runner GitHub sur le serveur ; sauvegarde avant migration, vérification et retour arrière automatique. Testé en local : premier déploiement, mise à jour, sauvegarde, retour arrière, limite de connexion par visiteur.
 - Commande `app:user:promote` pour créer le premier administrateur. Guide : `deploy/README.md`.
 
+## 4 bis. Connexion Google / Facebook ✅
+
+- Inscription et connexion via Google et Facebook (OAuth2, paramètre `state` anti-CSRF) ; liaison automatique avec un compte existant de même email ; refus si aucun email transmis.
+- Données demandées réduites au minimum (email, nom) ; politique de confidentialité complétée (données reçues, instructions de suppression exigées par Facebook).
+- 15 nouveaux tests (76 au total), dont le parcours complet avec un faux fournisseur.
+
 ## 5. À traiter — décisions ou chantiers ⚠️
 
 1. ~~Aucun test~~ ✅

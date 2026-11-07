@@ -12,6 +12,11 @@ parameters:
     env(MAILER_FROM): 'LaPhotoGagnante <no-reply@photoprix.fr>'
     env(ADMIN_MAIL): 'alexis.verquin@gmail.com'
     app.admin_email: '%env(ADMIN_MAIL)%'
+    # Connexion Google / Facebook : vide = bouton masqué (cf. config/packages/knpu_oauth2_client.yaml)
+    env(OAUTH_GOOGLE_CLIENT_ID): ''
+    env(OAUTH_GOOGLE_CLIENT_SECRET): ''
+    env(OAUTH_FACEBOOK_CLIENT_ID): ''
+    env(OAUTH_FACEBOOK_CLIENT_SECRET): ''
     # Photos en attente de validation : hors du dossier web (cf. App\Service\PhotoStorage)
     app.pending_photos_dir: '%kernel.project_dir%/storage/pending'
     app.public_photos_dir: '%kernel.project_dir%/public/uploads/themes'
