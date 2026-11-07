@@ -57,7 +57,7 @@ Job `docker` : construit l'image de prod (cible `prod` du Dockerfile) à chaque 
 - `compose.prod.yaml` (projet `photoprix-prod`) : php (FrankenPHP, cible `prod`, port 8080 non-root), messenger, MySQL, RabbitMQ, cloudflared. Config hors dépôt : `/srv/photoprix/.env.prod` (modèle `deploy/.env.prod.example`). Données en volumes nommés (`uploads`, `pending_photos`, `database_data`).
 - Derrière le proxy : `SYMFONY_TRUSTED_PROXIES=private_ranges` + `SYMFONY_TRUSTED_HEADERS=x-forwarded-for,x-forwarded-proto` **obligatoires**, sinon tous les visiteurs partagent l'IP du tunnel et les rate limiters bloquent tout le monde. `SYMFONY_TRUSTED_HOSTS` = domaine.
 - Tester la stack prod en local : `COMPOSE_PROJECT_NAME=photoprix-prodtest PHOTOPRIX_ENV_FILE=<fichier de test> ./deploy/deploy.sh` (nom de projet différent pour ne pas toucher la stack de dev), puis `down -v`.
-- Premier admin : `app:user:promote email` (`--revoke` pour retirer). Cron serveur : `app:set-winner` quotidien + sauvegarde (cf. guide).
+- Premier admin : `app:user:promote email` (`--revoke` pour retirer). Cron serveur : `app:daily` + sauvegarde quotidienne (cf. guide).
 
 ### Tests
 
@@ -121,4 +121,4 @@ Requêtes clés : `ThemeRepository::findActualTheme()` (thème en cours), `findL
 
 **`TODO.md` : liste des prochains chantiers (à consulter en début de session, cocher au fur et à mesure).**
 
-`AUDIT.md` : audit du 2026-11-07, liste des corrections faites et des points encore ouverts (perfs, XSS potentielle dans alert_controller, CD…).
+`AUDIT.md` : audit du 2026-11-07, corrections faites et points encore ouverts (traduction des messages, formats de dates, petit nettoyage).
