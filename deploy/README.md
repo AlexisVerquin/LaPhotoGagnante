@@ -3,7 +3,8 @@
 ## Fonctionnement
 
 ```
-Visiteur ──HTTPS──▶ Cloudflare ──tunnel (connexion sortante)──▶ cloudflared ──HTTP──▶ php:8080 (FrankenPHP)
+Visiteur ──HTTPS──▶ Cloudflare ──tunnel (connexion sortante)──▶ cloudflared ──HTTP──▶ laphotogagnante:8080 (FrankenPHP)
+                                                     (partagé, réseau Docker « tunnel »)
                                                                                      ├─ messenger (emails)
                                                                                      ├─ database (MySQL)
                                                                                      └─ rabbitmq
@@ -44,13 +45,23 @@ Le domaine reste **enregistré chez OVH** (renouvellement, facturation) ; seule 
 
 ### 2. Tunnel Cloudflare
 
-1. Cloudflare → **Zero Trust** → **Networks** → **Tunnels** → **Create a tunnel** → type **Cloudflared**, nom `photoprix`.
-2. Copier le **jeton** affiché (la longue chaîne après `--token` dans la commande proposée). Ne pas lancer cette commande : le conteneur `cloudflared` de `compose.prod.yaml` s'en charge.
-3. Onglet **Public Hostname** → ajouter : sous-domaine vide, domaine `laphotogagnante.fr`, **Service** `HTTP` → URL `php:8080`. Cloudflare crée lui-même l'enregistrement DNS et le certificat HTTPS.
+Le tunnel **n'est pas dans la stack du site** : un seul `cloudflared` sert tout le serveur (le site, et d'autres services éventuels),
+pour qu'arrêter ou redéployer le site ne coupe rien d'autre. Il rejoint les services par le réseau Docker `tunnel`.
 
-> Si un `cloudflared` tourne déjà sur le serveur (installé hors Docker), ne lancez pas celui de la stack :
-> publiez le port en local (`ports: ["127.0.0.1:8080:8080"]` sur le service `php`), faites pointer
-> votre tunnel existant vers `http://localhost:8080`, et supprimez le service `cloudflared` de `compose.prod.yaml`.
+1. **Si un `cloudflared` partagé tourne déjà** (`docker ps` affiche un conteneur `cloudflared` sur le réseau `tunnel`) : passer au point 3, sur ce tunnel-là.
+2. Sinon : Cloudflare → **Zero Trust** → **Networks** → **Tunnels** → **Create a tunnel** → type **Cloudflared**, copier le **jeton**
+   (la longue chaîne après `--token`, sans lancer la commande proposée), puis :
+   ```bash
+   mkdir -p ~/server/cloudflared && cp deploy/cloudflared.compose.yaml ~/server/cloudflared/docker-compose.yml
+   cd ~/server/cloudflared && (umask 077; echo 'TUNNEL_TOKEN=le-jeton' > .env) && docker compose up -d
+   ```
+3. Dans le tunnel → **Public Hostname** (ou **Published application routes**) → ajouter : sous-domaine vide, domaine `laphotogagnante.fr`,
+   **Service** `HTTP` → URL `laphotogagnante:8080`. Cloudflare crée lui-même l'enregistrement DNS et le certificat HTTPS.
+   (`laphotogagnante` est l'alias du conteneur `php` sur le réseau `tunnel`, cf. `compose.prod.yaml`.)
+
+> Le site répond en « 502 » tant que la stack n'est pas déployée (étape 5) : c'est normal.
+> Ne pas lancer en même temps sur ce serveur une autre stack `compose.prod.yaml` (test local avec `COMPOSE_PROJECT_NAME=…`) :
+> elle prendrait le même alias sur le réseau `tunnel` et recevrait une partie des visiteurs.
 
 ### 3. Fichier de configuration
 
@@ -62,7 +73,6 @@ sudo nano /srv/photoprix/.env.prod                          # remplacer TOUTES l
 - Secret : `openssl rand -hex 32`.
 - `DEFAULT_URI` et `SYMFONY_TRUSTED_HOSTS` : votre vrai domaine.
 - `MAILER_DSN` : un vrai serveur SMTP, sinon aucun email (inscription, mot de passe oublié) ne partira.
-- `CLOUDFLARE_TUNNEL_TOKEN` : le jeton de l'étape 2.
 - `LEGAL_HOST_ADDRESS`, `LEGAL_HOST_PHONE` : vos coordonnées d'hébergeur, obligatoires dans les mentions légales. Elles ne sont que dans ce fichier, jamais dans git.
 
 Le script refuse de déployer tant qu'il reste une valeur `change-me`.
@@ -155,7 +165,7 @@ Pensez à copier régulièrement `/srv/photoprix/backups` **hors du serveur** (d
 
 Pour tester avec un petit groupe avant d'ouvrir à tous, on suit la même procédure avec un sous-domaine, par exemple `preprod.laphotogagnante.fr` :
 
-1. Tunnel Cloudflare : ajouter le hostname `preprod.laphotogagnante.fr` → `php:8080` (au lieu du domaine principal).
+1. Tunnel Cloudflare : ajouter le hostname `preprod.laphotogagnante.fr` → `HTTP` `laphotogagnante:8080` (au lieu du domaine principal).
 2. `.env.prod` : `DEFAULT_URI=https://preprod.laphotogagnante.fr` et `SYMFONY_TRUSTED_HOSTS=^preprod\.laphotogagnante\.fr$`.
 3. **Restreindre l'accès** : Cloudflare Zero Trust → **Access** → **Applications** → *Self-hosted*, domaine `preprod.laphotogagnante.fr`, politique « Allow » avec la liste des emails invités (gratuit jusqu'à 50 personnes). Cloudflare leur envoie un code de connexion à usage unique : personne d'autre, ni aucun moteur de recherche, ne voit le site.
 4. Google / Facebook : ajouter aussi les URI `https://preprod.laphotogagnante.fr/connect/…/check`, ou laisser leurs identifiants vides en preprod.
