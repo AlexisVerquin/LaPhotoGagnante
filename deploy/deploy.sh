@@ -54,6 +54,9 @@ rollback() {
 }
 
 # --- 3. Services de base puis migrations ------------------------------------------------------
+# Réseau partagé avec le cloudflared du serveur (deploy/cloudflared.compose.yaml), qui peut ne pas être encore lancé
+docker network inspect tunnel >/dev/null 2>&1 || docker network create tunnel >/dev/null
+
 log "Démarrage de la base et de RabbitMQ"
 compose up -d --wait database rabbitmq
 

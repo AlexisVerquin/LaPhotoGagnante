@@ -1,0 +1,28 @@
+# Cloudflare Tunnel du serveur : SEULE porte d'entrée publique, partagée par tous les services publiés
+# (LaPhotoGagnante et d'autres). Lancé à part, pour qu'arrêter le site ne coupe pas les autres services.
+#
+# Installation (une fois) : copier ce fichier hors du dépôt avec un .env (chmod 600) contenant TUNNEL_TOKEN=…
+#   mkdir -p ~/server/cloudflared && cp deploy/cloudflared.compose.yaml ~/server/cloudflared/docker-compose.yml
+#   cd ~/server/cloudflared && docker compose up -d
+#
+# Les routes (hostname → service) se règlent dans Cloudflare Zero Trust > Networks > Tunnels.
+# Un service n'est joignable que s'il rejoint le réseau Docker « tunnel » : le site est à http://laphotogagnante:8080.
+services:
+    cloudflared:
+        image: cloudflare/cloudflared:2026.10.7 # version figée : la monter à la main
+        container_name: cloudflared
+        restart: unless-stopped
+        command: tunnel --no-autoupdate run
+        environment:
+            TUNNEL_TOKEN: ${TUNNEL_TOKEN:?Renseignez TUNNEL_TOKEN dans le fichier .env}
+        logging:
+            driver: json-file
+            options:
+                max-size: '10m'
+                max-file: '3'
+        networks:
+            - tunnel
+
+networks:
+    tunnel:
+        name: tunnel # nom fixe, rejoint en « external » par les services publiés

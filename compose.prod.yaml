@@ -1,5 +1,7 @@
 # La production, lancée par deploy/deploy.sh (à la main, toujours avec --env-file /srv/photoprix/.env.prod).
 # Aucun port ouvert : tout passe par le tunnel Cloudflare, et les données vivent dans des volumes qui survivent aux déploiements.
+# Le tunnel n'est pas dans cette stack : un cloudflared partagé par tout le serveur (deploy/cloudflared.compose.yaml)
+# joint le site par le réseau Docker externe « tunnel », à l'adresse http://laphotogagnante:8080.
 
 name: photoprix-prod
 
@@ -30,6 +32,12 @@ services:
             - pending_photos:/app/storage
             - caddy_data:/data
             - caddy_config:/config
+        networks:
+            internal:
+            # Seul php est sur le réseau du tunnel ; la base et RabbitMQ restent injoignables depuis cloudflared
+            tunnel:
+                aliases:
+                    - laphotogagnante
         depends_on:
             database:
                 condition: service_healthy
@@ -83,18 +91,6 @@ services:
         networks:
             - internal
 
-    cloudflared:
-        logging: *logging
-        # Relie https://laphotogagnante.fr au site, sans ouvrir de port.
-        image: cloudflare/cloudflared:latest
-        restart: unless-stopped
-        command: tunnel --no-autoupdate run
-        environment:
-            TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:?Renseignez CLOUDFLARE_TUNNEL_TOKEN dans le fichier .env.prod}
-        depends_on:
-            - php
-        networks:
-            - internal
 
 volumes:
     database_data:
@@ -106,3 +102,7 @@ volumes:
 
 networks:
     internal:
+    tunnel:
+        # Créé par deploy/deploy.sh s'il n'existe pas encore
+        external: true
+        name: tunnel
