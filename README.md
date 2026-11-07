@@ -203,7 +203,7 @@ Voir les pages **Politique de confidentialité** et **CGU** du site pour le dét
 
 ## Déploiement
 
-Production sur un serveur maison derrière **Cloudflare Tunnel**, mise à jour automatiquement par le serveur lui-même (`deploy/auto-update.sh`) après chaque CI verte sur `master`.
+Production sur un serveur dédié Scaleway (Dedibox) derrière **Cloudflare Tunnel**, mise à jour automatiquement par le serveur lui-même (`deploy/auto-update.sh`) après chaque CI verte sur `master`.
 Installation du serveur, configuration et exploitation : voir **[deploy/README.md](deploy/README.md)**.
 
 ---

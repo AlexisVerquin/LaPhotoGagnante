@@ -20,6 +20,9 @@
             <li>Éditeur et directeur de la publication : {{ legal.editor_name }}, particulier éditant le site à titre non professionnel</li>
             {% if legal.editor_address %}
                 <li>Adresse : {{ legal.editor_address }}</li>
+            {% else %}
+                {# Éditeur non professionnel : l'adresse peut ne pas être publiée (LCEN, art. 6-III-2) #}
+                <li>Conformément à l'article 6-III-2 de la loi pour la confiance dans l'économie numérique, l'éditeur, qui agit à titre non professionnel, a communiqué ses éléments d'identification personnelle à l'hébergeur ci-dessous.</li>
             {% endif %}
             <li>Contact : <a href="mailto:{{ legal.contact_email }}">{{ legal.contact_email }}</a> ou <a href="{{ path('app_contact') }}">formulaire de contact</a></li>
         </ul>

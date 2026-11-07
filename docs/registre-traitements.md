@@ -4,8 +4,8 @@
 (onglet « Modèle de fiche de registre »). Il peut être recopié tel quel dans le fichier ODS officiel.
 À mettre à jour à chaque changement dans la façon de traiter les données (nouvelle fonctionnalité, nouveau prestataire, nouvelle durée).
 
-- **Création** : 07/11/2026 — **Dernière mise à jour** : 07/11/2026
-- **Responsable du traitement** : Alexis Verquin, particulier (adresse et téléphone : *à compléter*), alexis.verquin@gmail.com
+- **Création** : 07/11/2026 — **Dernière mise à jour** : 08/11/2026
+- **Responsable du traitement** : Alexis Verquin, particulier éditant le site à titre non professionnel (adresse non publiée, communiquée à l'hébergeur), alexis.verquin@gmail.com
 - **Délégué à la protection des données** : aucun (non obligatoire)
 - **Données sensibles** : aucune, pour tous les traitements ci-dessous
 
@@ -13,7 +13,7 @@
 
 | Acteur | Rôle | Pays | Garantie si hors UE |
 |---|---|---|---|
-| Hébergement : serveur personnel de l'éditeur (*à compléter*) | Hébergement du site et des données | *à compléter* | — |
+| Scaleway SAS (serveur dédié Dedibox) | Sous-traitant : hébergement du site, de la base et des sauvegardes | France (région parisienne) | — |
 | Cloudflare, Inc. | Sous-traitant : acheminement et protection du trafic (tunnel) | États-Unis | Data Privacy Framework UE–États-Unis + clauses contractuelles types |
 | Brevo (Sendinblue SAS) | Sous-traitant : envoi des emails (inscription, mot de passe, annonces) | France (UE) | — |
 | OVH SAS | Nom de domaine, redirection des adresses `@laphotogagnante.fr` | France | — |

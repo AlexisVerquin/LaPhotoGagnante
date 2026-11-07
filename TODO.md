@@ -39,7 +39,8 @@ Liste établie le 2026-11-07. Pour chaque point : ce qui existe déjà, pour rep
 
 À renseigner dans `config/packages/legal.yaml` : tant qu'une valeur manque, les pages affichent « À compléter ».
 
-- [x] **Hébergeur** et **pays du serveur** : renseignés ; adresse et téléphone via `LEGAL_HOST_ADDRESS` / `LEGAL_HOST_PHONE` dans `.env.local` et `/srv/photoprix/.env.prod` (jamais dans git).
+- [x] **Hébergeur** : Scaleway SAS (Dedibox), nom et adresse dans `config/packages/legal.yaml`.
+- [ ] **Téléphone de Scaleway** à renseigner dans `LEGAL_HOST_PHONE` (`/srv/photoprix/.env.prod`), depuis https://www.scaleway.com/fr/mentions-legales.
 - [ ] **Email public de contact** : aujourd'hui l'adresse Gmail personnelle ; créer `contact@laphotogagnante.fr` chez OVH ?
 - [ ] **Prestataire d'envoi des emails** : OVH indiqué, à confirmer (et `MAILER_DSN` de prod).
 - [ ] **Âge minimum** : 15 ans retenu (majorité numérique), à confirmer.

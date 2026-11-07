@@ -12,9 +12,9 @@ parameters:
     env(MAILER_FROM): 'LaPhotoGagnante <no-reply@laphotogagnante.fr>'
     env(ADMIN_MAIL): 'alexis.verquin@gmail.com'
     app.admin_email: '%env(ADMIN_MAIL)%'
-    # Coordonnées privées affichées dans les mentions légales, renseignées hors de git (vide = « À compléter »)
+    # Coordonnées affichées dans les mentions légales, renseignées hors de git (vide = « À compléter »).
+    # L'adresse de l'éditeur peut rester vide (éditeur non professionnel, LCEN art. 6-III-2).
     env(LEGAL_EDITOR_ADDRESS): ''
-    env(LEGAL_HOST_ADDRESS): ''
     env(LEGAL_HOST_PHONE): ''
     # Âge minimum pour s'inscrire (15 ans = majorité numérique en France), repris dans les CGU
     app.min_age: 15

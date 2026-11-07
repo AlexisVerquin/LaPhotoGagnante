@@ -1,4 +1,4 @@
-# Déploiement de LaPhotoGagnante (serveur maison + Cloudflare)
+# Déploiement de LaPhotoGagnante (serveur dédié Scaleway + Cloudflare)
 
 ## Fonctionnement
 
@@ -14,13 +14,40 @@ git push / merge sur master ─▶ CI GitHub (qualité, tests, image)
 serveur, toutes les 5 min : deploy/auto-update.sh ── nouveau commit sur master et CI verte ? ─▶ deploy/deploy.sh
 ```
 
-- **Aucun port à ouvrir** sur la box ni sur le serveur : `cloudflared` et la mise à jour automatique se connectent vers l'extérieur.
+- **Aucun port à ouvrir** sur le serveur (hors SSH) : `cloudflared` et la mise à jour automatique se connectent vers l'extérieur.
 - **Aucun runner GitHub** sur le serveur : le dépôt étant public, une pull request extérieure ne doit jamais pouvoir exécuter du code chez vous. C'est le serveur qui va chercher `master`, que vous seul fusionnez.
 - `deploy/deploy.sh` : sauvegarde de la base → construction de l'image → migrations → redémarrage → vérification → **retour à la version précédente** si le site ne répond pas.
 - Les données (base, photos, avatars, photos en attente) sont dans des volumes Docker : un déploiement ne les touche pas.
 - Le déploiement ne part que depuis `master`, et seulement si toute la CI est verte (vérifié via l'API publique de GitHub, sans jeton). Un commit en échec n'est pas retenté : on attend le suivant.
 
 ## Installation (une seule fois)
+
+### 0. Le serveur : Dedibox Scaleway
+
+Production sur une **Dedibox Start-2-M-SATA** (Scaleway SAS, datacenter en région parisienne) : Atom C2750 8 cœurs, 16 Go de RAM, un seul disque dur.
+Scaleway est l'hébergeur déclaré dans les mentions légales (`config/packages/legal.yaml`) et dans `docs/registre-traitements.md` :
+à mettre à jour si le serveur change.
+
+1. Console Dedibox → **Serveur** → **Installer** : **Debian 13** (ou Ubuntu 24.04 LTS), en ajoutant votre **clé SSH publique**.
+2. Premières commandes, en root :
+   ```bash
+   apt update && apt full-upgrade -y
+   apt install -y unattended-upgrades ufw git curl python3
+   dpkg-reconfigure -plow unattended-upgrades          # mises à jour de sécurité automatiques
+   ```
+3. SSH par clé uniquement : dans `/etc/ssh/sshd_config`, `PasswordAuthentication no` et `PermitRootLogin prohibit-password`, puis `systemctl restart ssh`
+   (vérifier d'abord qu'une connexion par clé fonctionne, dans un autre terminal).
+4. Pare-feu : tout fermé en entrée sauf SSH (le site passe par le tunnel Cloudflare, connexion sortante).
+   ```bash
+   ufw default deny incoming && ufw default allow outgoing && ufw allow OpenSSH && ufw enable
+   ```
+   Attention : Docker contourne `ufw` pour les ports **publiés** (`ports:`). `compose.prod.yaml` n'en publie aucun : ne pas en ajouter.
+5. Swap de sécurité (16 Go de RAM, mais les builds Docker sont gourmands) :
+   ```bash
+   fallocate -l 4G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile
+   echo '/swapfile none swap sw 0 0' >> /etc/fstab
+   ```
+6. Le processeur est lent (Atom) : le build de l'image à chaque déploiement prend plusieurs minutes. Le site reste en ligne pendant ce temps.
 
 ### 1. Prérequis sur le serveur
 
@@ -73,7 +100,8 @@ sudo nano /srv/photoprix/.env.prod                          # remplacer TOUTES l
 - Secret : `openssl rand -hex 32`.
 - `DEFAULT_URI` et `SYMFONY_TRUSTED_HOSTS` : votre vrai domaine.
 - `MAILER_DSN` : un vrai serveur SMTP, sinon aucun email (inscription, mot de passe oublié) ne partira.
-- `LEGAL_HOST_ADDRESS`, `LEGAL_HOST_PHONE` : vos coordonnées d'hébergeur, obligatoires dans les mentions légales. Elles ne sont que dans ce fichier, jamais dans git.
+- `LEGAL_HOST_PHONE` : téléphone de l'hébergeur (Scaleway SAS), obligatoire dans les mentions légales : le recopier depuis [leurs mentions légales](https://www.scaleway.com/fr/mentions-legales). Nom et adresse de Scaleway sont dans `config/packages/legal.yaml`.
+- `LEGAL_EDITOR_ADDRESS` : **laisser vide** pour ne pas publier votre adresse. Éditeur non professionnel, vous êtes identifié auprès de l'hébergeur (LCEN, art. 6-III-2) : la page affiche cette mention à la place.
 
 Le script refuse de déployer tant qu'il reste une valeur `change-me`.
 
@@ -159,7 +187,7 @@ Chaque sauvegarde produit deux fichiers dans `/srv/photoprix/backups` : `photopr
 (photos publiées, photos en attente et avatars, 7 gardées car plus lourdes). Ces nombres se règlent avec `PHOTOPRIX_BACKUPS_TO_KEEP`
 et `PHOTOPRIX_FILE_BACKUPS_TO_KEEP`. Les photos font au plus 5 Mo : prévoir de la place en conséquence (`du -sh /srv/photoprix/backups`).
 
-Pensez à copier régulièrement `/srv/photoprix/backups` **hors du serveur** (disque externe, autre machine) : une sauvegarde sur le même disque ne protège pas d'une panne de ce disque.
+Pensez à copier régulièrement `/srv/photoprix/backups` **hors du serveur** (disque externe, autre machine, stockage objet) : la Dedibox n'a qu'un disque, une sauvegarde sur ce disque ne protège pas d'une panne. Exemple depuis le PC : `rsync -av photoprix@serveur:/srv/photoprix/backups/ ~/sauvegardes-photoprix/`.
 
 ## Preprod réservée à quelques personnes
 
