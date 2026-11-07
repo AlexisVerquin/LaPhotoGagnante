@@ -1,0 +1,9 @@
+# Toujours des fins de ligne Unix, même si git est réglé pour Windows sur le poste :
+# tout tourne sous Linux et php-cs-fixer refuse les CRLF.
+* text=auto eol=lf
+
+# Règles plus anciennes, déjà couvertes par la ligne ci-dessus.
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.ini text eol=lf
+docker/caddy/* text eol=lf

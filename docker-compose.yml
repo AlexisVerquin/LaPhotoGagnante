@@ -2,6 +2,7 @@ services:
     php:
         build:
             context: .
+            target: dev
             args:
                 USER_ID: ${UID:-1000}
                 GROUP_ID: ${GID:-1000}
@@ -90,17 +91,21 @@ services:
     messenger:
         build:
             context: .
+            target: dev
             args:
                 USER_ID: ${UID:-1000}
                 GROUP_ID: ${GID:-1000}
         container_name: ${PROJECT_NAME}_messenger
         restart: unless-stopped
         command: php bin/console messenger:consume async --time-limit=3600 -vv
+        # Ce conteneur ne sert pas de pages web, le contrôle de santé de FrankenPHP ne le concerne pas.
+        healthcheck:
+            disable: true
         environment:
             APP_ENV: ${APP_ENV}
             MAILER_DSN: smtp://mailhog:1025
             MESSENGER_TRANSPORT_DSN: amqp://symfony:symfony@rabbitmq:5672/%2f/messages
-            DATABASE_URL: "mysql://symfony:symfony@database:3306/app?serverVersion=8:4:0&charset=utf8mb4"
+            DATABASE_URL: "mysql://symfony:symfony@database:3306/app?serverVersion=8.4.0&charset=utf8mb4"
         volumes:
             - ./:/app
         depends_on:
@@ -123,78 +128,12 @@ services:
         networks:
             - default
 
-    cloudbeaver:
-        image: dbeaver/cloudbeaver:latest
-        container_name: ${PROJECT_NAME}_cloudbeaver
-        restart: unless-stopped
-        ports:
-            - "8081:8978"
-        depends_on:
-            database:
-                condition: service_healthy
-        networks:
-            - default
-
-    # --- PLANKA SERVICES ---
-
-    planka:
-        image: ghcr.io/plankanban/planka:latest
-        container_name: ${PROJECT_NAME}_planka
-        restart: unless-stopped
-        ports:
-            - "3000:1337"
-        environment:
-            BASE_URL: http://localhost:3000
-            DATABASE_URL: postgresql://postgres:postgres@planka-db:5432/planka
-            SECRET_KEY: ${PLANKA_SECRET_KEY:-notverysecretkey_change_me_in_prod_123456789}
-            TRUST_PROXY: "1"
-            # Configuration optionnelle pour envoyer les emails via ton conteneur Mailhog
-            SMTP_HOST: mailhog
-            SMTP_PORT: 1025
-            SMTP_SECURE: "false"
-            DEFAULT_ADMIN_EMAIL: admin@example.com
-            DEFAULT_ADMIN_PASSWORD: Password123!
-            DEFAULT_ADMIN_NAME: Admin
-            DEFAULT_ADMIN_USERNAME: admin
-        volumes:
-            - planka_user_avatars:/app/public/user-avatars
-            - planka_project_background_images:/app/public/project-background-images
-            - planka_attachments:/app/public/attachments
-        depends_on:
-            planka-db:
-                condition: service_healthy
-        networks:
-            - default
-
-    planka-db:
-        image: postgres:16-alpine
-        container_name: ${PROJECT_NAME}_planka_db
-        restart: unless-stopped
-        environment:
-            POSTGRES_DB: planka
-            POSTGRES_USER: postgres
-            POSTGRES_PASSWORD: postgres
-        volumes:
-            - planka_db_data:/var/lib/postgresql/data
-        healthcheck:
-            test: ["CMD-SHELL", "pg_isready -U postgres"]
-            interval: 5s
-            timeout: 5s
-            retries: 10
-        networks:
-            - default
-
 volumes:
     database_data:
     redis_data:
     rabbitmq_data:
     caddy_data:
     caddy_config:
-    # Volumes Planka
-    planka_db_data:
-    planka_user_avatars:
-    planka_project_background_images:
-    planka_attachments:
 
 networks:
     default:

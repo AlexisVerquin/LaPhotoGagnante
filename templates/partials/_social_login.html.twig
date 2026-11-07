@@ -1,0 +1,30 @@
+{# Les boutons Google / Facebook, pour s'inscrire comme pour se connecter.
+   Un fournisseur sans identifiant configuré n'apparaît pas. #}
+{% if oauth_enabled('google') or oauth_enabled('facebook') %}
+    <div class="d-grid gap-2 mb-3">
+        {% if oauth_enabled('google') %}
+            <a href="{{ path('app_oauth_start', {provider: 'google'}) }}"
+               class="btn btn-outline-dark btn-lg d-flex align-items-center justify-content-center gap-2"
+               data-turbo="false">
+                <i class="bi bi-google" aria-hidden="true"></i> Continuer avec Google
+            </a>
+        {% endif %}
+        {% if oauth_enabled('facebook') %}
+            <a href="{{ path('app_oauth_start', {provider: 'facebook'}) }}"
+               class="btn btn-lg d-flex align-items-center justify-content-center gap-2 text-white"
+               style="background-color: #1877F2;"
+               data-turbo="false">
+                <i class="bi bi-facebook" aria-hidden="true"></i> Continuer avec Facebook
+            </a>
+        {% endif %}
+    </div>
+    <p class="text-muted small text-center mb-3">
+        En continuant avec Google ou Facebook, vous acceptez les
+        <a href="{{ path('app_cgu') }}" class="register-link">conditions d’utilisation</a>
+        et la <a href="{{ path('app_rgpd') }}" class="register-link">politique de confidentialité</a>.
+        Seuls votre nom et votre adresse email nous sont transmis.
+    </p>
+    <div class="d-flex align-items-center gap-3 my-3 text-muted small" aria-hidden="true">
+        <hr class="flex-grow-1 m-0"> ou <hr class="flex-grow-1 m-0">
+    </div>
+{% endif %}

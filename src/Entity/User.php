@@ -12,6 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -27,6 +28,9 @@ class User implements DateInterface, UserInterface, PasswordAuthenticatedUserInt
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Assert\NotBlank]
+    #[Assert\Email]
+    #[Assert\Length(max: 180)]
     private ?string $email = null;
 
     /**
@@ -48,24 +52,27 @@ class User implements DateInterface, UserInterface, PasswordAuthenticatedUserInt
     private ?string $avatar = null;
 
     #[ORM\Column(length: 50)]
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 2, max: 50)]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $bio = null;
 
     #[ORM\Column(length: 100, nullable: true)]
+    #[Assert\Length(max: 100)]
     private ?string $city = null;
 
     /**
      * @var Collection<int, Photo>
      */
-    #[ORM\OneToMany(targetEntity: Photo::class, mappedBy: 'user', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Photo::class, mappedBy: 'user', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $photos;
 
     /**
      * @var Collection<int, Vote>
      */
-    #[ORM\ManyToMany(targetEntity: Vote::class, mappedBy: 'user')]
+    #[ORM\OneToMany(targetEntity: Vote::class, mappedBy: 'user')]
     private Collection $votes;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
@@ -73,6 +80,14 @@ class User implements DateInterface, UserInterface, PasswordAuthenticatedUserInt
 
     #[ORM\Column]
     private ?bool $isActive = true;
+
+    /** Rempli quand le membre se connecte avec Google. */
+    #[ORM\Column(length: 255, unique: true, nullable: true)]
+    private ?string $googleId = null;
+
+    /** Rempli quand le membre se connecte avec Facebook. */
+    #[ORM\Column(length: 255, unique: true, nullable: true)]
+    private ?string $facebookId = null;
 
     public function __construct()
     {
@@ -257,7 +272,7 @@ class User implements DateInterface, UserInterface, PasswordAuthenticatedUserInt
     {
         if (!$this->votes->contains($vote)) {
             $this->votes->add($vote);
-            $vote->addUser($this);
+            $vote->setUser($this);
         }
 
         return $this;
@@ -265,9 +280,7 @@ class User implements DateInterface, UserInterface, PasswordAuthenticatedUserInt
 
     public function removeVote(Vote $vote): static
     {
-        if ($this->votes->removeElement($vote)) {
-            $vote->removeUser($this);
-        }
+        $this->votes->removeElement($vote);
 
         return $this;
     }
@@ -292,6 +305,30 @@ class User implements DateInterface, UserInterface, PasswordAuthenticatedUserInt
     public function setIsActive(bool $isActive): static
     {
         $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    public function getGoogleId(): ?string
+    {
+        return $this->googleId;
+    }
+
+    public function setGoogleId(?string $googleId): static
+    {
+        $this->googleId = $googleId;
+
+        return $this;
+    }
+
+    public function getFacebookId(): ?string
+    {
+        return $this->facebookId;
+    }
+
+    public function setFacebookId(?string $facebookId): static
+    {
+        $this->facebookId = $facebookId;
 
         return $this;
     }

@@ -6,3 +6,8 @@ parameters:
         - public/
         - src/
         - tests/
+    ignoreErrors:
+        # Les entités ont des propriétés nullables pour des colonnes NOT NULL, comme les génère Symfony.
+        # C'est voulu, PHPStan s'en plaint à tort.
+        - identifier: doctrine.columnType
+        - identifier: doctrine.associationType

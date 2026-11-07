@@ -1,4 +1,4 @@
-# 📷 PhotoPrix
+# 📷 LaPhotoGagnante
 
 Plateforme communautaire et gratuite de concours photo. Chaque mois, un nouveau thème est lancé : les membres publient leurs photos, votent pour leurs préférées et élisent le thème du mois suivant.
 
@@ -145,8 +145,9 @@ php bin/console make:migration
 # Compiler les assets pour la production (si AssetMapper)
 php bin/console asset-map:compile
 
-# Lancer les tests (si présents)
-php bin/phpunit
+# Rejouer en local exactement la CI GitHub (cf. bin/ci --help)
+bin/ci            # rapide, sur les fichiers en cours (stack Docker démarrée)
+bin/ci --clean    # comme GitHub : clone propre du dernier commit, base MySQL jetable
 ```
 
 ---
@@ -202,15 +203,8 @@ Voir les pages **Politique de confidentialité** et **CGU** du site pour le dét
 
 ## Déploiement
 
-Checklist minimale pour la production :
-
-1. `APP_ENV=prod` et `APP_DEBUG=0`
-2. `composer install --no-dev --optimize-autoloader`
-3. `php bin/console doctrine:migrations:migrate --no-interaction`
-4. `php bin/console asset-map:compile` (si AssetMapper)
-5. `php bin/console cache:clear`
-6. Serveur configuré en HTTPS, avec un `MAILER_DSN` réel
-7. Planification (cron) de l'envoi des emails de lancement de thème, si applicable
+Production sur un serveur maison derrière **Cloudflare Tunnel**, déployée automatiquement par GitHub Actions après chaque CI verte sur `main`.
+Installation du serveur, configuration et exploitation : voir **[deploy/README.md](deploy/README.md)**.
 
 ---
 

@@ -29,3 +29,15 @@ phpstan.neon
 /.php-cs-fixer.php
 /.php-cs-fixer.cache
 ###< friendsofphp/php-cs-fixer ###
+
+###> local / OS ###
+*:Zone.Identifier
+###< local / OS ###
+
+###> IDE ###
+/.idea/
+###< IDE ###
+
+###> photos en attente de validation (hors web) ###
+/storage/
+###< photos en attente de validation ###

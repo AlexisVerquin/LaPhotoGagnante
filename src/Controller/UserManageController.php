@@ -2,21 +2,22 @@
 
 namespace App\Controller;
 
-use App\Constant\AlertConst;
 use App\Entity\User;
 use App\Form\UserInfoType;
 use App\Security\EmailVerifier;
+use App\Service\ImageSanitizer;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
@@ -32,23 +33,38 @@ final class UserManageController extends AbstractController
         UserPasswordHasherInterface $userPasswordHasher,
         EmailVerifier $emailVerifier,
     ): Response {
-        /** @var User|null $user */
         $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
 
         $email = $user->getEmail();
-        $form = $this->createForm(UserInfoType::class, $this->getUser());
+        $form = $this->createForm(UserInfoType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($user->getPassword() && $userPasswordHasher->isPasswordValid($user, $user->getPassword())) {
-                $user->setPassword($userPasswordHasher->hashPassword($user, $user->getPassword()));
-            }
+            $currentPassword = (string) $form->get('password')->getData();
+            $newPassword = (string) $form->get('new_password')->getData();
+            $confirmPassword = (string) $form->get('password_confirm')->getData();
 
+            if ('' !== $newPassword || '' !== $currentPassword) {
+                if (!$userPasswordHasher->isPasswordValid($user, $currentPassword)) {
+                    $form->get('password')->addError(new FormError($translator->trans('alert.password.invalid_current')));
+                } elseif ($newPassword !== $confirmPassword) {
+                    $form->get('password_confirm')->addError(new FormError($translator->trans('alert.password.mismatch')));
+                } else {
+                    $user->setPassword($userPasswordHasher->hashPassword($user, $newPassword));
+                }
+            }
+        }
+
+        if ($form->isSubmitted() && $form->isValid()) {
             if ($email !== $user->getEmail()) {
                 $user->setIsVerified(false);
-                $emailVerifier->sendEmailConfirmation('app_verify_email', $user,
+                $emailVerifier->sendEmailConfirmation(
+                    'app_verify_email',
+                    $user,
                     new TemplatedEmail()
-                        ->from(new Address('no-reply@${PROJECT_NAME}.fr', '${PROJECT_NAME}'))
                         ->to((string) $user->getEmail())
                         ->subject('Please Confirm your Email')
                         ->htmlTemplate('user_manage/confirmation_email.html.twig'),
@@ -57,9 +73,15 @@ final class UserManageController extends AbstractController
 
             $em->flush();
 
-            $this->addFlash(AlertConst::ALERT_SUCCESS, $translator->trans('alert.modification.success'));
+            $this->addFlash('success', $translator->trans('alert.modification.success'));
 
             return $this->redirectToRoute('app_user_manage');
+        }
+
+        if ($form->isSubmitted()) {
+            // Le formulaire a déjà modifié l'utilisateur en mémoire : on recharge la base
+            // pour ne pas garder en session des valeurs qui ont été refusées.
+            $em->refresh($user);
         }
 
         return $this->render('user_manage/index.html.twig', [
@@ -67,13 +89,15 @@ final class UserManageController extends AbstractController
         ]);
     }
 
-    #[Route('/user/manage/uploadAvatar', name: 'app_user_manage_uploadAvatar')]
+    #[Route('/user/manage/uploadAvatar', name: 'app_user_manage_uploadAvatar', methods: ['POST'])]
     public function uploadAvatar(
         LoggerInterface $logger,
         Request $request,
         SluggerInterface $slugger,
         EntityManagerInterface $em,
-        #[Autowire('%kernel.project_dir%/public/uploads/avatars')] string $avatarFileDirectory,
+        ImageSanitizer $imageSanitizer,
+        #[Autowire('%kernel.project_dir%/public/uploads/avatars')]
+        string $avatarFileDirectory,
     ): Response {
         $submittedToken = $request->headers->get('X-CSRF-Token');
 
@@ -104,7 +128,7 @@ final class UserManageController extends AbstractController
 
         // 5. Déplacement du fichier
         try {
-            $file->move(
+            $movedFile = $file->move(
                 $avatarFileDirectory,
                 $newFilename,
             );
@@ -114,8 +138,27 @@ final class UserManageController extends AbstractController
             return $this->json(['error' => 'Erreur lors de l\'enregistrement du fichier'], 500);
         }
 
-        /** @var User|null $user */
+        // Pas de position GPS ni d'infos d'appareil dans les avatars non plus.
+        try {
+            $imageSanitizer->sanitize($movedFile->getPathname());
+        } catch (\RuntimeException $e) {
+            $logger->warning($e->getMessage());
+            @unlink($movedFile->getPathname());
+
+            return $this->json(['error' => 'Image illisible, merci d\'essayer avec un autre fichier'], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
         $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->json(['error' => 'Vous devez être connecté'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        // On jette l'ancien avatar, inutile de le garder sur le disque.
+        $oldAvatar = $user->getAvatar();
+        if ($oldAvatar) {
+            new Filesystem()->remove($avatarFileDirectory . '/' . basename($oldAvatar));
+        }
+
         $user->setAvatar($newFilename);
 
         $em->flush();
@@ -123,18 +166,22 @@ final class UserManageController extends AbstractController
         return $this->json(['success' => true]);
     }
 
-    #[Route('/user/delete', name: 'app_delete_user', methods: ['delete'])]
+    #[Route('/user/delete', name: 'app_delete_user', methods: ['DELETE'])]
     public function removeUser(
         LoggerInterface $logger,
         EntityManagerInterface $em,
         Request $request,
         Filesystem $filesystem,
-        #[Autowire('%kernel.project_dir%/public/uploads/avatars')] string $avatarFileDirectory,
+        Security $security,
+        #[Autowire('%kernel.project_dir%/public/uploads/avatars')]
+        string $avatarFileDirectory,
     ): Response {
         $user = $this->getUser();
-        if ($this->isCsrfTokenValid('delete-user-' . $user->getId(), $request->request->get('_token'))) {
-            /** @var User|null $user */
-            $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        if ($this->isCsrfTokenValid('delete-user-' . $user->getId(), $request->request->getString('_token'))) {
             $avatar = $user->getAvatar();
 
             try {
@@ -148,19 +195,29 @@ final class UserManageController extends AbstractController
                     ->setIsVerified(false)
                     ->setUpdatedAt(new \DateTime('now'))
                     ->setRoles(['ROLE_USER'])
-                    ->setAvatar('')
+                    ->setAvatar(null)
                     ->setName('Anonyme')
-                    ->setCity('')
+                    ->setCity(null)
+                    ->setBio(null)
+                    ->setIsActive(false)
+                    // S'il revient par Google ou Facebook, il repartira sur un compte neuf.
+                    ->setGoogleId(null)
+                    ->setFacebookId(null)
+                    // Plus personne ne pourra se connecter à ce compte.
+                    ->setPassword(bin2hex(random_bytes(32)))
                 ;
 
                 $em->flush();
+
+                // On le déconnecte tout de suite, sans repasser par la confirmation de déconnexion.
+                $security->logout(false);
 
                 $this->addFlash('success', "Votre compte a bien été supprimer, merci pour votre participation. \n a bientôt");
 
                 return $this->redirectToRoute('app_main');
             } catch (\Exception $e) {
                 $logger->error($e->getMessage());
-                $this->addFlash('error', "Erreur lors de la suppression de l'utilisateur, veuillez contacter un administrateur");
+                $this->addFlash('danger', "Erreur lors de la suppression de l'utilisateur, veuillez contacter un administrateur");
             }
         }
 

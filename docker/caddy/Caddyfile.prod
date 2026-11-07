@@ -1,0 +1,26 @@
+{
+	frankenphp
+}
+
+# Du HTTP tout simple : c'est Cloudflare qui s'occupe du HTTPS.
+{$SERVER_NAME::8080} {
+	root * /app/public
+	encode zstd br gzip
+
+	header {
+		-Server
+		X-Content-Type-Options nosniff
+		X-Frame-Options SAMEORIGIN
+		Referrer-Policy strict-origin-when-cross-origin
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+	}
+
+	# Par précaution, aucun fichier envoyé par un membre ne doit pouvoir s'exécuter.
+	@phpInUploads path /uploads/*.php /uploads/*/*.php /uploads/*/*/*.php
+	respond @phpInUploads 403
+
+	@uploads path /uploads/* /assets/*
+	header @uploads Cache-Control "public, max-age=604800"
+
+	php_server
+}

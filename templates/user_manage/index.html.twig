@@ -86,14 +86,17 @@
                             <div class="col-md-6">
                                 {{ form_label(formUser.name) }}
                                 {{ form_widget(formUser.name, {'attr': {'class' : 'form-control form-control-fun'}, 'label_attr': { 'class' : 'form-label fw-bold small'}}) }}
+                                {{ form_errors(formUser.name) }}
                             </div>
                             <div class="col-md-6">
                                 {{ form_label(formUser.city) }}
                                 {{ form_widget(formUser.city, {'attr': {'class' : 'form-control form-control-fun'}, 'label_attr': { 'class' : 'form-label fw-bold small'}}) }}
+                                {{ form_errors(formUser.city) }}
                             </div>
                             <div class="col-md-12">
                                 {{ form_label(formUser.email) }}
                                 {{ form_widget(formUser.email, {'attr': {'class' : 'form-control form-control-fun'}, 'label_attr': { 'class' : 'form-label fw-bold small'}}) }}
+                                {{ form_errors(formUser.email) }}
                                 <div class="form-hint mt-1">Une confirmation vous sera envoyée si vous modifiez cette adresse.</div>
                             </div>
                         </div>
@@ -109,6 +112,7 @@
                         <div class="mb-3">
                             {{ form_label(formUser.password) }}
                             {{ form_widget(formUser.password, {'attr': {'class' : 'form-control form-control-fun'}, 'label_attr': { 'class' : 'form-label fw-bold small'}}) }}
+                            {{ form_errors(formUser.password) }}
                             <div class="form-hint mt-1">Requis uniquement si vous changez votre mot de passe.</div>
                         </div>
 
@@ -116,10 +120,12 @@
                             <div class="col-md-6">
                                 {{ form_label(formUser.new_password) }}
                                 {{ form_widget(formUser.new_password, {'attr': {'class' : 'form-control form-control-fun'}, 'label_attr': { 'class' : 'form-label fw-bold small'}}) }}
+                                {{ form_errors(formUser.new_password) }}
                             </div>
                             <div class="col-md-6">
                                 {{ form_label(formUser.password_confirm) }}
                                 {{ form_widget(formUser.password_confirm, {'attr': {'class' : 'form-control form-control-fun'}, 'label_attr': { 'class' : 'form-label fw-bold small'}}) }}
+                                {{ form_errors(formUser.password_confirm) }}
                             </div>
                         </div>
 

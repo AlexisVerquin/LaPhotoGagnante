@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}PhotoPrix - Galerie du concours{% endblock %}
+{% block title %}Galerie du concours{% endblock %}
 
 {% set pathCurrentTheme = getPathCurrentTheme() %}
 {% set pathAvatar = getPathAvatar() %}
@@ -32,9 +32,10 @@
 
             {% include 'partials/_countdown.html.twig' with {'photoOfTheDay' : false} %}
 
-            {% if actualTheme.photos|length > 0 %}
+            {% set visiblePhotos = actualTheme.photos.toArray|filter(p => p.isVisible) %}
+            {% if visiblePhotos|length > 0 %}
                 <div class="gallery-masonry">
-                    {% for photo in actualTheme.photos %}
+                    {% for photo in visiblePhotos %}
                         <div class="gallery-card">
                             <div class="card p-3">
                                 <div class="card-head gap-3 d-flex align-items-center ms-2 mb-3">

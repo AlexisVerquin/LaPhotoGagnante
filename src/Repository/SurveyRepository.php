@@ -24,6 +24,8 @@ class SurveyRepository extends ServiceEntityRepository
             ->andWhere('s.dateEnd > :dateEnd')
             ->setParameter('dateStart', $date)
             ->setParameter('dateEnd', $date)
+            ->orderBy('s.dateStart', 'DESC')
+            ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
 

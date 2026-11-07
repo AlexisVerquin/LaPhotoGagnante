@@ -16,10 +16,10 @@ use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsCsrfTokenValid;
 
@@ -51,7 +51,8 @@ class DashboardController extends AbstractController
     #[Route('/manage/survey/{id}', 'manage_survey', requirements: ['id' => "\d+"], defaults: ['id' => null])]
     public function manageSurveys(
         Request $request,
-        #[MapEntity(mapping: ['id' => 'id'])] ?Survey $survey = null,
+        #[MapEntity(mapping: ['id' => 'id'])]
+        ?Survey $survey = null,
     ): Response {
         $survey ??= new Survey();
         $surveyChoice = new SurveyChoice();
@@ -65,7 +66,7 @@ class DashboardController extends AbstractController
             $this->em->persist($survey);
             $this->em->flush();
 
-            $this->addFlash('alert-success', 'le sondage a été ajouté avec succes');
+            $this->addFlash('success', 'le sondage a été ajouté avec succes');
 
             return $this->redirectToRoute('admin_manage_survey');
         }
@@ -78,7 +79,7 @@ class DashboardController extends AbstractController
             $this->em->persist($surveyChoice);
             $this->em->flush();
 
-            $this->addFlash('alert-success', 'le theme a été ajouté avec succes');
+            $this->addFlash('success', 'le theme a été ajouté avec succes');
 
             return $this->redirectToRoute('admin_manage_survey');
         }
@@ -98,7 +99,7 @@ class DashboardController extends AbstractController
             $this->em->remove($survey);
             $this->em->flush();
 
-            $this->addFlash('alert-success', 'Sondage supprimé avec succes');
+            $this->addFlash('success', 'Sondage supprimé avec succes');
         }
 
         return $this->redirectToRoute('admin_manage_survey');
@@ -111,43 +112,49 @@ class DashboardController extends AbstractController
             $this->em->remove($surveyChoice);
             $this->em->flush();
 
-            $this->addFlash('alert-success', 'Theme supprimé avec succes');
+            $this->addFlash('success', 'Theme supprimé avec succes');
         }
 
         return $this->redirectToRoute('admin_manage_survey');
     }
 
     #[Route('/contact/reply/{id}', 'contact_reply', methods: ['GET', 'POST'])]
-    public function replyContact(Contact $contact, Request $request, MailService $mailService, LoggerInterface $logger): Response
-    {
+    public function replyContact(
+        Contact $contact,
+        Request $request,
+        MailService $mailService,
+        LoggerInterface $logger,
+        #[Autowire('%app.admin_email%')]
+        string $adminEmail,
+    ): Response {
         if ($request->isMethod('POST') && $request->request->all('reply')) {
             $form = $request->request->all('reply');
+            $message = trim((string) ($form['message'] ?? ''));
 
-            if (!$this->isCsrfTokenValid('reply_contact_' . $contact->getId(), $form['csrf'])) {
-                $this->addFlash('error', 'Le formulaire n\'est pas valide');
+            if (!$this->isCsrfTokenValid('reply_contact_' . $contact->getId(), (string) ($form['csrf'] ?? '')) || '' === $message) {
+                $this->addFlash('danger', 'Le formulaire n\'est pas valide');
 
                 return $this->redirectToRoute('admin_contact_reply', ['id' => $contact->getId()]);
             }
             $contact->setIsView(true);
             $replyContact = new Contact();
 
-            /** @var User|null $user */
             $user = $this->getUser();
             $replyContact
-                ->setEmail('admin@gmail.com')
-                ->setMessage($form['message'])
-                ->setOrigin($contact->getId())
-                ->setUserId($user->getId())
+                ->setEmail($adminEmail)
+                ->setMessage($message)
+                ->setOrigin((int) $contact->getId())
+                ->setUserId($user instanceof User ? $user->getId() : null)
                 ->setIsView(true)
                 ->setType(Contact::TYPE_REPLY)
-                ->setCreatedAtValue();
+            ;
 
             try {
                 $this->em->persist($replyContact);
                 $this->em->flush();
             } catch (\Exception $exception) {
                 $logger->error($exception->getMessage());
-                $this->addFlash('error', $exception->getMessage());
+                $this->addFlash('danger', 'Erreur lors de l\'enregistrement de la réponse');
 
                 return $this->redirectToRoute('admin_contact_reply', ['id' => $contact->getId()]);
             }
@@ -157,12 +164,16 @@ class DashboardController extends AbstractController
 
             $mailService->sendEmail(
                 new TemplatedEmail()
-                    ->from(new Address('admin@${PROJECT_NAME}.fr', '${PROJECT_NAME}'))
                     ->to((string) $contact->getEmail())
                     ->subject('Formulaire de contact')
                     ->htmlTemplate('contact/replyContactTmpl.html.twig'),
                 $discution,
             );
+
+            $this->addFlash('success', 'Réponse envoyée');
+
+            // On redirige pour qu'un F5 de l'admin ne renvoie pas le mail une deuxième fois.
+            return $this->redirectToRoute('admin_contact_reply', ['id' => $contact->getId()]);
         }
 
         return $this->render('admin/dashboard/replyContact.html.twig', [
@@ -196,8 +207,14 @@ class DashboardController extends AbstractController
     {
         $form = $request->request->all('message');
 
-        $contact = $this->em->getRepository(Contact::class)->find($form['id']);
-        if (!$this->isCsrfTokenValid('delete_message_' . $contact->getId(), $form['csrf'])) {
+        $contact = $this->em->getRepository(Contact::class)->find((int) ($form['id'] ?? 0));
+        if (!$contact) {
+            $this->addFlash('danger', 'Message introuvable');
+
+            return $this->redirectToRoute('admin_contact_all');
+        }
+
+        if (!$this->isCsrfTokenValid('delete_message_' . $contact->getId(), (string) ($form['csrf'] ?? ''))) {
             $this->addFlash('danger', 'csrf non valide');
         } else {
             $this->em->remove($contact);

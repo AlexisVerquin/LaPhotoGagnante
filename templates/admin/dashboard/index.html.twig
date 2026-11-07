@@ -121,20 +121,22 @@
                                     </div>
                                     <img class="rounded w-100 mb-2"
                                          style="aspect-ratio: 4/5; object-fit: cover;"
-                                         src="{{ asset(getPathCurrentTheme() ~ photo.name) }}"
+                                         src="{{ path('app_photo_image', {id: photo.id}) }}"
                                          alt="{{ photo.title ?? 'Photo en attente de validation' }}">
                                     <p class="text-muted small text-center mb-3">
                                         {{ photo.description ?? 'Pas de description' }}
                                     </p>
                                     <div class="d-flex justify-content-end gap-2">
-                                        <a
-                                            class="btn-vote"
-                                            data-turbo-prefetch="false"
-                                            href="{{ path('app_admin_photo_accept', {id: photo.id}) }}"
-                                            aria-label="Valider la photo de {{ photo.user.name }}"
-                                        >
-                                            <twig:ux:icon name="lucide:circle-check-big" aria-hidden="true" />
-                                        </a>
+                                        <form action="{{ path('app_admin_photo_accept', {id: photo.id}) }}" method="post">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('accept-photo-' ~ photo.id) }}">
+                                            <button
+                                                type="submit"
+                                                class="btn-vote"
+                                                aria-label="Valider la photo de {{ photo.user.name }}"
+                                            >
+                                                <twig:ux:icon name="lucide:circle-check-big" aria-hidden="true" />
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>

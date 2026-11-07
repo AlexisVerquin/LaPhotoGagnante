@@ -10,6 +10,9 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class LocaleSubscriber implements EventSubscriberInterface
 {
+    /**
+     * @param list<string> $availableLocales
+     */
     public function __construct(
         private string $defaultLocale = 'en',
         private array $availableLocales = ['en', 'fr'],
@@ -24,7 +27,8 @@ class LocaleSubscriber implements EventSubscriberInterface
 
         $request = $event->getRequest();
 
-        if ($locale = $request->getSession()->get('_locale')) {
+        $locale = $request->getSession()->get('_locale');
+        if (is_string($locale) && in_array($locale, $this->availableLocales, true)) {
             $request->setLocale($locale);
 
             return;

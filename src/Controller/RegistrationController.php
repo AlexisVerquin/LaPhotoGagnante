@@ -13,7 +13,6 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
@@ -34,7 +33,8 @@ class RegistrationController extends AbstractController
         UserPasswordHasherInterface $userPasswordHasher,
         EntityManagerInterface $entityManager,
         UserAuthenticatorInterface $userAuthenticator,
-        #[Autowire(service: 'security.authenticator.form_login.main')] AuthenticatorInterface $authenticator,
+        #[Autowire(service: 'security.authenticator.form_login.main')]
+        AuthenticatorInterface $authenticator,
     ): Response {
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
@@ -51,9 +51,10 @@ class RegistrationController extends AbstractController
             $entityManager->flush();
 
             // generate a signed url and email it to the user
-            $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
+            $this->emailVerifier->sendEmailConfirmation(
+                'app_verify_email',
+                $user,
                 new TemplatedEmail()
-                    ->from(new Address('no-reply@${PROJECT_NAME}.fr', '${PROJECT_NAME}'))
                     ->to((string) $user->getEmail())
                     ->subject('Please Confirm your Email')
                     ->htmlTemplate('registration/confirmation_email.html.twig'),
@@ -63,7 +64,7 @@ class RegistrationController extends AbstractController
                 $user,
                 $authenticator,
                 $request,
-            );
+            ) ?? $this->redirectToRoute('app_main');
         }
 
         return $this->render('registration/register.html.twig', [

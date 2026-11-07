@@ -113,6 +113,9 @@ class Photo implements DateInterface
         return $this;
     }
 
+    /**
+     * @return Collection<int, Vote>
+     */
     public function getVotes(): Collection
     {
         return $this->votes;

@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Constant\AlertConst;
 use App\Entity\Photo;
 use App\Entity\Survey;
 use App\Entity\SurveyChoice;
@@ -16,7 +15,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Translation\LocaleFallbackProvider;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class MainController extends AbstractController
@@ -28,11 +26,8 @@ final class MainController extends AbstractController
     }
 
     #[Route('/', name: 'app_main')]
-    public function index(Request $request, PhotoService $photoService): Response
+    public function index(PhotoService $photoService): Response
     {
-        $locale = $request->getPreferredLanguage(['pt', 'fr_Latn_CH', 'en_US']);
-        LocaleFallbackProvider::validateLocale($locale);
-
         $themeRepository = $this->em->getRepository(Theme::class);
         $actualTheme = $themeRepository->findActualTheme();
         $hasPhoto = $this->em->getRepository(Photo::class)->findOneBy(['user' => $this->getUser(), 'theme' => $actualTheme]);
@@ -54,16 +49,15 @@ final class MainController extends AbstractController
         $lastWinner = $photoService->getPhotoWinnerLastTheme();
         $photoOfTheDay = $photoService->getPhotoOfTheDay();
 
-        /** @var User|null $user */
         $user = $this->getUser();
 
-        if ($this->getUser() && !$user->isVerified()) {
-            $message = $this->translator->trans(AlertConst::ALERT_MSG_USER_UNVERIFIED);
-            $this->addFlash('USER_NOT_VERIFIED', $message);
+        if ($user instanceof User && !$user->isVerified()) {
+            $message = $this->translator->trans('alert.unverified_user');
+            $this->addFlash('info', $message);
         }
 
         $today = new \DateTime();
-        $lastVote = $user?->getLastVoteDate() ?? null;
+        $lastVote = $user instanceof User ? $user->getLastVoteDate() : null;
 
         return $this->render('main/index.html.twig', [
             'actualTheme' => $actualTheme,
@@ -83,35 +77,29 @@ final class MainController extends AbstractController
     }
 
     #[Route('/gallery', name: 'app_gallery')]
-    public function gallery(Request $request): Response
+    public function gallery(): Response
     {
         $actualTheme = $this->em->getRepository(Theme::class)->findActualTheme();
-        $votes = $this->em->getRepository(Vote::class)->findBy(['user' => $this->getUser(), 'theme' => $actualTheme]);
 
-        $voteUser = null;
-        foreach ($votes as $vote) {
-            if ($vote->getTheme()->getId() === $actualTheme->getId()) {
-                $voteUser = $vote;
-                break;
-            }
+        if (!$actualTheme) {
+            $this->addFlash('info', 'Aucun concours n\'est en cours pour le moment.');
+
+            return $this->redirectToRoute('app_main');
         }
 
-        $dateForEnableVote = clone $actualTheme->getDateEnd();
-        $dateForEnableVote->modify('-6 day');
-        $today = new \DateTime();
-        $enableVote = true;
-        if ($dateForEnableVote->format('Y-m-d') > $today->format('Y-m-d')) {
-            $enableVote = false;
-        }
+        $user = $this->getUser();
+        $voteUser = $user instanceof User
+            ? $this->em->getRepository(Vote::class)->findOneBy(['user' => $user, 'theme' => $actualTheme])
+            : null;
 
         return $this->render('main/gallery.html.twig', [
             'actualTheme' => $actualTheme,
             'voteUser' => $voteUser,
-            'enableVote' => $enableVote,
+            'enableVote' => $this->isVoteOpen($actualTheme),
         ]);
     }
 
-    #[Route('/voteSurvey', name: 'app_main_vote')]
+    #[Route('/voteSurvey', name: 'app_main_vote', methods: ['POST'])]
     public function voteSurvey(Request $request): JsonResponse
     {
         $submittedToken = $request->headers->get('X-CSRF-Token');
@@ -149,10 +137,24 @@ final class MainController extends AbstractController
             return $this->json(['error' => "Ce choix de vote n'existe pas"], Response::HTTP_NOT_FOUND); // 404
         }
 
-        $surveyChoice->setNumberVoter($surveyChoice->getNumberVoter() + 1);
-        $user->setLastVoteDate($today);
+        // Pas de vote sur un sondage fermé ou pas encore ouvert.
+        $activeSurvey = $this->em->getRepository(Survey::class)->findActiveSurvey();
+        if (!$activeSurvey || $surveyChoice->getSurvey()?->getId() !== $activeSurvey->getId()) {
+            return $this->json(['error' => "Ce sondage n'est pas ouvert aux votes"], Response::HTTP_FORBIDDEN); // 403
+        }
 
+        $user->setLastVoteDate($today);
         $this->em->flush();
+
+        // On incrémente directement en base pour ne perdre aucun vote si deux personnes cliquent en même temps.
+        $this->em->createQueryBuilder()
+            ->update(SurveyChoice::class, 'sc')
+            ->set('sc.numberVoter', 'sc.numberVoter + 1')
+            ->where('sc.id = :id')
+            ->setParameter('id', $surveyChoice->getId())
+            ->getQuery()
+            ->execute();
+        $this->em->refresh($surveyChoice);
 
         $total = array_sum(array_map(
             fn ($choice) => $choice->getNumberVoter(),
@@ -167,7 +169,7 @@ final class MainController extends AbstractController
         ]);
     }
 
-    #[Route('/locale/{locale}', name: 'app_change_locale')]
+    #[Route('/locale/{locale}', name: 'app_change_locale', requirements: ['locale' => 'en|fr'])]
     public function changeLocale(string $locale, Request $request): Response
     {
         $request->getSession()->set('_locale', $locale);
@@ -175,48 +177,16 @@ final class MainController extends AbstractController
         return $this->redirectToRoute('app_main');
     }
 
-    #[Route('/generate-data', name: 'app_dev_data')]
-    public function generateData(): Response
-    {
-        $faker = \Faker\Factory::create();
-        $actualTheme = $this->em->getRepository(Theme::class)->findActualTheme();
-        for ($i = 0; $i < 25; ++$i) {
-            $user = new User();
-            $photo = new Photo();
-
-            $user
-                ->setName($faker->name)
-                ->setEmail($faker->email)
-                ->setPassword($faker->password())
-                ->setIsVerified(true)
-                ->setCity($faker->city)
-                ->setRoles(['ROLE_USER'])
-            ;
-
-            $photo
-                ->setName($faker->name . '_photo')
-                ->setIsVisible(true)
-                ->setTheme($actualTheme)
-                ->setUser($user)
-            ;
-
-            $this->em->persist($user);
-            $this->em->persist($photo);
-        }
-        $this->em->flush();
-        $this->em->clear();
-
-        return $this->redirectToRoute('app_main');
-    }
-
-    #[Route('/vote', name: 'app_vote')]
+    #[Route('/vote', name: 'app_vote', methods: ['POST'])]
     public function vote(Request $request): Response
     {
-        // dump(app.request.attributes.parameters)
-        $photo = $this->em->getRepository(Photo::class)->find($request->request->get('photoId'));
-        $actualTheme = $this->em->getRepository(Theme::class)->findActualTheme();
+        if (!$this->isCsrfTokenValid('vote-photo-theme', $request->headers->get('X-CSRF-Token'))) {
+            return $this->json(['success' => false, 'message' => 'Token CSRF invalide'], Response::HTTP_FORBIDDEN);
+        }
 
-        if (!$this->getUser()) {
+        $user = $this->getUser();
+
+        if (!$user instanceof User) {
             $cartUrl = $this->generateUrl('app_login');
 
             return $this->json(
@@ -226,29 +196,40 @@ final class MainController extends AbstractController
                         'Vous devez etre connecté pour pouvoir voter. <a href="%s" class="alert-link">connectez-vous</a>',
                         $cartUrl,
                     ),
-                ], 200,
+                ],
+                200,
             );
         }
 
-        $dateForEnableVote = clone $actualTheme->getDateEnd();
-        $dateForEnableVote->modify('-6 day');
-        $today = new \DateTime();
-        if ($dateForEnableVote->format('Y-m-d') > $today->format('Y-m-d')) {
+        if (!$user->isVerified()) {
+            return $this->json(['success' => false, 'message' => 'Vous devez confirmer votre adresse email pour pouvoir voter'], Response::HTTP_FORBIDDEN);
+        }
+
+        $actualTheme = $this->em->getRepository(Theme::class)->findActualTheme();
+        if (!$actualTheme) {
+            return $this->json(['success' => false, 'message' => 'Aucun concours en cours'], Response::HTTP_BAD_REQUEST);
+        }
+
+        if (!$this->isVoteOpen($actualTheme)) {
             return $this->json(
                 [
                     'success' => false,
-                    'message' => 'Les votes seront activé le ' . $dateForEnableVote->format('d-m-Y'),
-                ], 200,
+                    'message' => 'Les votes seront activés le ' . $this->getVoteOpeningDate($actualTheme)->format('d-m-Y'),
+                ],
+                200,
             );
         }
 
-        if (!$photo) {
+        $photo = $this->em->getRepository(Photo::class)->find($request->request->getInt('photoId'));
+
+        // On ne vote que pour une photo validée du concours en cours.
+        if (!$photo || !$photo->isVisible() || $photo->getTheme()?->getId() !== $actualTheme->getId()) {
             return $this->json(['success' => false, 'message' => 'Photo introuvable'], 404);
         }
 
         $existingVote = $this->em->getRepository(Vote::class)->findOneBy([
-            'user' => $this->getUser(),
-            'theme' => $photo->getTheme(),
+            'user' => $user,
+            'theme' => $actualTheme,
         ]);
 
         $oldPhotoId = null;
@@ -267,9 +248,6 @@ final class MainController extends AbstractController
                 ->setDate(new \DateTime())
             ;
         } else {
-            /** @var User|null $user */
-            $user = $this->getUser();
-
             $existingVote = new Vote()
                 ->setPhoto($photo)
                 ->setTheme($photo->getTheme())
@@ -291,6 +269,18 @@ final class MainController extends AbstractController
             'oldPhotoId' => $oldPhotoId,
             'oldVoteCount' => $oldPhotoId ? $voteRepo->count(['photo' => $oldPhotoId]) : null,
         ]);
+    }
+
+    private function getVoteOpeningDate(Theme $theme): \DateTime
+    {
+        $date = clone $theme->getDateEnd();
+
+        return $date->modify('-6 day');
+    }
+
+    private function isVoteOpen(Theme $theme): bool
+    {
+        return $this->getVoteOpeningDate($theme)->format('Y-m-d') <= new \DateTime()->format('Y-m-d');
     }
 
     #[Route('/cgu', name: 'app_cgu')]

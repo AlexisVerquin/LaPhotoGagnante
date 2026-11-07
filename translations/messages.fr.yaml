@@ -3,6 +3,9 @@ alert:
     aggree-terms-not-checked: Vous devez accepeter les termes
     modification:
         success: les modifications ont été effectuées avec succès
+    password:
+        invalid_current: Le mot de passe actuel est incorrect
+        mismatch: Les deux nouveaux mots de passe ne correspondent pas
 
 form:
     label:

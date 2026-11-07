@@ -1,3 +1,6 @@
 framework:
     mailer:
         dsn: '%env(MAILER_DSN)%'
+        # L'expéditeur de tous les emails du site, sauf si un email en précise un autre.
+        headers:
+            From: '%env(MAILER_FROM)%'

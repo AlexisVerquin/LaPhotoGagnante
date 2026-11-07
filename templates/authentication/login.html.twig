@@ -26,6 +26,10 @@
                         </div>
                     {% endif %}
 
+                    {% if not app.user %}
+                        {% include 'partials/_social_login.html.twig' %}
+                    {% endif %}
+
                     <form method="post" aria-labelledby="login-title">
                         <div class="mb-3 text-start">
                             <label for="username" class="form-label fw-bold small">Adresse email</label>

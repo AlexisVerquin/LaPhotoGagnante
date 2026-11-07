@@ -13,11 +13,15 @@
 
                     <div class="mb-3">
                         {{ form_label(form.email) }}
-                        {{ form_widget(form.email, {'value': (app.user) ? app.user.email : "" }) }}
+                        {{ form_widget(form.email) }}
                     </div>
 
                     {{ form_row(form.message) }}
-                    {{ form_widget(form.userId, {'value': (app.user) ? app.user.id : "" }) }}
+
+                    {# Le pot de miel anti-spam, caché aux humains comme aux lecteurs d'écran #}
+                    <div class="position-absolute" style="left: -10000px;" aria-hidden="true">
+                        {{ form_row(form.website) }}
+                    </div>
                     <button class="btn btn-fun btn-lg mt-3 w-25">Envoyer</button>
                 {{ form_end(form) }}
 

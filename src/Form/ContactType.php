@@ -10,6 +10,9 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * @extends AbstractType<\App\Entity\Contact>
+ */
 class ContactType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -18,14 +21,19 @@ class ContactType extends AbstractType
             ->add('message', TextareaType::class, [
                 'label' => 'Message',
             ])
-            ->add('userId', TextType::class, [
-                'required' => false,
-                'attr' => [
-                    'hidden' => true,
-                ],
-            ])
             ->add('email', EmailType::class, [
                 'label' => 'Email',
+            ])
+            // Pot de miel : un humain ne voit pas ce champ, mais les robots le remplissent,
+            // surtout avec un nom aussi banal.
+            ->add('website', TextType::class, [
+                'mapped' => false,
+                'required' => false,
+                'label' => 'Ne pas remplir ce champ',
+                'attr' => [
+                    'autocomplete' => 'off',
+                    'tabindex' => '-1',
+                ],
             ])
         ;
     }

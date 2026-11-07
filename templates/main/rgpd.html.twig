@@ -1,9 +1,9 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}PhotoPrix - Politique de confidentialité{% endblock %}
+{% block title %}Politique de confidentialité{% endblock %}
 
 {% set url = "[www.site.com](http://www.site.com)" %}
-{% set name = "PhotoPrix" %}
+{% set name = "LaPhotoGagnante" %}
 
 {% block body %}
 <div class="container py-5">
@@ -209,6 +209,11 @@
                                 <td>Photo de profil facultative</td>
                             </tr>
                             <tr>
+                                <td>Identifiant de compte Google ou Facebook</td>
+                                <td>Non, seulement si vous utilisez « Continuer avec Google / Facebook »</td>
+                                <td>Vous reconnaître lors de vos prochaines connexions</td>
+                            </tr>
+                            <tr>
                                 <td>Photos publiées</td>
                                 <td>Oui, si participation</td>
                                 <td>Participation aux concours photo</td>
@@ -216,6 +221,24 @@
                             </tbody>
                         </table>
                     </div>
+
+                    <p class="text-muted" id="connexion-google-facebook">
+                        <span class="fw-bold" style="color: var(--ink);">Connexion avec Google ou Facebook.</span>
+                        Si vous choisissez cette option, Google ou Facebook nous transmet uniquement
+                        votre adresse email (déjà vérifiée par eux), votre prénom ou nom (utilisé pour
+                        proposer votre nom d'utilisateur, modifiable ensuite) et un identifiant technique
+                        de votre compte. Nous n'avons accès ni à votre mot de passe, ni à vos contacts,
+                        ni à vos publications, et nous ne publions rien en votre nom.
+                    </p>
+
+                    <p class="text-muted" id="suppression-donnees">
+                        <span class="fw-bold" style="color: var(--ink);">Supprimer vos données.</span>
+                        Vous pouvez supprimer votre compte à tout moment depuis votre profil
+                        (« Supprimer mon compte ») : vos données personnelles sont alors effacées et le lien
+                        avec Google ou Facebook est retiré. Vous pouvez aussi en faire la demande via le
+                        formulaire de contact. Pour révoquer l'accès côté fournisseur : paramètres de
+                        sécurité de votre compte Google, ou « Applications et sites web » sur Facebook.
+                    </p>
 
                     <p class="text-muted mb-0">
                         Nous ne collectons

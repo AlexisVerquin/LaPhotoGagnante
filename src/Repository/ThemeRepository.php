@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Theme;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -23,7 +24,9 @@ class ThemeRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('t')
             ->andWhere('t.dateStart <= :now')
             ->andWhere('t.dateEnd >= :now')
-            ->setParameter('now', $now)
+            // Les dates sont de type DATE : comparées à un DATETIME,
+            // le dernier jour du concours passerait à la trappe.
+            ->setParameter('now', $now, Types::DATE_MUTABLE)
             ->orderBy('t.dateStart', 'DESC')
             ->setMaxResults(1)
             ->getQuery()
@@ -37,7 +40,7 @@ class ThemeRepository extends ServiceEntityRepository
 
         return $this->createQueryBuilder('t')
             ->andWhere('t.dateEnd < :now')
-            ->setParameter('now', $now)
+            ->setParameter('now', $now, Types::DATE_MUTABLE)
             ->orderBy('t.dateEnd', 'DESC')
             ->setMaxResults(1)
             ->getQuery()

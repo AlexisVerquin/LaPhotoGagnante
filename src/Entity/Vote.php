@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\VoteRepository;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: VoteRepository::class)]
@@ -35,9 +34,6 @@ class Vote
         return $this->id;
     }
 
-    /**
-     * @return Collection<int, User>
-     */
     public function getUser(): User
     {
         return $this->user;
@@ -46,13 +42,6 @@ class Vote
     public function setUser(User $user): static
     {
         $this->user = $user;
-
-        return $this;
-    }
-
-    public function removeUser(User $user): static
-    {
-        $this->user->removeElement($user);
 
         return $this;
     }

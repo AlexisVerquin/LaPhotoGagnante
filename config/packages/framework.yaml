@@ -9,6 +9,13 @@ framework:
     # Only allow PUT, PATCH, and DELETE to be overridden
     allowed_http_method_override: ['DELETE']
 
+    rate_limiter:
+        # Pas plus de 3 messages de contact par heure depuis une même adresse IP.
+        contact_form:
+            policy: sliding_window
+            limit: 3
+            interval: '1 hour'
+
     #esi: true
     #fragments: true
 

@@ -1,6 +1,25 @@
 // assets/controllers/alert_controller.js
 import { Controller } from '@hotwired/stimulus';
 
+// Les seuls types qui ont un style dans app.css : les autres s'afficheraient sans fond.
+const STYLED_TYPES = ['success', 'danger', 'warning', 'info'];
+
+/**
+ * Trouve un style pour n'importe quel type de message : les erreurs en rouge,
+ * les inconnus en « info ».
+ */
+export function normalizeAlertType(type) {
+    const value = String(type ?? '').toLowerCase().replace(/^alert-/, '');
+
+    if (STYLED_TYPES.includes(value)) {
+        return value;
+    }
+    if (value === 'error' || value.endsWith('_error') || value.endsWith('-error')) {
+        return 'danger';
+    }
+
+    return 'info';
+}
 
 export default class extends Controller {
     static targets = ['container'];
@@ -35,6 +54,8 @@ export default class extends Controller {
 
     show(type, message) {
         if (!message) return;
+
+        type = normalizeAlertType(type);
 
         const wrapper = document.createElement('div');
         wrapper.innerHTML = `

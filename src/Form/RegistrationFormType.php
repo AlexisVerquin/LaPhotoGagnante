@@ -15,14 +15,12 @@ use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotCompromisedPassword;
 use Symfony\Component\Validator\Constraints\PasswordStrength;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
+/**
+ * @extends AbstractType<\App\Entity\User>
+ */
 class RegistrationFormType extends AbstractType
 {
-    public function __construct(private TranslatorInterface $translator)
-    {
-    }
-
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder

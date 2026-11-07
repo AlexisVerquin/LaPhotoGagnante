@@ -1,0 +1,18 @@
+version: 2
+updates:
+  # Une PR par semaine qui regroupe les mises à jour mineures des paquets PHP.
+  - package-ecosystem: composer
+    directory: /
+    schedule:
+      interval: weekly
+    target-branch: dev
+    groups:
+      composer:
+        update-types: [minor, patch]
+
+  # Et une fois par mois, celles des actions GitHub de la CI.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    target-branch: dev
