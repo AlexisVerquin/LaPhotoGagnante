@@ -1,12 +1,12 @@
 // assets/controllers/alert_controller.js
 import { Controller } from '@hotwired/stimulus';
 
-// Styles d'alerte définis dans app.css : tout autre type serait affiché sans fond
+// Les seuls types qui ont un style dans app.css : les autres s'afficheraient sans fond.
 const STYLED_TYPES = ['success', 'danger', 'warning', 'info'];
 
 /**
- * Ramène n'importe quel type de message flash à un style existant :
- * 'alert-success' -> 'success', 'error' / 'reset_password_error' -> 'danger', inconnu -> 'info'.
+ * Trouve un style pour n'importe quel type de message : les erreurs en rouge,
+ * les inconnus en « info ».
  */
 export function normalizeAlertType(type) {
     const value = String(type ?? '').toLowerCase().replace(/^alert-/, '');

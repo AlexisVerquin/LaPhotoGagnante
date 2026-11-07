@@ -29,7 +29,7 @@ class PhotoController extends AbstractController
         }
 
         try {
-            // Déplace le fichier de la zone privée vers public/
+            // La photo validée sort de la zone privée et devient visible de tous.
             $photoStorage->publish($photo);
         } catch (\RuntimeException $e) {
             $this->addFlash('danger', $e->getMessage());

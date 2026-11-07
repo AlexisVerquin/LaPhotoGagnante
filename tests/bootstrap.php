@@ -10,9 +10,8 @@ if ($_SERVER['APP_DEBUG']) {
     umask(0o000);
 }
 
-// Base de test reconstruite à chaque lancement via les migrations
-// (vérifie au passage que les migrations s'appliquent sur une base vide).
-// SKIP_DB_RESET=1 pour lancer plus vite des tests qui n'utilisent pas la base.
+// On reconstruit la base de test avec les migrations, ce qui vérifie au passage qu'elles marchent.
+// SKIP_DB_RESET=1 saute cette étape pour les tests qui n'ont pas besoin de base.
 if ('test' === $_SERVER['APP_ENV'] && !($_SERVER['SKIP_DB_RESET'] ?? false)) {
     $console = sprintf('php %s/bin/console --env=test -q ', escapeshellarg(dirname(__DIR__)));
     foreach ([

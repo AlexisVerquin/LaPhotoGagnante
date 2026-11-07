@@ -11,8 +11,8 @@ use League\OAuth2\Client\Token\AccessToken;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
- * Remplace le client Google / Facebook dans les tests : renvoie directement le profil voulu,
- * sans appel réseau ni vérification du « state ».
+ * Un faux Google / Facebook pour les tests : il renvoie le profil qu'on veut,
+ * sans réseau et sans vérifier le « state ».
  */
 final class FakeOAuthClient implements OAuth2ClientInterface
 {

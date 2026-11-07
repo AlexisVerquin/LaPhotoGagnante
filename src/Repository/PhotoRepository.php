@@ -17,7 +17,7 @@ class PhotoRepository extends ServiceEntityRepository
     }
 
     /**
-     * Photo la plus votée aujourd'hui, avec son nombre de votes du jour.
+     * La photo qui a reçu le plus de votes aujourd'hui, avec son score du jour.
      *
      * @return list<array{0: Photo, nbVotes: int}>
      */

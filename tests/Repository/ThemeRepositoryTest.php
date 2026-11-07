@@ -18,7 +18,7 @@ final class ThemeRepositoryTest extends FunctionalTestCase
 
     public function testContestIsStillInProgressOnItsLastDay(): void
     {
-        // Régression : la colonne DATE était comparée à un DATETIME, le dernier jour était perdu
+        // Ce cas a déjà cassé : le dernier jour du concours n'était plus considéré comme en cours.
         $theme = $this->createTheme('-29 days', 'today');
 
         self::assertSame($theme->getId(), $this->repository()->findActualTheme()?->getId());
@@ -46,7 +46,7 @@ final class ThemeRepositoryTest extends FunctionalTestCase
     {
         $sql = new SchemaTool($this->em)->getUpdateSchemaSql($this->em->getMetadataFactory()->getAllMetadata());
 
-        // Tables techniques non gérées par les entités (Messenger, historique des migrations)
+        // Ces deux tables techniques n'ont pas d'entité, c'est normal.
         $sql = array_values(array_filter(
             $sql,
             static fn (string $query): bool => !str_contains($query, 'messenger_messages') && !str_contains($query, 'doctrine_migration_versions'),

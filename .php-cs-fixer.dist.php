@@ -1,8 +1,7 @@
 <?php
 
-// Configuration php-cs-fixer UNIQUE du projet (utilisée en local et par la CI).
-// Ne pas créer de .php-cs-fixer.php local : il serait prioritaire sur ce fichier
-// et le style vérifié en local ne serait plus celui vérifié par la CI.
+// La seule config de style du projet, la même en local et sur la CI.
+// Pas de .php-cs-fixer.php local : il passerait devant celle-ci sans prévenir.
 
 $finder = new PhpCsFixer\Finder()
     ->in(__DIR__)
@@ -21,16 +20,15 @@ $finder = new PhpCsFixer\Finder()
 return new PhpCsFixer\Config()
     ->setRules([
         '@Symfony' => true,
-        // Syntaxe PHP 8.4 : new Foo()->bar() sans parenthèses autour du new (convention du projet)
+        // On écrit new Foo()->bar(), sans parenthèses autour du new (PHP 8.4).
         '@PHP84Migration' => true,
 
-        // Imports
         'ordered_imports' => [
             'sort_algorithm' => 'alpha',
             'imports_order' => ['class', 'function', 'const'],
         ],
 
-        // Un espace autour du « . » de concaténation : $a . '/' . $b
+        // Un espace autour du point : $a . '/' . $b
         'concat_space' => [
             'spacing' => 'one',
         ],

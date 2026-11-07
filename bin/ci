@@ -1,16 +1,13 @@
 #!/usr/bin/env bash
 #
-# Rejoue en local les vérifications de la CI GitHub (bin/ci-checks).
+# Rejoue en local les vérifications de la CI GitHub, avant de pousser.
 #
-#   bin/ci                     Rapide : vos fichiers en cours (y compris non commités),
-#                              dans le conteneur de dev (docker compose up -d requis).
-#   bin/ci --clean             Comme GitHub : clone propre du dernier COMMIT (fins de ligne LF,
-#                              sans .env ni vendor/ ni cache), base MySQL 8.4 jetable, PHP 8.5.
-#   bin/ci --clean --php all   Idem sur PHP 8.4 puis 8.5 (la matrice de la CI).
-#   bin/ci --clean --docker    Ajoute la construction de l'image de production.
+#   bin/ci                     vos fichiers en cours, dans le conteneur de dev
+#   bin/ci --clean             comme GitHub : clone propre du dernier commit, base MySQL jetable
+#   bin/ci --clean --php all   pareil en PHP 8.4 puis 8.5
+#   bin/ci --clean --docker    construit aussi l'image de production
 #
-# Options : --quality (sans les tests)  --tests (seulement les tests)
-#           --php 8.4|8.5|all           --docker
+# Autres options : --quality (sans les tests), --tests (seulement les tests).
 #
 set -Eeuo pipefail
 
@@ -36,7 +33,7 @@ while [[ $# -gt 0 ]]; do
                 *) echo "--php attend 8.4, 8.5 ou all" >&2; exit 2 ;;
             esac
             ;;
-        -h|--help) sed -n '2,15p' "$0"; exit 0 ;;
+        -h|--help) sed -n '3,10p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
         *) echo "Option inconnue : $1 (bin/ci --help)" >&2; exit 2 ;;
     esac
     shift
@@ -45,7 +42,7 @@ done
 title() { printf '\n\033[1;35m==== %s ====\033[0m\n' "$*"; }
 
 # ---------------------------------------------------------------------------------------------
-# Mode rapide : arbre de travail courant, conteneur de dev
+# Mode rapide : vos fichiers tels quels, dans le conteneur de dev
 # ---------------------------------------------------------------------------------------------
 if [[ "$MODE" == quick ]]; then
     if ! docker compose ps --status running --services 2>/dev/null | grep -qx php; then
@@ -65,14 +62,14 @@ if [[ "$MODE" == quick ]]; then
 fi
 
 # ---------------------------------------------------------------------------------------------
-# Mode clean : reproduit l'environnement GitHub Actions
+# Mode --clean : on se met dans les conditions de GitHub
 # ---------------------------------------------------------------------------------------------
 SHA="$(git rev-parse --short HEAD)"
 if [[ -n "$(git status --porcelain)" ]]; then
     printf '\033[33mAttention : des modifications non commitées existent ; --clean teste le commit %s, sans elles.\033[0m\n' "$SHA"
 fi
 
-# Clone réutilisé d'un lancement à l'autre (var/ est ignoré par git) ; vendor/ conservé pour aller plus vite
+# On réutilise le clone d'une fois sur l'autre, en gardant vendor/ pour aller plus vite.
 CLONE="$ROOT/var/ci/clone"
 if [[ ! -d "$CLONE/.git" ]]; then
     mkdir -p "$ROOT/var/ci"

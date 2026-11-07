@@ -1,11 +1,7 @@
 #!/usr/bin/env bash
 #
-# Déploiement de PhotoPrix sur le serveur de production.
-# Lancé par le runner GitHub Actions auto-hébergé (workflow .github/workflows/deploy.yml),
-# depuis le dossier du dépôt. Peut aussi être lancé à la main sur le serveur : ./deploy/deploy.sh
-#
-# Étapes : sauvegarde de la base -> construction de l'image -> migrations -> redémarrage
-#          -> vérification que le site répond -> retour à l'image précédente en cas d'échec.
+# Met en ligne la nouvelle version, lancé par le runner GitHub ou à la main sur le serveur.
+# Sauvegarde, construction, migrations, redémarrage, puis retour à l'ancienne version si le site ne répond plus.
 #
 set -Eeuo pipefail
 
@@ -25,7 +21,7 @@ grep -Eq '^[^#].*change-me' "$ENV_FILE" && fail "$ENV_FILE contient encore des v
 export PHOTOPRIX_ENV_FILE="$ENV_FILE"
 compose() { docker compose -f compose.prod.yaml --env-file "$ENV_FILE" "$@"; }
 
-# Nom de domaine public, pour le contrôle final (SYMFONY_TRUSTED_HOSTS refuse les autres)
+# Le contrôle final doit se présenter avec le vrai domaine, sinon Symfony le refuse.
 APP_HOST="$(sed -nE 's#^DEFAULT_URI="?https?://([^/"]+).*#\1#p' "$ENV_FILE" | head -n1)"
 APP_HOST="${APP_HOST:-localhost}"
 
@@ -37,7 +33,7 @@ if compose ps --status running --services 2>/dev/null | grep -qx database; then
     compose exec -T database sh -c 'exec mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" --single-transaction --routines "$MYSQL_DATABASE"' \
         | gzip > "$backup"
     echo "Sauvegarde : $backup"
-    # Ne garde que les N dernières sauvegardes
+    # On ne garde que les dernières sauvegardes.
     ls -1t "$BACKUP_DIR"/photoprix-*.sql.gz | tail -n +"$((BACKUPS_TO_KEEP + 1))" | xargs -r rm --
 fi
 
@@ -69,7 +65,7 @@ compose run --rm --no-deps php php bin/console doctrine:migrations:migrate --no-
 log "Redémarrage de l'application"
 compose up -d --no-build --remove-orphans
 
-# Idempotent : met hors du dossier web les photos non validées qui y seraient encore
+# Au cas où une photo en attente traînerait encore dans le dossier public.
 compose exec -T php php bin/console app:photos:secure-pending --no-interaction >/dev/null
 
 # --- 5. Vérification ------------------------------------------------------------------------------

@@ -15,8 +15,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * À lancer une fois au déploiement : déplace hors du dossier web les photos non validées
- * envoyées avant la mise en place de la zone privée. Sans risque à relancer.
+ * À lancer une fois au déploiement, pour sortir du dossier public les photos en attente envoyées avant la zone privée.
+ * On peut la relancer sans crainte.
  */
 #[AsCommand(
     name: 'app:photos:secure-pending',

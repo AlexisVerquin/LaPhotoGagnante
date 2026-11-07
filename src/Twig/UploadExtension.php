@@ -37,7 +37,7 @@ class UploadExtension
         }
         $avatar = $user?->getAvatar();
         if (!$avatar) {
-            // Versionné dans public/images (public/uploads n'est pas dans git ni dans l'image Docker)
+            // L'avatar par défaut vit dans public/images, car public/uploads n'est ni dans git ni dans l'image Docker.
             return 'images/default-avatar.jpg';
         }
 
@@ -69,7 +69,7 @@ class UploadExtension
         }
 
         return [
-            // Photo validée : fichier public ; en attente : servie par le contrôleur (auteur/admin uniquement)
+            // Validée, la photo est publique ; en attente, elle passe par le contrôleur qui vérifie les droits.
             'imageUrl' => $hasPhoto->isVisible()
                 ? $this->packages->getUrl(self::UPLOADS_DIR['themes'] . '/' . $actualTheme->getDirectoryName() . '/' . $hasPhoto->getName())
                 : $this->urlGenerator->generate('app_photo_image', ['id' => $hasPhoto->getId()]),

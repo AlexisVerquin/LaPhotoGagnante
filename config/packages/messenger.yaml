@@ -29,6 +29,6 @@ when@test:
     framework:
         messenger:
             transports:
-                # Aucun envoi réel en test : les emails restent en mémoire
+                # En test, les emails ne partent nulle part, ils restent en mémoire.
                 async: 'in-memory://'
                 failed: 'in-memory://'

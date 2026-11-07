@@ -172,7 +172,7 @@ class DashboardController extends AbstractController
 
             $this->addFlash('success', 'Réponse envoyée');
 
-            // Post/Redirect/Get : évite un double envoi si l'admin rafraîchit la page
+            // On redirige pour qu'un F5 de l'admin ne renvoie pas le mail une deuxième fois.
             return $this->redirectToRoute('admin_contact_reply', ['id' => $contact->getId()]);
         }
 

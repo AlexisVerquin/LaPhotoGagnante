@@ -36,7 +36,7 @@ final class LoginThrottlingTest extends FunctionalTestCase
             self::assertSelectorExists('#login-error');
         }
 
-        // 4e tentative, même avec le BON mot de passe : refusée
+        // Même avec le bon mot de passe, la 4e tentative est refusée.
         $this->login('membre@example.com', self::PASSWORD);
         self::assertResponseRedirects('/login');
         $this->client->followRedirect();

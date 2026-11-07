@@ -79,8 +79,8 @@ final class UserManageController extends AbstractController
         }
 
         if ($form->isSubmitted()) {
-            // Le formulaire invalide a modifié l'utilisateur connecté en mémoire (email, nom...) :
-            // on recharge les valeurs de la base pour ne pas corrompre la session.
+            // Le formulaire a déjà modifié l'utilisateur en mémoire : on recharge la base
+            // pour ne pas garder en session des valeurs qui ont été refusées.
             $em->refresh($user);
         }
 
@@ -138,7 +138,7 @@ final class UserManageController extends AbstractController
             return $this->json(['error' => 'Erreur lors de l\'enregistrement du fichier'], 500);
         }
 
-        // Supprime les métadonnées EXIF (position GPS, appareil, date…)
+        // Pas de position GPS ni d'infos d'appareil dans les avatars non plus.
         try {
             $imageSanitizer->sanitize($movedFile->getPathname());
         } catch (\RuntimeException $e) {
@@ -153,7 +153,7 @@ final class UserManageController extends AbstractController
             return $this->json(['error' => 'Vous devez être connecté'], Response::HTTP_UNAUTHORIZED);
         }
 
-        // Supprime l'ancien avatar pour ne pas accumuler de fichiers orphelins
+        // On jette l'ancien avatar, inutile de le garder sur le disque.
         $oldAvatar = $user->getAvatar();
         if ($oldAvatar) {
             new Filesystem()->remove($avatarFileDirectory . '/' . basename($oldAvatar));
@@ -200,16 +200,16 @@ final class UserManageController extends AbstractController
                     ->setCity(null)
                     ->setBio(null)
                     ->setIsActive(false)
-                    // Délie Google / Facebook : une nouvelle connexion créera un nouveau compte
+                    // S'il revient par Google ou Facebook, il repartira sur un compte neuf.
                     ->setGoogleId(null)
                     ->setFacebookId(null)
-                    // Mot de passe inutilisable : plus aucune connexion possible sur ce compte
+                    // Plus personne ne pourra se connecter à ce compte.
                     ->setPassword(bin2hex(random_bytes(32)))
                 ;
 
                 $em->flush();
 
-                // Déconnexion immédiate (sans re-vérifier le CSRF de logout)
+                // On le déconnecte tout de suite, sans repasser par la confirmation de déconnexion.
                 $security->logout(false);
 
                 $this->addFlash('success', "Votre compte a bien été supprimer, merci pour votre participation. \n a bientôt");

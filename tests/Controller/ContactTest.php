@@ -33,7 +33,7 @@ final class ContactTest extends FunctionalTestCase
     {
         $this->send(website: 'https://spam.example');
 
-        // Le robot croit avoir réussi, mais rien n'est enregistré
+        // Le robot croit que c'est passé, mais on n'a rien gardé.
         self::assertResponseRedirects('/contact');
         self::assertSame(0, $this->em->getRepository(Contact::class)->count());
     }

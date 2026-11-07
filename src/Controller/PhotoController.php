@@ -82,7 +82,7 @@ final class PhotoController extends AbstractController
         $newFilename = sprintf('%s-%s.%s', $safeFilename, uniqid(), $file->guessExtension());
 
         try {
-            // Zone privée tant que l'admin n'a pas validé la photo
+            // La photo reste hors de portée du public tant qu'un admin ne l'a pas validée.
             $movedFile = $photoStorage->storePending($file, $infoTheme, $newFilename);
         } catch (FileException $e) {
             $logger->error($e->getMessage());
@@ -90,7 +90,7 @@ final class PhotoController extends AbstractController
             return $this->json(['error' => 'Erreur lors de l\'enregistrement du fichier'], 500);
         }
 
-        // Supprime les métadonnées EXIF (position GPS, appareil, date…) avant toute publication
+        // On efface les EXIF (dont la position GPS) avant que quiconque puisse voir la photo.
         try {
             $imageSanitizer->sanitize($movedFile->getPathname());
         } catch (\RuntimeException $e) {
@@ -115,8 +115,8 @@ final class PhotoController extends AbstractController
     }
 
     /**
-     * Sert l'image d'une photo. Une photo en attente de validation n'est visible
-     * que par son auteur et les administrateurs (404 pour les autres, pour ne rien révéler).
+     * Sert l'image d'une photo. Tant qu'elle n'est pas validée, seuls son auteur et les admins la voient :
+     * les autres reçoivent une 404, pour ne même pas savoir qu'elle existe.
      */
     #[Route('/photo/{id}/image', name: 'app_photo_image', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function image(Photo $photo, PhotoStorage $photoStorage): Response

@@ -15,9 +15,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Finder\Finder;
 
 /**
- * Supprime les métadonnées EXIF des images déjà présentes dans public/uploads
- * (photos envoyées avant la mise en place du nettoyage automatique).
- * Sans risque à relancer : une image déjà nettoyée est simplement ré-encodée.
+ * Nettoie les EXIF des images envoyées avant qu'on les supprime automatiquement à l'upload.
+ * On peut la relancer sans risque : une image déjà propre est juste ré-encodée.
  */
 #[AsCommand(
     name: 'app:photos:strip-exif',

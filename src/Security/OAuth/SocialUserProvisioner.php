@@ -12,14 +12,8 @@ use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationExc
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 /**
- * Retrouve ou crée le membre correspondant à un compte Google / Facebook.
- *
- * Ordre de recherche :
- *  1. compte déjà lié à cet identifiant Google / Facebook ;
- *  2. compte existant avec la même adresse email (les deux fournisseurs ne transmettent
- *     que des emails vérifiés) : il est lié automatiquement ;
- *  3. sinon création d'un compte, email considéré comme vérifié, mot de passe inutilisable
- *     (le membre peut en définir un via « Mot de passe oublié »).
+ * Retrouve ou crée le membre qui arrive par Google ou Facebook.
+ * On le cherche par son identifiant chez le fournisseur, sinon par son email, que le fournisseur a déjà vérifié.
  */
 final class SocialUserProvisioner
 {
@@ -47,7 +41,7 @@ final class SocialUserProvisioner
 
         $field = $provider . 'Id';
 
-        // 1. Déjà lié
+        // Déjà venu par ce fournisseur
         $user = $this->userRepository->findOneBy([$field => $providerId]);
         if ($user) {
             $this->assertActive($user);
@@ -60,24 +54,23 @@ final class SocialUserProvisioner
             throw new CustomUserMessageAuthenticationException(sprintf('Votre compte %s ne nous a pas transmis d\'adresse email. Autorisez le partage de l\'email, ou inscrivez-vous avec le formulaire.', ucfirst($provider)));
         }
 
-        // 2. Même email : on lie le compte existant
+        // Un compte existe avec cet email : c'est la même personne, on relie les deux.
         $user = $this->userRepository->findOneBy(['email' => $email]);
         if ($user) {
             $this->assertActive($user);
         } else {
-            // 3. Nouveau membre
+            // Nouveau venu
             $user = new User()
                 ->setEmail($email)
                 ->setName($this->uniqueName($displayName, $email))
                 ->setRoles([])
                 ->setIsActive(true);
-            // Mot de passe aléatoire jamais communiqué : connexion uniquement via le fournisseur
-            // (ou après « Mot de passe oublié »)
+            // Un mot de passe que personne ne connaît : il pourra s'en choisir un avec « Mot de passe oublié ».
             $user->setPassword($this->passwordHasher->hashPassword($user, bin2hex(random_bytes(32))));
             $this->entityManager->persist($user);
         }
 
-        // L'email est vérifié par le fournisseur
+        // Google ou Facebook a déjà vérifié l'email.
         $user->setIsVerified(true);
         'google' === $provider ? $user->setGoogleId($providerId) : $user->setFacebookId($providerId);
 
@@ -94,7 +87,7 @@ final class SocialUserProvisioner
     }
 
     /**
-     * Nom d'utilisateur unique (contrainte UniqueEntity sur User::$name) tiré du profil, sinon de l'email.
+     * Un pseudo libre, tiré du prénom ou à défaut de l'email (« Alice 2 » si « Alice » est déjà pris).
      */
     private function uniqueName(?string $displayName, string $email): string
     {

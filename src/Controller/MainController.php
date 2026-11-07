@@ -137,7 +137,7 @@ final class MainController extends AbstractController
             return $this->json(['error' => "Ce choix de vote n'existe pas"], Response::HTTP_NOT_FOUND); // 404
         }
 
-        // On ne peut voter que pour un choix du sondage actuellement ouvert
+        // Pas de vote sur un sondage fermé ou pas encore ouvert.
         $activeSurvey = $this->em->getRepository(Survey::class)->findActiveSurvey();
         if (!$activeSurvey || $surveyChoice->getSurvey()?->getId() !== $activeSurvey->getId()) {
             return $this->json(['error' => "Ce sondage n'est pas ouvert aux votes"], Response::HTTP_FORBIDDEN); // 403
@@ -146,7 +146,7 @@ final class MainController extends AbstractController
         $user->setLastVoteDate($today);
         $this->em->flush();
 
-        // Incrément atomique en base : évite de perdre des votes si deux requêtes arrivent en même temps
+        // On incrémente directement en base pour ne perdre aucun vote si deux personnes cliquent en même temps.
         $this->em->createQueryBuilder()
             ->update(SurveyChoice::class, 'sc')
             ->set('sc.numberVoter', 'sc.numberVoter + 1')
@@ -222,7 +222,7 @@ final class MainController extends AbstractController
 
         $photo = $this->em->getRepository(Photo::class)->find($request->request->getInt('photoId'));
 
-        // La photo doit exister, être validée par un admin et appartenir au concours en cours
+        // On ne vote que pour une photo validée du concours en cours.
         if (!$photo || !$photo->isVisible() || $photo->getTheme()?->getId() !== $actualTheme->getId()) {
             return $this->json(['success' => false, 'message' => 'Photo introuvable'], 404);
         }

@@ -24,8 +24,8 @@ class ThemeRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('t')
             ->andWhere('t.dateStart <= :now')
             ->andWhere('t.dateEnd >= :now')
-            // dateStart/dateEnd sont des colonnes DATE : on compare avec une DATE,
-            // sinon MySQL compare '2026-11-30' à '2026-11-30 14:00:00' et le dernier jour du concours est perdu.
+            // Les dates sont de type DATE : comparées à un DATETIME,
+            // le dernier jour du concours passerait à la trappe.
             ->setParameter('now', $now, Types::DATE_MUTABLE)
             ->orderBy('t.dateStart', 'DESC')
             ->setMaxResults(1)

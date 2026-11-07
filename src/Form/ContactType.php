@@ -24,8 +24,8 @@ class ContactType extends AbstractType
             ->add('email', EmailType::class, [
                 'label' => 'Email',
             ])
-            // Pot de miel anti-spam : champ invisible pour un humain, que les robots remplissent.
-            // Nom volontairement banal pour attirer les robots.
+            // Pot de miel : un humain ne voit pas ce champ, mais les robots le remplissent,
+            // surtout avec un nom aussi banal.
             ->add('website', TextType::class, [
                 'mapped' => false,
                 'required' => false,

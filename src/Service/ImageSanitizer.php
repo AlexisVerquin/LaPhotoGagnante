@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace App\Service;
 
 /**
- * Supprime toutes les métadonnées (EXIF, GPS, IPTC, XMP, profil appareil…) d'une image
- * en la ré-encodant avec GD : seuls les pixels sont conservés.
- *
- * L'orientation EXIF est appliquée aux pixels AVANT suppression, sinon les photos prises
- * au téléphone en mode portrait apparaîtraient tournées.
+ * Ré-encode l'image avec GD pour n'en garder que les pixels : adieu EXIF, GPS et compagnie.
+ * L'orientation est appliquée avant, sinon les photos prises en portrait arriveraient couchées.
  */
 final class ImageSanitizer
 {
@@ -20,13 +17,12 @@ final class ImageSanitizer
     private const PNG_COMPRESSION = 6;
 
     /**
-     * Une photo de 24 Mpx décodée occupe ~100 Mo en mémoire avec GD :
-     * on relève la limite le temps du traitement si elle est plus basse.
+     * Une photo de 24 Mpx prend dans les 100 Mo une fois décodée, d'où cette marge le temps du traitement.
      */
     private const MEMORY_LIMIT = '512M';
 
     /**
-     * Réécrit le fichier en place, sans métadonnées.
+     * Réécrit le fichier sur place, débarrassé de ses métadonnées.
      *
      * @throws \RuntimeException si l'image ne peut pas être lue ou réécrite
      */
@@ -76,7 +72,7 @@ final class ImageSanitizer
         $exif = @exif_read_data($path);
         $orientation = is_array($exif) ? (int) ($exif['Orientation'] ?? 1) : 1;
 
-        // imagerotate tourne dans le sens anti-horaire
+        // Attention, imagerotate tourne dans le sens inverse des aiguilles d'une montre.
         $steps = match ($orientation) {
             2 => [[null, IMG_FLIP_HORIZONTAL]],
             3 => [[180, null]],

@@ -19,17 +19,17 @@ security:
         main:
             lazy: true
             provider: app_user_provider
-            # « Continuer avec Google / Facebook » (App\Security\OAuth)
+            # Les boutons « Continuer avec Google / Facebook ».
             custom_authenticators:
                 - App\Security\OAuth\SocialAuthenticator
-            # Page vers laquelle renvoyer un visiteur non connecté
+            # Un visiteur non connecté est renvoyé vers le formulaire de connexion.
             entry_point: form_login
             form_login:
                 login_path: app_login
                 check_path: app_login
                 enable_csrf: true
-            # 3 tentatives échouées max par couple (email + IP) sur 15 minutes,
-            # puis blocage ; une même IP est limitée à 5 x 3 = 15 tentatives tous emails confondus.
+            # Après 3 mauvais mots de passe, le compte est bloqué 15 minutes pour cette IP.
+            # Une même IP a droit à 15 essais au total, tous comptes confondus.
             login_throttling:
                 max_attempts: 3
                 interval: '15 minutes'

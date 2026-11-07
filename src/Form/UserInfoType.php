@@ -44,7 +44,7 @@ class UserInfoType extends AbstractType
                 'label' => 'form.label.new_password',
                 'mapped' => false,
                 'required' => false,
-                // Mêmes règles qu'à l'inscription (ignorées si le champ est vide)
+                // Mêmes exigences qu'à l'inscription, vérifiées seulement si le champ est rempli.
                 'constraints' => [
                     new Length(min: 8, max: 4096),
                     new PasswordStrength(),

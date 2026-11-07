@@ -24,8 +24,8 @@ class ThemeType extends AbstractType
                 'class' => SurveyChoice::class,
                 'choice_label' => 'name',
             ])
-            // Les valeurs par défaut (mois en cours) sont posées dans le contrôleur pour un nouveau thème :
-            // l'option 'data' écraserait les dates à chaque édition.
+            // Les dates par défaut sont posées dans le contrôleur : l'option 'data'
+            // écraserait celles d'un thème qu'on modifie.
             ->add('dateStart', DateType::class, [
                 'label' => 'Date de début :',
             ])

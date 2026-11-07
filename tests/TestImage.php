@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Tests;
 
 /**
- * Génère des images de test, dont des JPEG avec un bloc EXIF (appareil, orientation, GPS).
+ * Fabrique des images de test, dont des JPEG avec de vraies données EXIF (appareil, orientation, GPS).
  */
 final class TestImage
 {
     /**
-     * JPEG paysage (largeur > hauteur) contenant des métadonnées EXIF :
-     * Make = "Spy", Orientation = $orientation, et un pointeur vers un bloc GPS.
+     * Un JPEG en paysage avec des EXIF bien visibles : l'appareil « Spy », l'orientation demandée
+     * et un morceau de GPS.
      */
     public static function jpegWithExif(string $path, int $width = 40, int $height = 20, int $orientation = 6): string
     {
@@ -21,7 +21,7 @@ final class TestImage
         imagejpeg($image);
         $jpeg = (string) ob_get_clean();
 
-        // Insère un segment APP1 "Exif" juste après le marqueur SOI (FF D8)
+        // GD ne sait pas écrire d'EXIF, alors on glisse le bloc à la main juste après le début du JPEG.
         $exif = 'Exif' . "\0\0" . self::tiff($orientation);
         $app1 = "\xFF\xE1" . pack('n', strlen($exif) + 2) . $exif;
         file_put_contents($path, substr($jpeg, 0, 2) . $app1 . substr($jpeg, 2));
@@ -41,7 +41,7 @@ final class TestImage
     }
 
     /**
-     * Mini structure TIFF little-endian : IFD0 (Make, Orientation, GPS IFD pointer) + IFD GPS (GPSLatitudeRef).
+     * Le strict minimum d'un bloc EXIF (format TIFF) : l'appareil, l'orientation et une info GPS.
      */
     private static function tiff(int $orientation): string
     {

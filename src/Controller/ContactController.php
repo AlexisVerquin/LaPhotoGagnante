@@ -25,14 +25,14 @@ final class ContactController extends AbstractController
         $contact = new Contact();
         $user = $this->getUser();
         if ($user instanceof User && $user->getEmail()) {
-            // Pré-remplit l'email du membre connecté (il reste modifiable)
+            // Un membre connecté n'a pas à retaper son email (il peut quand même le changer).
             $contact->setEmail($user->getEmail());
         }
         $form = $this->createForm(ContactType::class, $contact);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            // Pot de miel rempli : c'est un robot. On fait comme si tout allait bien, sans rien enregistrer.
+            // Seul un robot remplit ce champ caché : on lui fait croire que c'est parti, mais on ne garde rien.
             if ('' !== trim((string) $form->get('website')->getData())) {
                 $this->addFlash('success', self::SUCCESS_MESSAGE);
 

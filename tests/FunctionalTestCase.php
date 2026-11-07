@@ -18,7 +18,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 /**
- * Base des tests fonctionnels : base vidée avant chaque test + fabriques d'entités.
+ * Point de départ des tests fonctionnels : une base vide à chaque test et de quoi créer vite des données.
  */
 abstract class FunctionalTestCase extends WebTestCase
 {
@@ -27,7 +27,7 @@ abstract class FunctionalTestCase extends WebTestCase
     protected KernelBrowser $client;
     protected EntityManagerInterface $em;
 
-    /** @var list<string> dossiers d'upload créés pendant le test, supprimés à la fin */
+    /** @var list<string> dossiers d'upload créés par le test, qu'on nettoie à la fin */
     private array $createdDirectories = [];
 
     protected function setUp(): void
@@ -37,7 +37,7 @@ abstract class FunctionalTestCase extends WebTestCase
 
         new ORMPurger($this->em)->purge();
 
-        // Remet à zéro le compteur de tentatives de connexion (stocké dans le cache fichier)
+        // Pour que les tentatives de connexion d'un test ne bloquent pas le suivant.
         static::getContainer()->get('cache.rate_limiter')->clear();
     }
 
@@ -71,7 +71,7 @@ abstract class FunctionalTestCase extends WebTestCase
     }
 
     /**
-     * Par défaut : concours en cours dont les votes sont ouverts (fin dans 3 jours).
+     * Par défaut, un concours en cours qui se termine dans 3 jours, donc ouvert aux votes.
      */
     protected function createTheme(string $start = '-27 days', string $end = '+3 days', string $name = 'Reflets'): Theme
     {
@@ -105,12 +105,12 @@ abstract class FunctionalTestCase extends WebTestCase
         $this->em->persist($photo);
         $this->em->flush();
 
-        // Fichier réel : dans public/ si validée, dans la zone privée sinon
+        // Un vrai fichier, rangé au même endroit que le ferait l'application.
         $storage = static::getContainer()->get(PhotoStorage::class);
         $path = $visible ? $storage->publicPath($photo) : $storage->pendingPath($photo);
         new Filesystem()->dumpFile($path, 'fake-jpeg-' . $photo->getName());
 
-        // created_at est posé par le callback PrePersist : on le force après coup si besoin
+        // created_at est fixé à l'enregistrement, donc on le corrige après si le test veut une autre date.
         if ('now' !== $createdAt) {
             $photo->setCreatedAt(new \DateTimeImmutable($createdAt));
             $this->em->flush();
@@ -135,7 +135,7 @@ abstract class FunctionalTestCase extends WebTestCase
     }
 
     /**
-     * Recharge une entité depuis la base (après une requête HTTP qui l'a modifiée).
+     * Relit l'entité en base, utile quand une requête HTTP vient de la modifier.
      *
      * @template T of object
      *

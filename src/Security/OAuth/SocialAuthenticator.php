@@ -23,7 +23,7 @@ use Symfony\Component\Security\Http\SecurityRequestAttributes;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
 /**
- * Traite le retour de Google / Facebook (route app_oauth_check) et connecte le membre.
+ * Prend le relais quand Google ou Facebook nous renvoie le visiteur, et le connecte.
  */
 final class SocialAuthenticator extends OAuth2Authenticator
 {
@@ -46,13 +46,13 @@ final class SocialAuthenticator extends OAuth2Authenticator
     {
         $provider = (string) $request->attributes->get('provider');
 
-        // Refus de l'utilisateur sur l'écran Google / Facebook
+        // Le visiteur a cliqué sur « Annuler » chez Google ou Facebook.
         if ($request->query->has('error')) {
             throw new CustomUserMessageAuthenticationException('Connexion annulée.');
         }
 
         $client = $this->clientRegistry->getClient($provider);
-        // Vérifie le paramètre « state » (anti-CSRF) puis échange le code contre un jeton
+        // Vérifie le « state » (anti-CSRF), puis échange le code contre un jeton.
         $accessToken = $this->fetchAccessToken($client);
         $owner = $client->fetchUserFromToken($accessToken);
         $providerId = (string) $owner->getId();
@@ -76,9 +76,9 @@ final class SocialAuthenticator extends OAuth2Authenticator
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
-        // Affichée par la page de connexion, comme une erreur de mot de passe
+        // La page de connexion l'affichera comme une erreur de mot de passe.
         $request->getSession()->set(SecurityRequestAttributes::AUTHENTICATION_ERROR, $exception);
-        // Sinon « google:123… » serait pré-rempli dans le champ email de la page de connexion
+        // Sinon on verrait « google:123… » dans le champ email.
         $request->getSession()->remove(SecurityRequestAttributes::LAST_USERNAME);
 
         return new RedirectResponse($this->urlGenerator->generate('app_login'));

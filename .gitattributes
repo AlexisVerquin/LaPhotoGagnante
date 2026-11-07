@@ -1,8 +1,8 @@
-# Fins de ligne Unix (LF) pour tout fichier texte, quel que soit le réglage core.autocrlf du poste :
-# le code tourne sous Linux (conteneurs, CI GitHub, serveur) et php-cs-fixer exige LF.
+# Toujours des fins de ligne Unix, même si git est réglé pour Windows sur le poste :
+# tout tourne sous Linux et php-cs-fixer refuse les CRLF.
 * text=auto eol=lf
 
-# Scripts et fichiers lus sous Linux (serveur, conteneurs) : toujours en fins de ligne Unix
+# Règles plus anciennes, déjà couvertes par la ligne ci-dessus.
 *.sh text eol=lf
 Dockerfile text eol=lf
 *.ini text eol=lf

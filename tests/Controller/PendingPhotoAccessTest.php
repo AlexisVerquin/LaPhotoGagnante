@@ -109,7 +109,7 @@ final class PendingPhotoAccessTest extends FunctionalTestCase
 
     public function testCommandMovesOldPendingPhotosOutOfThePublicFolder(): void
     {
-        // Photo en attente envoyée avant la zone privée : son fichier est encore dans public/
+        // Une vieille photo en attente, envoyée avant la zone privée, encore dans public/.
         $photo = $this->createPhoto($this->createUser(), $this->createTheme(), visible: false);
         new Filesystem()->copy($this->storage()->pendingPath($photo), $this->storage()->publicPath($photo));
         new Filesystem()->remove($this->storage()->pendingPath($photo));

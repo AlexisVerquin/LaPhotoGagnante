@@ -7,7 +7,7 @@ parameters:
         - src/
         - tests/
     ignoreErrors:
-        # Les entités suivent la convention du maker Symfony (propriétés nullables tant que l'objet
-        # n'est pas persisté, colonnes NOT NULL en base) : écart de type volontaire, signalé à tort.
+        # Les entités ont des propriétés nullables pour des colonnes NOT NULL, comme les génère Symfony.
+        # C'est voulu, PHPStan s'en plaint à tort.
         - identifier: doctrine.columnType
         - identifier: doctrine.associationType

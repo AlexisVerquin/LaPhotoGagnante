@@ -81,11 +81,11 @@ class User implements DateInterface, UserInterface, PasswordAuthenticatedUserInt
     #[ORM\Column]
     private ?bool $isActive = true;
 
-    /** Identifiant du compte Google lié (connexion « Continuer avec Google ») */
+    /** Rempli quand le membre se connecte avec Google. */
     #[ORM\Column(length: 255, unique: true, nullable: true)]
     private ?string $googleId = null;
 
-    /** Identifiant du compte Facebook lié (connexion « Continuer avec Facebook ») */
+    /** Rempli quand le membre se connecte avec Facebook. */
     #[ORM\Column(length: 255, unique: true, nullable: true)]
     private ?string $facebookId = null;
 

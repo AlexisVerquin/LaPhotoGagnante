@@ -55,7 +55,7 @@ final class SocialLoginTest extends FunctionalTestCase
         self::assertInstanceOf(User::class, $user);
         self::assertTrue($user->isVerified());
 
-        // Connecté : l'espace membre est accessible
+        // La preuve qu'il est connecté : l'espace membre s'ouvre.
         $this->client->request('GET', '/user/manage');
         self::assertResponseIsSuccessful();
     }

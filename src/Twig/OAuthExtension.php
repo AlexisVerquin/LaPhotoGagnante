@@ -8,7 +8,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Twig\Attribute\AsTwigFunction;
 
 /**
- * Indique quels fournisseurs de connexion sont configurés (identifiant renseigné).
+ * Dit si un bouton de connexion doit s'afficher, selon que son identifiant est renseigné ou non.
  */
 final class OAuthExtension
 {

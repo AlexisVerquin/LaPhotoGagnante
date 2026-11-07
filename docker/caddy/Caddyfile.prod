@@ -2,7 +2,7 @@
 	frankenphp
 }
 
-# HTTP simple sur le réseau Docker : le HTTPS est assuré par Cloudflare (tunnel)
+# Du HTTP tout simple : c'est Cloudflare qui s'occupe du HTTPS.
 {$SERVER_NAME::8080} {
 	root * /app/public
 	encode zstd br gzip
@@ -15,7 +15,7 @@
 		Permissions-Policy "camera=(), microphone=(), geolocation=()"
 	}
 
-	# Défense en profondeur : jamais d'exécution de PHP dans les fichiers envoyés
+	# Par précaution, aucun fichier envoyé par un membre ne doit pouvoir s'exécuter.
 	@phpInUploads path /uploads/*.php /uploads/*/*.php /uploads/*/*/*.php
 	respond @phpInUploads 403
 

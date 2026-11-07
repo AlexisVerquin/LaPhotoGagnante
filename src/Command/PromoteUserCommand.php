@@ -15,8 +15,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Donne (ou retire) le rôle administrateur à un membre déjà inscrit.
- * Usage : php bin/console app:user:promote alexis@laphotogagnante.fr [--revoke].
+ * Pour nommer un admin, ou lui retirer ses droits avec --revoke.
+ * Le membre doit s'être inscrit avant.
  */
 #[AsCommand(
     name: 'app:user:promote',

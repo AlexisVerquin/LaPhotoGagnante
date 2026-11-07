@@ -1,4 +1,4 @@
-# Rien de local, de secret ou de généré dans l'image de production
+# Rien de local, de secret ou de généré ne doit finir dans l'image de production.
 .git
 .github
 .idea

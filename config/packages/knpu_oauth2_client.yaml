@@ -1,6 +1,5 @@
-# Connexion / inscription via Google et Facebook (OAuth2).
-# Un fournisseur sans identifiant (variable vide) est simplement masqué sur le site.
-# Création des applications et URL de redirection : voir deploy/README.md
+# Connexion avec Google et Facebook. Tant qu'un identifiant est vide, son bouton n'apparaît pas
+# (création des applications : deploy/README.md).
 knpu_oauth2_client:
     clients:
         google:

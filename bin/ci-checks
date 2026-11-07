@@ -1,17 +1,13 @@
 #!/usr/bin/env sh
 #
-# Vérifications de la CI : SOURCE UNIQUE, exécutée telle quelle
-#   - par GitHub Actions (.github/workflows/ci.yml)
-#   - en local par bin/ci
-# Ajouter / modifier une vérification ICI, jamais directement dans le workflow.
+# La liste des vérifications de la CI, utilisée telle quelle par GitHub et par bin/ci :
+# c'est ici qu'on en ajoute, pas dans le workflow.
 #
-# Usage (dans un environnement PHP avec les dépendances installées) :
-#   bin/ci-checks quality   # composer, style, PHPStan, lints
-#   bin/ci-checks tests     # PHPUnit (base MySQL requise, cf. .env.test / DATABASE_URL)
-#   bin/ci-checks all       # les deux
+#   bin/ci-checks quality   composer, style, PHPStan, lints
+#   bin/ci-checks tests     PHPUnit (il faut une base MySQL)
+#   bin/ci-checks all       les deux
 #
-# Toutes les vérifications d'un groupe sont lancées même si l'une échoue,
-# pour voir tous les problèmes en une fois ; le code de sortie est 1 s'il y a eu un échec.
+# Tout est lancé même après un échec, pour voir tous les problèmes d'un coup.
 
 set -u
 

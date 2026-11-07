@@ -1,6 +1,6 @@
 framework:
     mailer:
         dsn: '%env(MAILER_DSN)%'
-        # Expéditeur par défaut de tous les emails (un ->from() explicite reste prioritaire)
+        # L'expéditeur de tous les emails du site, sauf si un email en précise un autre.
         headers:
             From: '%env(MAILER_FROM)%'

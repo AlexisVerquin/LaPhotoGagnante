@@ -12,11 +12,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * « Continuer avec Google / Facebook » : sert à la fois à l'inscription et à la connexion.
+ * Les boutons « Continuer avec Google / Facebook », qui servent autant à s'inscrire qu'à se connecter.
  */
 final class OAuthController extends AbstractController
 {
-    /** Données demandées au fournisseur : uniquement l'email et le nom (minimisation RGPD) */
+    /** On ne demande que l'email et le nom, rien de plus (RGPD oblige). */
     private const SCOPES = [
         'google' => ['openid', 'email', 'profile'],
         'facebook' => ['email', 'public_profile'],
@@ -37,7 +37,7 @@ final class OAuthController extends AbstractController
     }
 
     /**
-     * Retour du fournisseur : intercepté par App\Security\OAuth\SocialAuthenticator.
+     * Jamais exécutée : c'est SocialAuthenticator qui reprend la main au retour du fournisseur.
      */
     #[Route('/connect/{provider}/check', name: 'app_oauth_check', requirements: ['provider' => 'google|facebook'], methods: ['GET'])]
     public function check(): Response

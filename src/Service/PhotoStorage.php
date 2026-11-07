@@ -12,10 +12,8 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
- * Emplacement des fichiers des photos de concours :
- * - en attente de validation : hors du dossier web (storage/pending/<theme>/), servies par un contrôleur
- *   qui vérifie les droits (auteur ou admin) ;
- * - validées : déplacées dans public/uploads/themes/<theme>/, servies directement par le serveur web.
+ * Range les photos de concours : en attente, elles restent hors du web (storage/pending),
+ * et une fois validées elles passent dans public/uploads.
  */
 final class PhotoStorage
 {
@@ -31,7 +29,7 @@ final class PhotoStorage
     }
 
     /**
-     * Range un fichier envoyé dans la zone privée, en attente de validation.
+     * Met la photo envoyée de côté en attendant qu'un admin la valide.
      */
     public function storePending(UploadedFile $file, Theme $theme, string $filename): File
     {
@@ -39,7 +37,7 @@ final class PhotoStorage
     }
 
     /**
-     * Rend la photo publique (validation admin) en déplaçant son fichier dans public/.
+     * Publie la photo validée : son fichier rejoint public/.
      *
      * @throws \RuntimeException si le fichier est introuvable
      */
@@ -59,7 +57,7 @@ final class PhotoStorage
     }
 
     /**
-     * Déplace le fichier d'une photo non validée de public/ vers la zone privée (photos historiques).
+     * Le chemin inverse, pour les vieilles photos en attente restées dans public/.
      *
      * @return bool true si un fichier a été déplacé
      */
@@ -76,7 +74,7 @@ final class PhotoStorage
     }
 
     /**
-     * Chemin du fichier sur le disque, où qu'il soit, ou null s'il n'existe pas.
+     * Où se trouve le fichier, qu'il soit en attente ou publié (null s'il a disparu).
      */
     public function locate(Photo $photo): ?string
     {
@@ -101,14 +99,14 @@ final class PhotoStorage
 
     private function move(string $from, string $to): void
     {
-        // rename() ne crée pas le dossier de destination (premier fichier d'un concours)
+        // rename() ne crée pas le dossier, ce qui arrive pour la première photo d'un concours.
         $this->filesystem->mkdir(dirname($to));
         $this->filesystem->rename($from, $to, true);
     }
 
     private function relativePath(Photo $photo): string
     {
-        // basename : jamais de « ../ » venant de la base de données
+        // basename() pour qu'un nom stocké en base ne puisse jamais remonter avec « ../ ».
         return basename((string) $photo->getTheme()?->getDirectoryName()) . '/' . basename((string) $photo->getName());
     }
 }

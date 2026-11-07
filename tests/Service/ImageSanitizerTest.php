@@ -53,7 +53,7 @@ final class ImageSanitizerTest extends TestCase
 
     public function testOrientationIsAppliedBeforeStripping(): void
     {
-        // Orientation 6 = photo prise en portrait : à afficher tournée de 90°
+        // Orientation 6, c'est une photo prise en portrait qu'il faut tourner de 90°.
         $path = TestImage::jpegWithExif($this->dir . '/portrait.jpg', 40, 20, 6);
 
         new ImageSanitizer()->sanitize($path);

@@ -8,10 +8,8 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * Theme::$winner passe de OneToOne à ManyToOne : un membre peut gagner plusieurs concours.
- * On remplace l'index UNIQUE sur theme.winner_id par un index simple.
- * L'index simple est créé AVANT la suppression de l'unique, car MySQL refuse de supprimer
- * le seul index utilisé par une clé étrangère.
+ * Un membre doit pouvoir gagner plusieurs concours, donc winner_id n'est plus unique.
+ * On crée le nouvel index avant de supprimer l'ancien, sinon MySQL refuse (la clé étrangère en a besoin).
  */
 final class Version20261107120000 extends AbstractMigration
 {

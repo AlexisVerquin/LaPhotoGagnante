@@ -49,7 +49,7 @@ final class UserManageTest extends FunctionalTestCase
 
     public function testSuccessMessageUsesAStyledAlertType(): void
     {
-        // Régression : le type « alert-success » donnait une alerte sans fond (classe alert-alert-success)
+        // Avant, le type « alert-success » donnait une alerte sans fond.
         $this->client->loginUser($this->createUser());
 
         $this->submitProfile(['user_info[city]' => 'Lille']);
@@ -126,7 +126,7 @@ final class UserManageTest extends FunctionalTestCase
         self::assertFalse($deleted->isVerified());
         self::assertFalse($this->passwordIsValid($deleted, self::PASSWORD), 'L\'ancien mot de passe ne doit plus fonctionner');
 
-        // Déconnecté : l'espace membre redirige vers la connexion
+        // Il est bien déconnecté : l'espace membre le renvoie vers la connexion.
         $this->client->request('GET', '/user/manage');
         self::assertResponseRedirects('/login');
     }

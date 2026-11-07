@@ -16,8 +16,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * À lancer (cron) après la fin d'un concours : désigne le gagnant du dernier thème terminé.
- * Règles : seules les photos validées comptent ; à égalité de votes, la photo envoyée en premier gagne.
+ * Désigne le gagnant du concours qui vient de se terminer (à lancer par un cron).
+ * Seules les photos validées comptent, et en cas d'égalité c'est la première envoyée qui l'emporte.
  */
 #[AsCommand(
     name: 'app:set-winner',

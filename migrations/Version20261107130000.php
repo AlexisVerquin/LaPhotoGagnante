@@ -8,7 +8,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * Connexion Google / Facebook : identifiant du compte lié chez chaque fournisseur.
+ * Pour reconnaître un membre qui se connecte avec Google ou Facebook.
  */
 final class Version20261107130000 extends AbstractMigration
 {

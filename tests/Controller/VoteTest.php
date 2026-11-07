@@ -47,7 +47,7 @@ final class VoteTest extends FunctionalTestCase
         self::assertSame(0, $data['oldVoteCount']);
         self::assertSame(1, $data['newVoteCount']);
 
-        // Toujours un seul vote par membre et par concours
+        // Changer d'avis ne crée pas un deuxième vote.
         self::assertSame(1, $this->em->getRepository(Vote::class)->count(['user' => $voter->getId()]));
     }
 
@@ -133,7 +133,7 @@ final class VoteTest extends FunctionalTestCase
 
     public function testMemberCanVoteForTheirOwnPhoto(): void
     {
-        // Règle métier validée : voter pour sa propre photo est autorisé
+        // On a décidé de laisser les membres voter pour leur propre photo.
         $theme = $this->createTheme();
         $author = $this->createUser('a@example.com', name: 'A');
         $photo = $this->createPhoto($author, $theme);

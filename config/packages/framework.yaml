@@ -10,7 +10,7 @@ framework:
     allowed_http_method_override: ['DELETE']
 
     rate_limiter:
-        # Formulaire de contact : 3 messages par heure et par adresse IP
+        # Pas plus de 3 messages de contact par heure depuis une même adresse IP.
         contact_form:
             policy: sliding_window
             limit: 3

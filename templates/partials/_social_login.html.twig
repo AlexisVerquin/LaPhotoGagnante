@@ -1,5 +1,5 @@
-{# Boutons « Continuer avec Google / Facebook » : inscription ET connexion.
-   Un fournisseur non configuré (identifiant vide) n'est pas affiché. #}
+{# Les boutons Google / Facebook, pour s'inscrire comme pour se connecter.
+   Un fournisseur sans identifiant configuré n'apparaît pas. #}
 {% if oauth_enabled('google') or oauth_enabled('facebook') %}
     <div class="d-grid gap-2 mb-3">
         {% if oauth_enabled('google') %}
