@@ -65,6 +65,4 @@ Liste établie le 2026-11-07. Pour chaque point : ce qui existe déjà, pour rep
 
 ## Points techniques encore ouverts (cf. `AUDIT.md`)
 
-- XSS potentielle dans `assets/controllers/alert_controller.js` (messages insérés en `innerHTML`).
-- Performances : `findActualTheme()` appelée plusieurs fois par page, comptages de votes en N+1.
 - Messages en dur en français dans les contrôleurs (site traduit fr/en).

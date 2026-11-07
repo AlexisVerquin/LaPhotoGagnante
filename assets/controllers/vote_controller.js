@@ -40,7 +40,7 @@ export default class extends Controller {
             const data = await response.json();
 
             if (!data.success) {
-                this.dispatch("error", { bubbles: true, detail: { message: data.message } });
+                this.dispatch("error", { bubbles: true, detail: { message: data.message, link: data.link } });
 
                 return;
             }

@@ -100,6 +100,8 @@ Requêtes clés : `ThemeRepository::findActualTheme()` (thème en cours), `findL
 
 ## Conventions / pièges
 
+- **Performances** : `ThemeRepository::findActualTheme()` est mémorisé le temps d'une requête (réinitialisé entre requêtes et par `App\Doctrine\ThemeCacheInvalidator` quand un concours change). Galerie : `PhotoRepository::findVisibleForTheme` (auteurs joints) + `VoteRepository::countByPhotoForTheme`. `tests/Controller/QueryCountTest.php` échoue si le N+1 revient.
+- **Alertes** : `alert_controller.js` n'utilise jamais `innerHTML` ; un lien s'envoie à part (`{message, link: {url, label}}`, URL interne uniquement), jamais dans le texte du message.
 - **Aucune ressource externe** dans les pages (RGPD : l'IP des visiteurs ne doit partir chez aucun tiers) : polices et icônes sont dans `assets/fonts/`, `importmap_polyfill: false`, pas d'image de démo distante. Seule exception : le rechargement à chaud FrankenPHP, en dev uniquement.
 - **Pages légales** (`/cgu`, `/rgpd`, `/mentions-legales`, gabarit `templates/legal/layout.html.twig`) : les infos (éditeur, hébergeur, date de mise à jour) sont dans le paramètre `app.legal` de `config/packages/legal.yaml` (global Twig `legal`) ; une valeur vide s'affiche « À compléter ». Changer `updated_at` à chaque modification. Le registre CNIL est dans `docs/registre-traitements.md`.
 - Twig globales : `site_name`, `site_url` (`config/packages/twig.yaml`), à utiliser dans les emails plutôt que du texte en dur.

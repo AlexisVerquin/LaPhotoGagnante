@@ -32,10 +32,9 @@
 
             {% include 'partials/_countdown.html.twig' with {'photoOfTheDay' : false} %}
 
-            {% set visiblePhotos = actualTheme.photos.toArray|filter(p => p.isVisible) %}
-            {% if visiblePhotos|length > 0 %}
+            {% if photos|length > 0 %}
                 <div class="gallery-masonry">
-                    {% for photo in visiblePhotos %}
+                    {% for photo in photos %}
                         <div class="gallery-card">
                             <div class="card p-3">
                                 <div class="card-head gap-3 d-flex align-items-center ms-2 mb-3">
@@ -71,7 +70,7 @@
                                             aria-label="Voter pour la photo de {{ photo.user.name }}"
                                         >
                                             <i class="bi bi-heart-fill vote-heart-icon" aria-hidden="true"></i>
-                                            <span class="vote-heart-count" data-vote-target="count">{{ photo.votes|length }}</span>
+                                            <span class="vote-heart-count" data-vote-target="count">{{ voteCounts[photo.id] ?? 0 }}</span>
                                         </button>
                                     {% endif %}
                                 </div>

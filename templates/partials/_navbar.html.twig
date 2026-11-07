@@ -53,7 +53,8 @@
             {% if not hide_auth_actions %}
                 <ul class="navbar-nav align-items-lg-center gap-2">
                     {% if app.user %}
-                        {% set currentPhoto = getPhotoCurrentTheme() %}
+                        {# Déjà calculée par base.html.twig : on évite de refaire les mêmes requêtes #}
+                        {% set currentPhoto = currentPhoto ?? getPhotoCurrentTheme() %}
                         <li class="nav-item">
                             <button
                                 type="button"
