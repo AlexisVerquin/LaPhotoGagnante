@@ -62,6 +62,20 @@ Job `docker` : construit l'image de prod (cible `prod` du Dockerfile) à chaque 
 - Healthcheck MySQL en `-h 127.0.0.1`, jamais `localhost` : au premier démarrage, le serveur temporaire d'initialisation répond au socket et les migrations échouaient (« Connection refused »).
 - Preprod : même stack sur `preprod.laphotogagnante.fr`, accès limité par Cloudflare Access (cf. guide).
 
+### Si tu tournes sur le serveur auto-hébergé (preprod / prod)
+
+Repère : le dépôt est cloné dans `/srv/photoprix/app` et `/srv/photoprix/.env.prod` existe. Le rôle n'est alors **pas de développer** mais d'installer et d'exploiter, en suivant `deploy/README.md` pas à pas.
+
+- **Ne jamais modifier ni commiter de code dans `/srv/photoprix/app`** : `auto-update.sh` y fait un `git checkout --force` du dernier `master`, tout changement local serait écrasé. Un correctif se fait sur le PC de dev (branche `dev`), passe la CI, est fusionné dans `master`, puis arrive tout seul.
+- **Jamais `docker-compose.yml` (stack de dev) sur le serveur** : il publie MySQL, RabbitMQ et MailHog avec des mots de passe par défaut. Seulement `compose.prod.yaml`, via `deploy/deploy.sh` ou `auto-update.sh`.
+- **Jamais de fixtures** (`doctrine:fixtures:load` vide la base et crée un admin au mot de passe public).
+- `.env.prod` ne quitte jamais le serveur (chmod 600) : ne pas l'afficher en entier, ne pas le copier dans un fichier versionné. Les coordonnées légales (`LEGAL_*`) et les secrets n'existent que là.
+- Les commandes s'exécutent en tant qu'utilisateur `photoprix` (groupe `docker`) : `sudo -iu photoprix`. Console Symfony : `docker exec photoprix-prod-php-1 php bin/console …`.
+- État et diagnostic : `deploy/auto-update.sh --status`, `tail -f /srv/photoprix/logs/deploy.log`, `docker logs photoprix-prod-php-1`, sauvegardes dans `/srv/photoprix/backups`.
+- Preprod : domaine `preprod.laphotogagnante.fr` dans `DEFAULT_URI` et `SYMFONY_TRUSTED_HOSTS`, accès restreint par Cloudflare Access (section « Preprod » du guide).
+- **Jamais validé en conditions réelles avant cette installation** (à vérifier en priorité) : envoi d'emails par le SMTP OVH, tunnel Cloudflare, cron (`auto-update.sh`, `app:daily`, `backup.sh`), connexion Google / Facebook sur le domaine, parcours complet d'un membre (inscription → email → photo → validation → vote → désinscription → suppression). Tout le reste a été testé sur une copie locale de la stack de prod.
+- Toute découverte utile (piège d'installation, réglage du serveur) : la signaler à Alexis en fin de session, pour qu'il l'ajoute à `deploy/README.md` depuis le PC de dev (pas de modification du clone du serveur).
+
 ### Tests
 
 - PHPUnit 13, `tests/FunctionalTestCase.php` : base vidée avant chaque test (ORMPurger), compteur de connexion remis à zéro, fabriques `createUser/createTheme/createPhoto/createVote`, `reload()`.
