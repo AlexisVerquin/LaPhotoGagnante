@@ -41,7 +41,7 @@ Le domaine reste **enregistré chez OVH** (renouvellement, facturation) ; seule 
 4. Si **DNSSEC** est activé chez OVH, le désactiver avant l'étape 2 (on pourra le réactiver ensuite depuis Cloudflare).
 5. Facultatif : redirection `www` → domaine principal. Cloudflare → **Rules** → **Redirect Rules** → modèle *Redirect from WWW to root*. (L'application n'accepte que `laphotogagnante.fr`, cf. `SYMFONY_TRUSTED_HOSTS`.)
 
-**Emails envoyés par le site** (`MAILER_DSN`) : le plus simple est une adresse `no-reply@laphotogagnante.fr` chez OVH (offre email du domaine). Pour ne pas finir en spam, dans le DNS Cloudflare : garder l'enregistrement **SPF** d'OVH (`v=spf1 include:mx.ovh.com ~all`), activer **DKIM** dans l'espace client OVH (puis recopier les enregistrements `CNAME`/`TXT` qu'il donne dans Cloudflare) et ajouter un enregistrement **DMARC** : `TXT` `_dmarc` → `v=DMARC1; p=none; rua=mailto:admin@laphotogagnante.fr`.
+**Emails envoyés par le site** (`MAILER_DSN`) : **Brevo** (gratuit jusqu'à 300 emails/jour, société française). Les adresses `@laphotogagnante.fr` d'OVH ne sont que des **redirections** vers Gmail (réception seulement, pas de SMTP). Dans Brevo → **Domains**, authentifier `laphotogagnante.fr` : recopier dans Cloudflare le code `brevo-code`, les deux `CNAME` DKIM et le `TXT` `_dmarc` donnés. SPF dans Cloudflare : `v=spf1 include:mx.ovh.com include:spf.brevo.com -all`. Identifiant et clé : Brevo → **SMTP & API** → **SMTP**. Vérifier : `dig +short TXT laphotogagnante.fr`, puis envoyer un email de test à [mail-tester.com](https://www.mail-tester.com).
 
 ### 2. Tunnel Cloudflare
 

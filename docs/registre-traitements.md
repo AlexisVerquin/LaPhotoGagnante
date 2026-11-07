@@ -15,7 +15,8 @@
 |---|---|---|---|
 | Hébergement : serveur personnel de l'éditeur (*à compléter*) | Hébergement du site et des données | *à compléter* | — |
 | Cloudflare, Inc. | Sous-traitant : acheminement et protection du trafic (tunnel) | États-Unis | Data Privacy Framework UE–États-Unis + clauses contractuelles types |
-| OVH SAS | Sous-traitant : envoi des emails, nom de domaine | France | — |
+| Brevo (Sendinblue SAS) | Sous-traitant : envoi des emails (inscription, mot de passe, annonces) | France (UE) | — |
+| OVH SAS | Nom de domaine, redirection des adresses `@laphotogagnante.fr` | France | — |
 | Google Ireland Ltd / Meta Platforms Ireland Ltd | Responsables distincts, seulement si le membre choisit de se connecter avec eux | Irlande (UE) | — |
 
 ## Mesures de sécurité communes

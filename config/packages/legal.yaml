@@ -20,7 +20,7 @@ parameters:
         host_country: France
 
         # Prestataire d'envoi des emails
-        mail_provider: 'OVH SAS, 2 rue Kellermann, 59100 Roubaix, France'
+        mail_provider: 'Brevo (Sendinblue SAS), 106 boulevard Haussmann, 75008 Paris, France'
 
         # Âge minimum pour s'inscrire : se règle dans config/services.yaml (app.min_age)
         min_age: '%app.min_age%'
