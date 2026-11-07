@@ -1,6 +1,6 @@
 # CLAUDE.md — LaPhotoGagnante
 
-Nom affiché : **LaPhotoGagnante** (anciennement PhotoPrix). Le nom **technique** reste `photoprix` (dépôt, conteneurs, image Docker, `/srv/photoprix`, variables `PHOTOPRIX_*`) : décision du 2026-11-07, à renommer plus tard si besoin.
+Nom affiché : **LaPhotoGagnante** (anciennement PhotoPrix). Dépôt GitHub **public** : `AlexisVerquin/LaPhotoGagnante` (portfolio), branche par défaut `master`. Le nom **technique** reste `photoprix` (dossier local, conteneurs, image Docker, `/srv/photoprix`, variables `PHOTOPRIX_*`) : décision du 2026-11-07, à renommer plus tard si besoin.
 Domaine de production : **laphotogagnante.fr** (enregistré chez OVH, DNS chez Cloudflare pour le tunnel). Adresses email : `@laphotogagnante.fr` (`MAILER_FROM`, `ADMIN_MAIL`).
 
 Plateforme communautaire de concours photo mensuel (projet perso d'Alexis Verquin, en développement). Chaque mois : un thème, les membres envoient **une photo**, l'admin la valide, les membres votent, un gagnant est désigné ; un sondage choisit le thème suivant.
@@ -44,7 +44,7 @@ php bin/console lint:twig templates && php bin/console lint:container
 
 ### CI
 
-`.github/workflows/ci.yml` (push sur `main`/`dev` et PR) : job qualité + job tests (PHP 8.4 et 8.5, service MySQL 8.4) + job image de prod. Dependabot (`.github/dependabot.yml`) ouvre des PR vers `dev`.
+`.github/workflows/ci.yml` (push sur `master`/`dev` et PR) : job qualité + job tests (PHP 8.4 et 8.5, service MySQL 8.4) + job image de prod. Dependabot (`.github/dependabot.yml`) ouvre des PR vers `dev`.
 - **La liste des vérifications est dans `bin/ci-checks`** (`quality` | `tests` | `all`), appelé tel quel par le workflow : ajouter une vérification là, jamais directement dans le YAML.
 - **Rejouer la CI en local avant de pousser** : `bin/ci` (rapide, arbre de travail, conteneur de dev) ; `bin/ci --clean` (comme GitHub : clone LF propre du dernier commit dans `var/ci/clone`, MySQL jetable, ~1 min) ; options `--php 8.4|all`, `--quality`, `--tests`, `--docker`.
 Job `docker` : construit l'image de prod (cible `prod` du Dockerfile) à chaque push.
@@ -52,7 +52,7 @@ Job `docker` : construit l'image de prod (cible `prod` du Dockerfile) à chaque 
 ### CD (production)
 
 - Serveur **maison derrière Cloudflare Tunnel**, aucun port ouvert. Guide d'installation : `deploy/README.md`.
-- `.github/workflows/deploy.yml` : après une CI verte sur `main` (push), job sur le **runner auto-hébergé** (labels `self-hosted, photoprix`, environnement GitHub `production`) → `deploy/deploy.sh`.
+- `.github/workflows/deploy.yml` : après une CI verte sur `master` (push), job sur le **runner auto-hébergé** (labels `self-hosted, photoprix`, environnement GitHub `production`) → `deploy/deploy.sh`.
 - `deploy/deploy.sh` : sauvegarde mysqldump → `docker compose -f compose.prod.yaml build` → migrations → `up -d` → `app:photos:secure-pending` → vérification HTTP → rollback sur l'image `photoprix-app:previous` si échec (les migrations ne sont pas annulées).
 - `compose.prod.yaml` (projet `photoprix-prod`) : php (FrankenPHP, cible `prod`, port 8080 non-root), messenger, MySQL, RabbitMQ, cloudflared. Config hors dépôt : `/srv/photoprix/.env.prod` (modèle `deploy/.env.prod.example`). Données en volumes nommés (`uploads`, `pending_photos`, `database_data`).
 - Derrière le proxy : `SYMFONY_TRUSTED_PROXIES=private_ranges` + `SYMFONY_TRUSTED_HEADERS=x-forwarded-for,x-forwarded-proto` **obligatoires**, sinon tous les visiteurs partagent l'IP du tunnel et les rate limiters bloquent tout le monde. `SYMFONY_TRUSTED_HOSTS` = domaine.
@@ -118,7 +118,7 @@ Requêtes clés : `ThemeRepository::findActualTheme()` (thème en cours), `findL
 - Le serveur web de dev (FrankenPHP) tourne en root et écrit dans `var/cache` : si `cache:clear` échoue en « Permission denied », `docker compose exec php chown -R 1000:1000 /app/var`.
 - Après modification d'entité : créer une migration (`make:migration` nécessite la BDD Docker ; sinon l'écrire à la main dans `migrations/`).
 - php-cs-fixer : **une seule config, `.php-cs-fixer.dist.php`** (versionnée, utilisée par la CI : `@Symfony` + `@PHP84Migration` + `concat_space` à un espace). Un `.php-cs-fixer.php` local serait prioritaire et masquerait les écarts avec la CI (incident de novembre 2026 : 21 fichiers rejetés par la CI alors que le local disait OK). Vérifier avec `--config=.php-cs-fixer.dist.php` en cas de doute.
-- git : travail sur `dev`, PR vers `main`. **Messages de commit courts et en anglais** (une ligne `feat:`/`fix:`/`docs:`…, quelques puces au plus). Le dépôt est en `core.autocrlf=true` (avertissements LF/CRLF normaux).
+- git : travail sur `dev`, PR vers `master`. **Messages de commit courts et en anglais** (une ligne `feat:`/`fix:`/`docs:`…, quelques puces au plus). Le dépôt est en `core.autocrlf=true` (avertissements LF/CRLF normaux).
 
 ## Suivi
 

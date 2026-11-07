@@ -1,12 +1,12 @@
 name: Déploiement
 
-# Met le site à jour dès que la CI passe sur main.
+# Met le site à jour dès que la CI passe sur master.
 # On peut aussi le relancer à la main depuis l'onglet Actions.
 on:
   workflow_run:
     workflows: [CI]
     types: [completed]
-    branches: [main]
+    branches: [master]
   workflow_dispatch:
 
 # Un seul déploiement à la fois, et on n'interrompt jamais celui qui tourne.
@@ -21,7 +21,7 @@ jobs:
   deploy:
     name: Production (serveur maison)
     if: >-
-      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master')
       || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     # Le runner installé sur le serveur maison (cf. deploy/README.md).
     runs-on: [self-hosted, photoprix]

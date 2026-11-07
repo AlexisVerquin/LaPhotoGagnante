@@ -47,7 +47,7 @@ Liste établie le 2026-11-07. Pour chaque point : ce qui existe déjà, pour rep
 
 ## Mise en production
 
-- [ ] Pousser `dev` puis fusionner dans `main` (le déploiement automatique ne démarre qu'après).
+- [ ] Pousser `dev` puis fusionner dans `master` (le déploiement automatique ne démarre qu'après).
 - [ ] **Preprod** pour quelques personnes : `preprod.laphotogagnante.fr` + Cloudflare Access (`deploy/README.md`, section « Preprod »).
 - [ ] Installer le serveur en suivant `deploy/README.md` : DNS OVH → Cloudflare, tunnel, `.env.prod`, runner GitHub, environnement `production`.
 - [ ] Cron `app:daily` + `/srv/photoprix/bin/backup.sh` (`deploy/README.md` § 6).

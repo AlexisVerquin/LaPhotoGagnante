@@ -8,7 +8,7 @@ Visiteur ──HTTPS──▶ Cloudflare ──tunnel (connexion sortante)──
                                                                                      ├─ database (MySQL)
                                                                                      └─ rabbitmq
 
-git push / merge sur main ─▶ CI GitHub (qualité, tests, image) ─▶ si OK : workflow « Déploiement »
+git push / merge sur master ─▶ CI GitHub (qualité, tests, image) ─▶ si OK : workflow « Déploiement »
                                                                     └─▶ runner GitHub installé sur le serveur
                                                                          └─▶ deploy/deploy.sh
 ```
@@ -16,7 +16,7 @@ git push / merge sur main ─▶ CI GitHub (qualité, tests, image) ─▶ si OK
 - **Aucun port à ouvrir** sur la box ni sur le serveur : `cloudflared` et le runner GitHub se connectent vers l'extérieur.
 - `deploy/deploy.sh` : sauvegarde de la base → construction de l'image → migrations → redémarrage → vérification → **retour à la version précédente** si le site ne répond pas.
 - Les données (base, photos, avatars, photos en attente) sont dans des volumes Docker : un déploiement ne les touche pas.
-- Le déploiement ne part que depuis `main`, et seulement si toute la CI est verte.
+- Le déploiement ne part que depuis `master`, et seulement si toute la CI est verte.
 
 ## Installation (une seule fois)
 
@@ -109,19 +109,19 @@ Puis redéployer (Actions → Déploiement → Run workflow) pour prendre en com
    ⚠️ Appartenir au groupe `docker` revient à être administrateur de la machine : n'utilisez ce runner **que pour ce dépôt, qui doit rester privé**.
 2. GitHub → dépôt → **Settings** → **Actions** → **Runners** → **New self-hosted runner** → Linux. Suivre les commandes affichées **en tant que `github-runner`** (`sudo -iu github-runner`), en ajoutant le label `photoprix` :
    ```bash
-   ./config.sh --url https://github.com/AlexisVerquin/photoprix --token <jeton> --name serveur-maison --labels photoprix --unattended
+   ./config.sh --url https://github.com/AlexisVerquin/LaPhotoGagnante --token <jeton> --name serveur-maison --labels photoprix --unattended
    ```
 3. L'installer comme service (redémarre avec le serveur) :
    ```bash
    sudo ./svc.sh install github-runner
    sudo ./svc.sh start
    ```
-4. GitHub → **Settings** → **Environments** → **New environment** `production` → *Deployment branches* : `main` uniquement. (Optionnel : *Required reviewers* pour valider chaque mise en production d'un clic.)
+4. GitHub → **Settings** → **Environments** → **New environment** `production` → *Deployment branches* : `master` uniquement. (Optionnel : *Required reviewers* pour valider chaque mise en production d'un clic.)
 
 ### 5. Premier déploiement
 
-Le workflow de déploiement doit être présent sur `main` (fusionner `dev` dans `main`). Ensuite :
-GitHub → **Actions** → **Déploiement** → **Run workflow** (branche `main`).
+Le workflow de déploiement doit être présent sur `master` (fusionner `dev` dans `master`). Ensuite :
+GitHub → **Actions** → **Déploiement** → **Run workflow** (branche `master`).
 
 Puis, une fois le site en ligne : s'inscrire sur le site, confirmer son email, et se donner le rôle admin :
 
