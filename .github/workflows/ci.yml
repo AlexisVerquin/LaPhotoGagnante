@@ -61,6 +61,22 @@ jobs:
           php bin/console lint:yaml config translations --parse-tags
           php bin/console doctrine:schema:validate --skip-sync
 
+  docker:
+    name: Image de production
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      # Construit l'image comme sur le serveur (sans la publier) : un Dockerfile cassé
+      # est détecté ici plutôt qu'au moment du déploiement
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: prod
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
   tests:
     name: Tests (PHP ${{ matrix.php }})
     runs-on: ubuntu-latest

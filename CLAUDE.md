@@ -9,7 +9,8 @@ Préférence de l'utilisateur : **demander en cas de doute** avant de modifier ;
 
 - PHP ≥ 8.4 (8.5 en local), **Symfony 8.1**, Doctrine ORM 3, Twig, AssetMapper (pas de Node/webpack)
 - Front : Bootstrap 5, Stimulus (`assets/controllers/*_controller.js`), Turbo, UX Icons (Lucide), UX Live Component
-- MySQL 8.4, RabbitMQ (Messenger), Redis, MailHog — via `docker-compose.yml` (FrankenPHP + Caddy)
+- MySQL 8.4, RabbitMQ (Messenger), MailHog — dev via `docker-compose.yml` (FrankenPHP + Caddy, cible `dev` du Dockerfile, `docker/caddy/Caddyfile.dev`). Redis est lancé en dev mais **pas utilisé** par l'application (absent de la prod).
+- PHP : `docker/php/app.ini` (upload 6 Mo, commun) et `docker/php/prod.ini` (opcache sans revalidation).
 - Bundles : SymfonyCasts VerifyEmail & ResetPassword, KnpPaginator, FOSJsRouting
 - Syntaxe PHP 8.4 utilisée partout : `new Foo()->bar()` sans parenthèses autour du `new`
 
@@ -37,7 +38,17 @@ php bin/console lint:twig templates && php bin/console lint:container
 ### CI
 
 `.github/workflows/ci.yml` (push sur `main`/`dev` et PR) : job qualité (composer audit, php-cs-fixer, PHPStan `phpstan.dist.neon`, lint conteneur/Twig/YAML, mapping) + job tests (PHPUnit sur PHP 8.4 et 8.5, service MySQL 8.4). Dependabot (`.github/dependabot.yml`) ouvre des PR vers `dev`. Avant de pousser, rejouer localement : `composer audit`, `php-cs-fixer fix --dry-run`, `phpstan analyse -c phpstan.dist.neon`, `bin/phpunit`.
-Pas encore de CD (déploiement) : la cible d'hébergement n'est pas définie.
+Job `docker` : construit l'image de prod (cible `prod` du Dockerfile) à chaque push.
+
+### CD (production)
+
+- Serveur **maison derrière Cloudflare Tunnel**, aucun port ouvert. Guide d'installation : `deploy/README.md`.
+- `.github/workflows/deploy.yml` : après une CI verte sur `main` (push), job sur le **runner auto-hébergé** (labels `self-hosted, photoprix`, environnement GitHub `production`) → `deploy/deploy.sh`.
+- `deploy/deploy.sh` : sauvegarde mysqldump → `docker compose -f compose.prod.yaml build` → migrations → `up -d` → `app:photos:secure-pending` → vérification HTTP → rollback sur l'image `photoprix-app:previous` si échec (les migrations ne sont pas annulées).
+- `compose.prod.yaml` (projet `photoprix-prod`) : php (FrankenPHP, cible `prod`, port 8080 non-root), messenger, MySQL, RabbitMQ, cloudflared. Config hors dépôt : `/srv/photoprix/.env.prod` (modèle `deploy/.env.prod.example`). Données en volumes nommés (`uploads`, `pending_photos`, `database_data`).
+- Derrière le proxy : `SYMFONY_TRUSTED_PROXIES=private_ranges` + `SYMFONY_TRUSTED_HEADERS=x-forwarded-for,x-forwarded-proto` **obligatoires**, sinon tous les visiteurs partagent l'IP du tunnel et les rate limiters bloquent tout le monde. `SYMFONY_TRUSTED_HOSTS` = domaine.
+- Tester la stack prod en local : `COMPOSE_PROJECT_NAME=photoprix-prodtest PHOTOPRIX_ENV_FILE=<fichier de test> ./deploy/deploy.sh` (nom de projet différent pour ne pas toucher la stack de dev), puis `down -v`.
+- Premier admin : `app:user:promote email` (`--revoke` pour retirer). Cron serveur : `app:set-winner` quotidien + sauvegarde (cf. guide).
 
 ### Tests
 
@@ -55,6 +66,7 @@ Pas encore de CD (déploiement) : la cible d'hébergement n'est pas définie.
 - `Vote` : un vote par (user, theme), modifiable (on change de photo). Ouvert **6 jours avant `dateEnd`**. Voter pour sa propre photo est **autorisé** (décision produit).
 - `Survey` / `SurveyChoice` : sondage du thème suivant (dates en **DATETIME**). 1 vote/jour/membre (`User::lastVoteDate`), compteur `numberVoter`.
 - `Contact` : messages du formulaire de contact (`type` = `contact` | `reply`, `origin` = id du message d'origine).
+- Avatar par défaut : `public/images/default-avatar.jpg` (versionné ; `public/uploads` ne l'est pas).
 - `User` : identifiant = email. Suppression de compte = **anonymisation** (pas de DELETE), cf. `UserManageController::removeUser`.
 - `DateTrait` : `created_at` / `updated_at` via callbacks → l'entité doit avoir `#[ORM\HasLifecycleCallbacks]`.
 

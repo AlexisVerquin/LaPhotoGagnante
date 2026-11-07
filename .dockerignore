@@ -1,0 +1,22 @@
+# Rien de local, de secret ou de généré dans l'image de production
+.git
+.github
+.idea
+.phpunit.cache
+.php-cs-fixer.cache
+.env
+.env.local
+.env.*.local
+.env.prod
+vendor
+var
+node_modules
+assets/vendor
+public/assets
+public/bundles
+public/uploads
+storage
+tests
+caddy-local-root.crt
+*.md
+deploy

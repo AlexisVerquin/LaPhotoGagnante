@@ -1,0 +1,42 @@
+name: Déploiement
+
+# Déploie automatiquement quand la CI réussit sur main (après un push ou un merge de PR).
+# Peut aussi être relancé à la main : onglet Actions > Déploiement > Run workflow (branche main).
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+# Jamais deux déploiements en même temps ; un déploiement en cours n'est pas interrompu
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Production (serveur maison)
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+      || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    # Runner auto-hébergé installé sur le serveur (voir deploy/README.md)
+    runs-on: [self-hosted, photoprix]
+    environment:
+      name: production
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Exactement le commit validé par la CI
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Déployer
+        run: ./deploy/deploy.sh
+        env:
+          PHOTOPRIX_ENV_FILE: /srv/photoprix/.env.prod
+          PHOTOPRIX_BACKUP_DIR: /srv/photoprix/backups

@@ -37,7 +37,8 @@ class UploadExtension
         }
         $avatar = $user?->getAvatar();
         if (!$avatar) {
-            $avatar = 'default.jpg';
+            // Versionné dans public/images (public/uploads n'est pas dans git ni dans l'image Docker)
+            return 'images/default-avatar.jpg';
         }
 
         return self::UPLOADS_DIR['avatars'] . '/' . $avatar;

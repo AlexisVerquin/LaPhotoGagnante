@@ -58,7 +58,16 @@ Divers : `docker-compose.yml` (`serverVersion=8:4:0` → `8.4.0`), fichiers `*:Z
 - **CI GitHub Actions** : qualité (audit, style, PHPStan à 0 erreur, lints) + tests PHP 8.4/8.5 sur MySQL ; Dependabot.
 - 59 tests au total.
 
-## 4. À traiter — décisions ou chantiers ⚠️
+## 4. Quatrième passe : déploiement continu ✅
+
+- Image Docker multi-cible (`dev` / `prod`) : en prod, code et assets embarqués, opcache, FrankenPHP non-root, en-têtes de sécurité, PHP interdit dans `/uploads`.
+- **Bug corrigé** : PHP limitait les envois à 2 Mo alors que le site accepte 5 Mo (`docker/php/app.ini`).
+- Stack `compose.prod.yaml` derrière Cloudflare Tunnel (aucun port ouvert), configuration hors dépôt, volumes persistants.
+- Proxies de confiance configurés : sans cela, les limites de connexion et de contact auraient bloqué tous les visiteurs à la fois.
+- Déploiement automatique après CI verte sur `main` via un runner GitHub sur le serveur ; sauvegarde avant migration, vérification et retour arrière automatique. Testé en local : premier déploiement, mise à jour, sauvegarde, retour arrière, limite de connexion par visiteur.
+- Commande `app:user:promote` pour créer le premier administrateur. Guide : `deploy/README.md`.
+
+## 5. À traiter — décisions ou chantiers ⚠️
 
 1. ~~Aucun test~~ ✅
 2. ~~Métadonnées EXIF~~ ✅
@@ -79,9 +88,7 @@ Divers : `docker-compose.yml` (`serverVersion=8:4:0` → `8.4.0`), fichiers `*:Z
 
 ---
 
-## 5. Qualité 💡
-
-- **CD (déploiement automatique)** : à construire une fois l'hébergement de production choisi.
+## 6. Qualité 💡
 
 - Types nullable incohérents avec le mapping Doctrine (`?string` pour une colonne `NOT NULL`) : sans gravité, mais à aligner pour que PHPStan soit propre.
 - Logique « votes ouverts 6 jours avant la fin » dupliquée (`MainController`, `ThemeExtension`) : à mettre dans une méthode de `Theme` ou un service.
@@ -91,14 +98,7 @@ Divers : `docker-compose.yml` (`serverVersion=8:4:0` → `8.4.0`), fichiers `*:Z
 
 ---
 
-## Au prochain déploiement
+## Mise en production
 
-```bash
-composer install --no-dev --optimize-autoloader
-php bin/console doctrine:migrations:migrate --no-interaction
-php bin/console app:photos:secure-pending      # photos en attente -> hors du dossier web
-php bin/console app:photos:strip-exif          # EXIF des photos déjà envoyées
-```
-
-- Reconstruire l'image Docker (extension `exif` ajoutée) et vérifier que `storage/` est accessible en écriture et **persistant** (volume), comme `public/uploads/`.
-- Tester à la main : inscription (email reçu ?), envoi de photo, validation admin, vote, changement de mot de passe, suppression de compte, formulaire de contact, `php bin/console app:set-winner`.
+Suivre `deploy/README.md` (installation unique du serveur), puis fusionner `dev` dans `main` : le déploiement est automatique.
+Tester à la main après la première mise en ligne : inscription (email reçu ?), envoi de photo, validation admin, vote, changement de mot de passe, suppression de compte, formulaire de contact.

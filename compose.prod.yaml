@@ -1,0 +1,100 @@
+# Stack de PRODUCTION (serveur maison derrière Cloudflare Tunnel).
+# Lancée par deploy/deploy.sh, jamais à la main sans --env-file :
+#   docker compose -f compose.prod.yaml --env-file /srv/photoprix/.env.prod up -d
+#
+# Aucun port n'est ouvert sur l'hôte : le seul accès public passe par le tunnel Cloudflare
+# (connexion sortante du conteneur cloudflared vers Cloudflare).
+# Les données (base, photos, avatars) sont dans des volumes nommés : un redéploiement ne les touche pas.
+
+name: photoprix-prod
+
+x-app: &app
+    image: photoprix-app:latest
+    restart: unless-stopped
+    env_file:
+        - ${PHOTOPRIX_ENV_FILE:-/srv/photoprix/.env.prod}
+    networks:
+        - internal
+
+services:
+    php:
+        <<: *app
+        build:
+            context: .
+            target: prod
+        volumes:
+            - uploads:/app/public/uploads
+            - pending_photos:/app/storage
+            - caddy_data:/data
+            - caddy_config:/config
+        depends_on:
+            database:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
+
+    messenger:
+        <<: *app
+        # Envoi asynchrone des emails ; redémarre toutes les heures pour libérer la mémoire
+        command: php bin/console messenger:consume async --time-limit=3600 --memory-limit=128M
+        healthcheck:
+            disable: true
+        depends_on:
+            database:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
+
+    database:
+        image: mysql:8.4
+        restart: unless-stopped
+        env_file:
+            - ${PHOTOPRIX_ENV_FILE:-/srv/photoprix/.env.prod}
+        volumes:
+            - database_data:/var/lib/mysql
+        healthcheck:
+            test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p\"$$MYSQL_ROOT_PASSWORD\""]
+            interval: 5s
+            timeout: 5s
+            retries: 20
+            start_period: 30s
+        networks:
+            - internal
+
+    rabbitmq:
+        image: rabbitmq:4-alpine
+        restart: unless-stopped
+        env_file:
+            - ${PHOTOPRIX_ENV_FILE:-/srv/photoprix/.env.prod}
+        volumes:
+            - rabbitmq_data:/var/lib/rabbitmq
+        healthcheck:
+            test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+            interval: 10s
+            timeout: 5s
+            retries: 10
+        networks:
+            - internal
+
+    cloudflared:
+        # Tunnel Cloudflare : route https://<votre-domaine> vers http://php:8080
+        image: cloudflare/cloudflared:latest
+        restart: unless-stopped
+        command: tunnel --no-autoupdate run
+        environment:
+            TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:?Renseignez CLOUDFLARE_TUNNEL_TOKEN dans le fichier .env.prod}
+        depends_on:
+            - php
+        networks:
+            - internal
+
+volumes:
+    database_data:
+    rabbitmq_data:
+    uploads:
+    pending_photos:
+    caddy_data:
+    caddy_config:
+
+networks:
+    internal:
