@@ -16,7 +16,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Donne (ou retire) le rôle administrateur à un membre déjà inscrit.
- * Usage : php bin/console app:user:promote alexis@example.fr [--revoke].
+ * Usage : php bin/console app:user:promote alexis@laphotogagnante.fr [--revoke].
  */
 #[AsCommand(
     name: 'app:user:promote',

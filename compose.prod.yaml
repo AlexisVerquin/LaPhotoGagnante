@@ -77,7 +77,7 @@ services:
             - internal
 
     cloudflared:
-        # Tunnel Cloudflare : route https://<votre-domaine> vers http://php:8080
+        # Tunnel Cloudflare : route https://laphotogagnante.fr vers http://php:8080
         image: cloudflare/cloudflared:latest
         restart: unless-stopped
         command: tunnel --no-autoupdate run

@@ -23,17 +23,29 @@ git push / merge sur main ─▶ CI GitHub (qualité, tests, image) ─▶ si OK
 ### 1. Prérequis sur le serveur
 
 - Linux (Debian / Ubuntu), Docker Engine et le plugin `docker compose` ([installation](https://docs.docker.com/engine/install/)).
-- Un domaine géré par Cloudflare.
+- Le domaine **laphotogagnante.fr** (acheté chez OVH), dont le DNS est confié à Cloudflare : voir l'étape 1 bis.
 
 ```bash
 sudo mkdir -p /srv/photoprix/backups /srv/photoprix/logs
 ```
 
+### 1 bis. Domaine OVH → DNS Cloudflare
+
+Le domaine reste **enregistré chez OVH** (renouvellement, facturation) ; seule la gestion du DNS passe chez Cloudflare, ce qu'exige le tunnel.
+
+1. Cloudflare → **Add a domain** → `laphotogagnante.fr` → offre **Free**. Cloudflare importe les enregistrements DNS existants : **vérifiez que les `MX` et `TXT` (SPF) d'OVH sont bien présents** si vous utilisez une adresse email OVH, sinon les emails ne seront plus reçus/envoyés.
+2. Cloudflare affiche **deux serveurs DNS** (`xxx.ns.cloudflare.com`). Chez OVH : **Web Cloud** → **Noms de domaine** → `laphotogagnante.fr` → onglet **Serveurs DNS** → **Modifier les serveurs DNS** → remplacer ceux d'OVH par les deux de Cloudflare.
+3. Attendre l'email « domain is now active » de Cloudflare (quelques minutes à 24 h).
+4. Si **DNSSEC** est activé chez OVH, le désactiver avant l'étape 2 (on pourra le réactiver ensuite depuis Cloudflare).
+5. Facultatif : redirection `www` → domaine principal. Cloudflare → **Rules** → **Redirect Rules** → modèle *Redirect from WWW to root*. (L'application n'accepte que `laphotogagnante.fr`, cf. `SYMFONY_TRUSTED_HOSTS`.)
+
+**Emails envoyés par le site** (`MAILER_DSN`) : le plus simple est une adresse `no-reply@laphotogagnante.fr` chez OVH (offre email du domaine). Pour ne pas finir en spam, dans le DNS Cloudflare : garder l'enregistrement **SPF** d'OVH (`v=spf1 include:mx.ovh.com ~all`), activer **DKIM** dans l'espace client OVH (puis recopier les enregistrements `CNAME`/`TXT` qu'il donne dans Cloudflare) et ajouter un enregistrement **DMARC** : `TXT` `_dmarc` → `v=DMARC1; p=none; rua=mailto:admin@laphotogagnante.fr`.
+
 ### 2. Tunnel Cloudflare
 
 1. Cloudflare → **Zero Trust** → **Networks** → **Tunnels** → **Create a tunnel** → type **Cloudflared**, nom `photoprix`.
 2. Copier le **jeton** affiché (la longue chaîne après `--token` dans la commande proposée). Ne pas lancer cette commande : le conteneur `cloudflared` de `compose.prod.yaml` s'en charge.
-3. Onglet **Public Hostname** → ajouter : sous-domaine / domaine de votre choix, **Service** `HTTP` → URL `php:8080`.
+3. Onglet **Public Hostname** → ajouter : sous-domaine vide, domaine `laphotogagnante.fr`, **Service** `HTTP` → URL `php:8080`. Cloudflare crée lui-même l'enregistrement DNS et le certificat HTTPS.
 
 > Si un `cloudflared` tourne déjà sur le serveur (installé hors Docker), ne lancez pas celui de la stack :
 > publiez le port en local (`ports: ["127.0.0.1:8080:8080"]` sur le service `php`), faites pointer
@@ -55,26 +67,33 @@ Le script refuse de déployer tant qu'il reste une valeur `change-me`.
 
 ### 3 bis. Connexion Google / Facebook (facultatif)
 
-Chaque bouton n'apparaît que si son identifiant est renseigné dans `.env.prod`. Remplacez `https://votre-domaine.fr` par votre domaine.
+Chaque bouton n'apparaît que si son identifiant est renseigné dans `.env.prod`.
 
 **Google** — [console.cloud.google.com](https://console.cloud.google.com) :
-1. Créer un projet, puis **APIs et services** → **Écran de consentement OAuth** : type *Externe*, nom « LaPhotoGagnante », email d'assistance, logo facultatif, liens vers `https://votre-domaine.fr/rgpd` et `https://votre-domaine.fr/cgu`. Champs d'application : `openid`, `email`, `profile` (aucune validation Google nécessaire pour ceux-ci). **Publier** l'application (sinon seuls les comptes de test peuvent se connecter).
+1. Créer un projet, puis **APIs et services** → **Écran de consentement OAuth** : type *Externe*, nom « LaPhotoGagnante », email d'assistance, logo facultatif, liens vers `https://laphotogagnante.fr/rgpd` et `https://laphotogagnante.fr/cgu`. Champs d'application : `openid`, `email`, `profile` (aucune validation Google nécessaire pour ceux-ci). **Publier** l'application (sinon seuls les comptes de test peuvent se connecter).
 2. **Identifiants** → **Créer des identifiants** → **ID client OAuth** → *Application Web* :
-   - Origine JavaScript autorisée : `https://votre-domaine.fr`
-   - URI de redirection autorisé : `https://votre-domaine.fr/connect/google/check`
+   - Origine JavaScript autorisée : `https://laphotogagnante.fr`
+   - URI de redirection autorisé : `https://laphotogagnante.fr/connect/google/check`
 3. Copier l'ID et le secret dans `OAUTH_GOOGLE_CLIENT_ID` / `OAUTH_GOOGLE_CLIENT_SECRET`.
 
 **Facebook** — [developers.facebook.com](https://developers.facebook.com) :
 1. **Créer une app** → cas d'usage *Authentifier et demander des données aux utilisateurs avec Facebook Login*.
-2. **Paramètres de l'app** → **Général** : URL de politique de confidentialité `https://votre-domaine.fr/rgpd`, URL des conditions `https://votre-domaine.fr/cgu`, **instructions de suppression des données** `https://votre-domaine.fr/rgpd#suppression-donnees`, domaine de l'app `votre-domaine.fr`.
-3. **Facebook Login** → **Paramètres** : URI de redirection OAuth valide `https://votre-domaine.fr/connect/facebook/check` (laisser *Strict Mode* activé).
+2. **Paramètres de l'app** → **Général** : URL de politique de confidentialité `https://laphotogagnante.fr/rgpd`, URL des conditions `https://laphotogagnante.fr/cgu`, **instructions de suppression des données** `https://laphotogagnante.fr/rgpd#suppression-donnees`, domaine de l'app `laphotogagnante.fr`.
+3. **Facebook Login** → **Paramètres** : URI de redirection OAuth valide `https://laphotogagnante.fr/connect/facebook/check` (laisser *Strict Mode* activé).
 4. Autorisations : `email` et `public_profile` (accès standard, pas de validation d'app requise).
 5. Passer l'app en mode **Live** (en mode *Développement*, seuls les comptes ajoutés comme testeurs peuvent se connecter).
 6. Copier l'ID de l'app et la clé secrète dans `OAUTH_FACEBOOK_CLIENT_ID` / `OAUTH_FACEBOOK_CLIENT_SECRET`.
 
 Puis redéployer (Actions → Déploiement → Run workflow) pour prendre en compte les nouvelles valeurs.
 
-> Pour tester en local (`https://localhost`), ajoutez aussi `https://localhost/connect/google/check` (Google) et `https://localhost/connect/facebook/check` (Facebook) comme URI de redirection, et mettez les identifiants dans `.env.local`.
+> **Récapitulatif des URI de redirection à déclarer** (production + dev local, les deux peuvent coexister) :
+>
+> | Fournisseur | Production | Dev local |
+> |---|---|---|
+> | Google | `https://laphotogagnante.fr/connect/google/check` | `https://localhost/connect/google/check` |
+> | Facebook | `https://laphotogagnante.fr/connect/facebook/check` | `https://localhost/connect/facebook/check` |
+>
+> En local, les identifiants vont dans `.env.local` ; en production dans `/srv/photoprix/.env.prod`. Les mêmes applications Google / Facebook peuvent servir aux deux.
 
 ### 4. Runner GitHub sur le serveur
 

@@ -9,7 +9,7 @@
 parameters:
     locale: 'en'
     # Valeurs par défaut, surchargeables via les variables d'environnement (.env.local)
-    env(MAILER_FROM): 'LaPhotoGagnante <no-reply@photoprix.fr>'
+    env(MAILER_FROM): 'LaPhotoGagnante <no-reply@laphotogagnante.fr>'
     env(ADMIN_MAIL): 'alexis.verquin@gmail.com'
     app.admin_email: '%env(ADMIN_MAIL)%'
     # Connexion Google / Facebook : vide = bouton masqué (cf. config/packages/knpu_oauth2_client.yaml)

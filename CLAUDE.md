@@ -1,6 +1,7 @@
 # CLAUDE.md — LaPhotoGagnante
 
-Nom affiché : **LaPhotoGagnante** (anciennement PhotoPrix). Le nom **technique** reste `photoprix` (dépôt, conteneurs, image Docker, `/srv/photoprix`, variables `PHOTOPRIX_*`, adresses `@photoprix.fr`) : décision du 2026-11-07, à renommer plus tard si besoin.
+Nom affiché : **LaPhotoGagnante** (anciennement PhotoPrix). Le nom **technique** reste `photoprix` (dépôt, conteneurs, image Docker, `/srv/photoprix`, variables `PHOTOPRIX_*`) : décision du 2026-11-07, à renommer plus tard si besoin.
+Domaine de production : **laphotogagnante.fr** (enregistré chez OVH, DNS chez Cloudflare pour le tunnel). Adresses email : `@laphotogagnante.fr` (`MAILER_FROM`, `ADMIN_MAIL`).
 
 Plateforme communautaire de concours photo mensuel (projet perso d'Alexis Verquin, en développement). Chaque mois : un thème, les membres envoient **une photo**, l'admin la valide, les membres votent, un gagnant est désigné ; un sondage choisit le thème suivant.
 
