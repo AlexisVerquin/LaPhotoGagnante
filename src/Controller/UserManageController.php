@@ -7,6 +7,7 @@ use App\Form\UserInfoType;
 use App\Security\EmailVerifier;
 use App\Service\DataEraser;
 use App\Service\ImageSanitizer;
+use App\Service\PersonalDataExporter;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
@@ -17,6 +18,8 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\HeaderUtils;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -165,6 +168,27 @@ final class UserManageController extends AbstractController
         $em->flush();
 
         return $this->json(['success' => true]);
+    }
+
+    /**
+     * Télécharge toutes les données du membre en JSON (droits d'accès et de portabilité).
+     */
+    #[Route('/user/export', name: 'app_user_export', methods: ['GET'])]
+    public function export(PersonalDataExporter $exporter): Response
+    {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $response = new JsonResponse($exporter->export($user), json: false);
+        $response->setEncodingOptions(\JSON_PRETTY_PRINT | \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
+        $response->headers->set('Content-Disposition', HeaderUtils::makeDisposition(
+            HeaderUtils::DISPOSITION_ATTACHMENT,
+            sprintf('mes-donnees-laphotogagnante-%s.json', date('Y-m-d')),
+        ));
+
+        return $response;
     }
 
     #[Route('/user/delete', name: 'app_delete_user', methods: ['DELETE'])]

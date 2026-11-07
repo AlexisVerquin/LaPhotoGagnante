@@ -137,6 +137,13 @@
                                                 <twig:ux:icon name="lucide:circle-check-big" aria-hidden="true" />
                                             </button>
                                         </form>
+                                        <form action="{{ path('app_admin_photo_delete', {id: photo.id}) }}" method="post"
+                                              onsubmit="return confirm('Refuser et supprimer cette photo ?')">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete-photo-' ~ photo.id) }}">
+                                            <button type="submit" class="btn-vote" aria-label="Refuser la photo de {{ photo.user.name }}">
+                                                <twig:ux:icon name="lucide:trash-2" aria-hidden="true" />
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>

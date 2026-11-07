@@ -29,7 +29,7 @@ mises à jour de sécurité suivies (Dependabot, `composer audit` en CI).
 ## Fiche 1 — Gestion des comptes membres
 
 - **Finalité principale** : permettre aux membres de créer et gérer leur compte.
-- **Sous-finalités** : inscription, connexion (dont Google / Facebook), confirmation de l'email, mot de passe oublié, suppression du compte.
+- **Sous-finalités** : inscription (avec confirmation de l'âge minimum), connexion (dont Google / Facebook), confirmation de l'email, mot de passe oublié, export des données (JSON), suppression du compte, suspension par la modération.
 - **Base légale** : exécution du contrat (CGU).
 - **Personnes concernées** : membres inscrits.
 
@@ -42,7 +42,7 @@ mises à jour de sécurité suivies (Dependabot, `composer audit` en CI).
 ## Fiche 2 — Organisation des concours photo
 
 - **Finalité principale** : faire fonctionner les concours.
-- **Sous-finalités** : envoi et modération des photos, votes, désignation du gagnant, palmarès, sondage du thème suivant.
+- **Sous-finalités** : envoi, validation, refus ou retrait des photos, votes, désignation du gagnant, palmarès, sondage du thème suivant.
 - **Base légale** : exécution du contrat (CGU).
 - **Personnes concernées** : membres ; personnes éventuellement visibles sur les photos.
 
@@ -61,6 +61,12 @@ mises à jour de sécurité suivies (Dependabot, `composer audit` en CI).
 | Catégorie de données | Description | Durée de conservation |
 |---|---|---|
 | Identification | Email, nom d'utilisateur | Tant que le membre est inscrit et abonné |
+
+## Fiche 3 bis — Information sur les changements des CGU et de la politique
+
+- **Finalité principale** : prévenir les membres d'une modification importante des textes (commande `app:legal:notify-update`).
+- **Base légale** : obligation d'information liée au contrat (CGU) ; envoyé à tous les membres, même désabonnés des annonces.
+- **Données** : email, nom d'utilisateur — aucune conservation supplémentaire.
 
 ## Fiche 4 — Formulaire de contact
 

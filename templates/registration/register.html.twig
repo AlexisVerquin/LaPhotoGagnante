@@ -57,6 +57,12 @@
                         {{ form_errors(registrationForm.plainPassword) }}
                     </div>
 
+                    <div class="form-check mb-2 text-start">
+                        {{ form_widget(registrationForm.ageConfirmation, {'attr': {'class': 'form-check-input'}}) }}
+                        {{ form_label(registrationForm.ageConfirmation, null, {'label_attr': {'class': 'form-check-label small'}}) }}
+                        {{ form_errors(registrationForm.ageConfirmation) }}
+                    </div>
+
                     <div class="form-check mb-4 text-start">
                         {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
                         {{ form_label(registrationForm.agreeTerms, 'J’accepte les conditions d’utilisation', {'label_attr': {'class': 'form-check-label small'}}) }}

@@ -74,8 +74,16 @@
                                             <span class="vote-heart-count" data-vote-target="count">{{ photo.votes|length }}</span>
                                         </button>
                                     {% endif %}
-
                                 </div>
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    {# Modération : retirer une photo publiée qui ne respecte pas les CGU #}
+                                    <form action="{{ path('app_admin_photo_delete', {id: photo.id}) }}" method="post" class="text-end"
+                                          onsubmit="return confirm('Retirer cette photo du concours ? Elle sera supprimée avec ses votes.')">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete-photo-' ~ photo.id) }}">
+                                        <input type="hidden" name="_back" value="app_gallery">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger mt-2">Retirer la photo</button>
+                                    </form>
+                                {% endif %}
                             </div>
                         </div>
                     {% endfor %}

@@ -32,7 +32,36 @@ Liste établie le 2026-11-07. Pour chaque point : ce qui existe déjà, pour rep
 
 - [ ] **8. Vérification RGPD et CGU**
   - Fait : CGU, politique de confidentialité et mentions légales réécrites (structure CNIL, alignées sur le code) ; purge automatique, vraie suppression de compte, désinscription, polices et icônes locales ; registre `docs/registre-traitements.md`.
+  - Fait aussi (promesses des textes) : modération (refuser / retirer une photo, suspendre / supprimer un membre), export JSON des données dans le profil, âge minimum à l'inscription, email aux membres en cas de changement des textes (`app:legal:notify-update`).
   - Reste : compléter `config/packages/legal.yaml` (hébergeur, pays du serveur, adresse publique de contact) ; relecture par un avocat sur les points ouverts (auto-hébergement et anonymat de l'éditeur, applicabilité du DSA) ; vérifier la durée réelle des journaux sur le serveur.
+
+## Informations à fournir (pages légales)
+
+À renseigner dans `config/packages/legal.yaml` : tant qu'une valeur manque, les pages affichent « À compléter ».
+
+- [ ] **Hébergeur** : nom, adresse, téléphone. Le site est auto-hébergé, donc c'est l'éditeur : décider s'il publie son adresse (question pour l'avocat).
+- [ ] **Pays du serveur** (France ?).
+- [ ] **Email public de contact** : aujourd'hui l'adresse Gmail personnelle ; créer `contact@laphotogagnante.fr` chez OVH ?
+- [ ] **Prestataire d'envoi des emails** : OVH indiqué, à confirmer (et `MAILER_DSN` de prod).
+- [ ] **Âge minimum** : 15 ans retenu (majorité numérique), à confirmer.
+- [ ] **Date de mise à jour** (`updated_at`) à changer à chaque modification des textes, puis prévenir les membres (`app:legal:notify-update`).
+
+## Mise en production
+
+- [ ] Pousser `dev` puis fusionner dans `main` (le déploiement automatique ne démarre qu'après).
+- [ ] Installer le serveur en suivant `deploy/README.md` : DNS OVH → Cloudflare, tunnel, `.env.prod`, runner GitHub, environnement `production`.
+- [ ] Cron `app:daily` + sauvegarde quotidienne (`deploy/README.md` § 6).
+- [ ] Journaux : la politique annonce 6 mois maximum, mais Docker ne limite que leur taille ; vérifier sur le serveur, ou ajouter une suppression par date.
+- [ ] Google et Facebook : déclarer les URI de redirection de production, publier l'app Google, passer l'app Facebook en mode Live (examen Meta éventuel).
+- [ ] Créer la boîte `no-reply@laphotogagnante.fr` (envoi des emails), et SPF / DKIM / DMARC dans Cloudflare.
+
+## Relecture juridique
+
+- [ ] Relecture ciblée par un avocat (≈ 300-600 € HT, cf. échange du 2026-11-07) sur :
+  - auto-hébergement et anonymat de l'éditeur (mentions légales) ;
+  - applicabilité du Digital Services Act à un petit site gratuit (signalement, motivation de la modération) ;
+  - diffusion des photos gagnantes sur les réseaux sociaux (accord explicite de l'auteur) ;
+  - règlement de jeu-concours si des lots sont un jour attribués.
 
 ## Points techniques encore ouverts (cf. `AUDIT.md`)
 

@@ -106,7 +106,12 @@ final class DataRetention
      */
     private function purgeOldAnonymizedAccounts(bool $dryRun): int
     {
-        $accounts = $this->em->getRepository(User::class)->findBy(['isActive' => false]);
+        // Repérés par leur adresse : isActive=false veut désormais dire « suspendu », pas « supprimé »
+        $accounts = $this->em->getRepository(User::class)->createQueryBuilder('u')
+            ->andWhere('u.email LIKE :deleted')
+            ->setParameter('deleted', '%@deleteduser.fr')
+            ->getQuery()
+            ->getResult();
 
         if (!$dryRun) {
             foreach ($accounts as $user) {

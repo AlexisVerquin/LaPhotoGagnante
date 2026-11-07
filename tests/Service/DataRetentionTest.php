@@ -131,11 +131,13 @@ final class DataRetentionTest extends FunctionalTestCase
         $this->em->flush();
         $anonymizedId = $anonymized->getId();
         $this->createUser('actif@example.com', name: 'Actif');
+        $this->createUser('suspendu@example.com', name: 'Suspendu')->setIsActive(false);
+        $this->em->flush();
 
         $this->purge();
 
         self::assertNull($this->reload(User::class, $anonymizedId));
-        self::assertSame(1, $this->em->getRepository(User::class)->count());
+        self::assertSame(2, $this->em->getRepository(User::class)->count(), 'Un compte suspendu n\'est pas supprimé');
     }
 
     public function testDryRunDeletesNothing(): void

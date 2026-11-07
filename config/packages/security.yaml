@@ -19,6 +19,8 @@ security:
         main:
             lazy: true
             provider: app_user_provider
+            # Refuse la connexion des comptes suspendus par la modération
+            user_checker: App\Security\UserChecker
             # Les boutons « Continuer avec Google / Facebook ».
             custom_authenticators:
                 - App\Security\OAuth\SocialAuthenticator

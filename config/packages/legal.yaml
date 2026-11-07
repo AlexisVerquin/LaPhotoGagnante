@@ -1,26 +1,30 @@
 # Informations affichées dans les mentions légales, les CGU et la politique de confidentialité.
 # Une valeur à ~ (vide) s'affiche « À compléter » en surligné sur les pages : rien ne doit rester vide en production.
+parameters:
+    app.legal:
+        # Date affichée en haut des trois documents : à changer à chaque modification
+        updated_at: '2026-11-07'
+
+        editor_name: 'Alexis Verquin'
+        # Adresse publique de contact (une adresse du domaine est préférable à une adresse personnelle)
+        contact_email: 'alexis.verquin@gmail.com'
+        # Éditeur non professionnel : l'adresse peut ne pas être publiée si l'hébergeur est identifié
+        editor_address: ~
+
+        # Le site tourne sur un serveur personnel : nom, adresse et téléphone de qui l'héberge
+        host_name: ~
+        host_address: ~
+        host_phone: ~
+        # Pays où se trouve le serveur (et donc les données)
+        host_country: ~
+
+        # Prestataire d'envoi des emails
+        mail_provider: 'OVH SAS, 2 rue Kellermann, 59100 Roubaix, France'
+
+        # Âge minimum pour s'inscrire : se règle dans config/services.yaml (app.min_age)
+        min_age: '%app.min_age%'
+
+# Disponible dans tous les gabarits sous le nom « legal »
 twig:
     globals:
-        legal:
-            # Date affichée en haut des trois documents : à changer à chaque modification
-            updated_at: '2026-11-07'
-
-            editor_name: 'Alexis Verquin'
-            # Adresse publique de contact (une adresse du domaine est préférable à une adresse personnelle)
-            contact_email: 'alexis.verquin@gmail.com'
-            # Éditeur non professionnel : l'adresse peut ne pas être publiée si l'hébergeur est identifié
-            editor_address: ~
-
-            # Le site tourne sur un serveur personnel : nom, adresse et téléphone de qui l'héberge
-            host_name: ~
-            host_address: ~
-            host_phone: ~
-            # Pays où se trouve le serveur (et donc les données)
-            host_country: ~
-
-            # Prestataire d'envoi des emails
-            mail_provider: 'OVH SAS, 2 rue Kellermann, 59100 Roubaix, France'
-
-            # Âge minimum pour s'inscrire (15 ans = majorité numérique en France)
-            min_age: 15
+        legal: '%app.legal%'
