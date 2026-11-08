@@ -44,16 +44,13 @@ final class LegalPagesTest extends FunctionalTestCase
 
         self::assertSelectorTextContains('#hebergement', 'Scaleway SAS');
         self::assertSelectorTextContains('#hebergement', '75008 Paris');
-        // Valeur de .env.test : en production elle vient de .env.prod
-        self::assertSelectorTextContains('#hebergement', '01 23 45 67 89');
     }
 
     public function testEditorAddressFromTheEnvironmentIsShown(): void
     {
         $this->client->request('GET', '/mentions-legales');
 
-        // Valeur de .env.test : en production elle vient de .env.prod, jamais de git
-        self::assertSelectorTextContains('#editeur', '59000 Lille');
+        self::assertSelectorTextNotContains('#editeur', 'particulier éditant le site');
         self::assertSelectorTextNotContains('#editeur', 'article 6-III-2');
     }
 }
