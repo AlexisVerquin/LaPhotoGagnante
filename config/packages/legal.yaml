@@ -7,7 +7,7 @@ parameters:
 
         editor_name: 'Alexis Verquin'
         # Adresse publique de contact (une adresse du domaine est préférable à une adresse personnelle)
-        contact_email: 'alexis.verquin@gmail.com'
+        contact_email: 'contact@laphotogagnante.fr'
         # Éditeur non professionnel : l'adresse peut ne pas être publiée si l'hébergeur est identifié
         editor_address: '%env(LEGAL_EDITOR_ADDRESS)%'
 
@@ -15,8 +15,6 @@ parameters:
         # Coordonnées publiques de l'hébergeur, cf. https://www.scaleway.com/fr/mentions-legales
         host_name: 'Scaleway SAS'
         host_address: '8 rue de la Ville-l''Évêque, 75008 Paris'
-        # Téléphone de l'hébergeur (obligatoire, LCEN art. 6) : à recopier depuis les mentions légales de Scaleway
-        host_phone: '%env(LEGAL_HOST_PHONE)%'
         # Pays où se trouve le serveur (et donc les données)
         host_country: France
 
