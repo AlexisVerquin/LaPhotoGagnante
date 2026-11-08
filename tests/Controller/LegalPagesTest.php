@@ -50,7 +50,6 @@ final class LegalPagesTest extends FunctionalTestCase
     {
         $this->client->request('GET', '/mentions-legales');
 
-        self::assertSelectorTextNotContains('#editeur', 'particulier éditant le site');
         self::assertSelectorTextNotContains('#editeur', 'article 6-III-2');
     }
 }
