@@ -3,7 +3,7 @@
 parameters:
     app.legal:
         # Date affichée en haut des trois documents : à changer à chaque modification
-        updated_at: '2026-11-07'
+        updated_at: '2026-11-08'
 
         editor_name: 'Alexis Verquin'
         # Adresse publique de contact (une adresse du domaine est préférable à une adresse personnelle)
@@ -11,16 +11,17 @@ parameters:
         # Éditeur non professionnel : l'adresse peut ne pas être publiée si l'hébergeur est identifié
         editor_address: '%env(LEGAL_EDITOR_ADDRESS)%'
 
-        # Le site tourne sur un serveur personnel : nom, adresse et téléphone de qui l'héberge.
-        # Adresse et téléphone ne sont pas dans git : ils viennent de l'environnement (.env.local, .env.prod)
-        host_name: 'Alexis Verquin'
-        host_address: '%env(LEGAL_HOST_ADDRESS)%'
+        # Serveur dédié Dedibox loué chez Scaleway (datacenters en région parisienne).
+        # Coordonnées publiques de l'hébergeur, cf. https://www.scaleway.com/fr/mentions-legales
+        host_name: 'Scaleway SAS'
+        host_address: '8 rue de la Ville-l''Évêque, 75008 Paris'
+        # Téléphone de l'hébergeur (obligatoire, LCEN art. 6) : à recopier depuis les mentions légales de Scaleway
         host_phone: '%env(LEGAL_HOST_PHONE)%'
         # Pays où se trouve le serveur (et donc les données)
         host_country: France
 
         # Prestataire d'envoi des emails
-        mail_provider: 'OVH SAS, 2 rue Kellermann, 59100 Roubaix, France'
+        mail_provider: 'Brevo (Sendinblue SAS), 106 boulevard Haussmann, 75008 Paris, France'
 
         # Âge minimum pour s'inscrire : se règle dans config/services.yaml (app.min_age)
         min_age: '%app.min_age%'

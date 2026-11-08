@@ -8,7 +8,7 @@
 set -Eeuo pipefail
 
 PROJECT="${PHOTOPRIX_PROJECT:-photoprix-prod}"
-BACKUP_DIR="${PHOTOPRIX_BACKUP_DIR:-/srv/photoprix/backups}"
+BACKUP_DIR="${PHOTOPRIX_BACKUP_DIR:-/srv/laphotogagnante/backups}"
 # Les photos pèsent bien plus lourd que la base : on en garde moins d'exemplaires
 DB_TO_KEEP="${PHOTOPRIX_BACKUPS_TO_KEEP:-14}"
 FILES_TO_KEEP="${PHOTOPRIX_FILE_BACKUPS_TO_KEEP:-7}"

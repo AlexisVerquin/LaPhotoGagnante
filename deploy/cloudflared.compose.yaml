@@ -2,8 +2,8 @@
 # (LaPhotoGagnante et d'autres). Lancé à part, pour qu'arrêter le site ne coupe pas les autres services.
 #
 # Installation (une fois) : copier ce fichier hors du dépôt avec un .env (chmod 600) contenant TUNNEL_TOKEN=…
-#   mkdir -p ~/server/cloudflared && cp deploy/cloudflared.compose.yaml ~/server/cloudflared/docker-compose.yml
-#   cd ~/server/cloudflared && docker compose up -d
+#   sudo mkdir -p /srv/cloudflared && sudo cp deploy/cloudflared.compose.yaml /srv/cloudflared/docker-compose.yml
+#   cd /srv/cloudflared && sudo docker compose up -d
 #
 # Les routes (hostname → service) se règlent dans Cloudflare Zero Trust > Networks > Tunnels.
 # Un service n'est joignable que s'il rejoint le réseau Docker « tunnel » : le site est à http://laphotogagnante:8080.

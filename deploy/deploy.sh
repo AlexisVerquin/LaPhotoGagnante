@@ -5,8 +5,8 @@
 #
 set -Eeuo pipefail
 
-ENV_FILE="${PHOTOPRIX_ENV_FILE:-/srv/photoprix/.env.prod}"
-BACKUP_DIR="${PHOTOPRIX_BACKUP_DIR:-/srv/photoprix/backups}"
+ENV_FILE="${PHOTOPRIX_ENV_FILE:-/srv/laphotogagnante/.env.prod}"
+BACKUP_DIR="${PHOTOPRIX_BACKUP_DIR:-/srv/laphotogagnante/backups}"
 IMAGE="photoprix-app"
 # Nom du projet Docker Compose (celui de compose.prod.yaml, sauf surcharge pour un test local)
 export PHOTOPRIX_PROJECT="${COMPOSE_PROJECT_NAME:-photoprix-prod}"
