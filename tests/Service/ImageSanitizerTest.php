@@ -17,7 +17,7 @@ final class ImageSanitizerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->dir = sys_get_temp_dir() . '/photoprix_' . uniqid();
+        $this->dir = sys_get_temp_dir() . '/laphotogagnante_' . uniqid();
         mkdir($this->dir);
     }
 
