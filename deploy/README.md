@@ -135,7 +135,7 @@ Puis redémarrer le site pour prendre en compte les nouvelles valeurs : `cd /srv
 > | Google | `https://laphotogagnante.fr/connect/google/check` | `https://localhost/connect/google/check` |
 > | Facebook | `https://laphotogagnante.fr/connect/facebook/check` | `https://localhost/connect/facebook/check` |
 >
-> En local, les identifiants vont dans `.env.local` ; en production dans `/srv/laphotogagnante/.env.prod`. Les mêmes applications Google / Facebook peuvent servir aux deux.
+> En local, les identifiants vont dans `.env.local` ; en production dans `/srv/photoprix/.env.prod`. Les mêmes applications Google / Facebook peuvent servir aux deux.
 
 ### 4. Mise à jour automatique
 

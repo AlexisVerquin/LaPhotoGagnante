@@ -23,7 +23,7 @@ Liste établie le 2026-11-07. Pour chaque point : ce qui existe déjà, pour rep
   - Reste : copie hors du serveur (restic / borg vers un disque externe ou un stockage distant chiffré) ; tester une restauration sur le vrai serveur.
 
 - [ ] **6. Migration du site en cas de changement d'hébergement**
-  - Existe : tout est dans Docker (`compose.prod.yaml`), configuration dans un seul fichier hors dépôt (`/srv/photoprix/.env.prod`).
+  - Existe : tout est dans Docker (`compose.prod.yaml`), configuration dans un seul fichier hors dépôt (`/srv/laphotogagnante/.env.prod`).
   - À faire : script d'export / import (base + volumes photos + `.env.prod`) et procédure écrite pas à pas (nouveau serveur → restauration → bascule du tunnel Cloudflare).
 
 - [ ] **7. Vérification de l'accessibilité**
@@ -40,7 +40,7 @@ Liste établie le 2026-11-07. Pour chaque point : ce qui existe déjà, pour rep
 À renseigner dans `config/packages/legal.yaml` : tant qu'une valeur manque, les pages affichent « À compléter ».
 
 - [x] **Hébergeur** : Scaleway SAS (Dedibox), nom et adresse dans `config/packages/legal.yaml`.
-- [ ] **Téléphone de Scaleway** à renseigner dans `LEGAL_HOST_PHONE` (`/srv/photoprix/.env.prod`), depuis https://www.scaleway.com/fr/mentions-legales.
+- [ ] **Téléphone de Scaleway** à renseigner dans `LEGAL_HOST_PHONE` (`/srv/laphotogagnante/.env.prod`), depuis https://www.scaleway.com/fr/mentions-legales.
 - [ ] **Email public de contact** : aujourd'hui l'adresse Gmail personnelle ; créer `contact@laphotogagnante.fr` chez OVH ?
 - [ ] **Prestataire d'envoi des emails** : OVH indiqué, à confirmer (et `MAILER_DSN` de prod).
 - [ ] **Âge minimum** : 15 ans retenu (majorité numérique), à confirmer.
@@ -53,7 +53,7 @@ Liste établie le 2026-11-07. Pour chaque point : ce qui existe déjà, pour rep
 - [ ] Pousser `dev` puis fusionner dans `master` : la CI tourne sur `master`, et le serveur déploie quand elle est verte.
 - [ ] **Preprod** pour quelques personnes : `preprod.laphotogagnante.fr` + Cloudflare Access (`deploy/README.md`, section « Preprod »).
 - [ ] Installer le serveur en suivant `deploy/README.md` : DNS OVH → Cloudflare, tunnel, `.env.prod`, clone + cron de mise à jour automatique (pas de runner GitHub : dépôt public).
-- [ ] Cron `app:daily` + `/srv/photoprix/bin/backup.sh` (`deploy/README.md` § 6).
+- [ ] Cron `app:daily` + `/srv/laphotogagnante/bin/backup.sh` (`deploy/README.md` § 6).
 - [ ] Copier les sauvegardes **hors du serveur** (disque externe, autre machine) : elles sont aujourd'hui sur le même disque que le site.
 - [ ] Journaux : la politique annonce 6 mois maximum, mais Docker ne limite que leur taille ; vérifier sur le serveur, ou ajouter une suppression par date.
 - [ ] Google et Facebook : déclarer les URI de redirection de production, publier l'app Google, passer l'app Facebook en mode Live (examen Meta éventuel).
