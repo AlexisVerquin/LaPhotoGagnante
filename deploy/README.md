@@ -55,7 +55,7 @@ Scaleway est l'hébergeur déclaré dans les mentions légales (`config/packages
 - Le domaine **laphotogagnante.fr** (acheté chez OVH), dont le DNS est confié à Cloudflare : voir l'étape 1 bis.
 
 ```bash
-sudo mkdir -p /srv/photoprix/backups /srv/photoprix/logs
+sudo mkdir -p /srv/laphotogagnante/backups /srv/laphotogagnante/logs
 ```
 
 ### 1 bis. Domaine OVH → DNS Cloudflare
@@ -79,8 +79,8 @@ pour qu'arrêter ou redéployer le site ne coupe rien d'autre. Il rejoint les se
 2. Sinon : Cloudflare → **Zero Trust** → **Networks** → **Tunnels** → **Create a tunnel** → type **Cloudflared**, copier le **jeton**
    (la longue chaîne après `--token`, sans lancer la commande proposée), puis :
    ```bash
-   mkdir -p ~/server/cloudflared && cp deploy/cloudflared.compose.yaml ~/server/cloudflared/docker-compose.yml
-   cd ~/server/cloudflared && (umask 077; echo 'TUNNEL_TOKEN=le-jeton' > .env) && docker compose up -d
+   sudo mkdir -p /srv/cloudflared && sudo cp deploy/cloudflared.compose.yaml /srv/cloudflared/docker-compose.yml
+   cd /srv/cloudflared && sudo sh -c "umask 077; echo 'TUNNEL_TOKEN=le-jeton' > .env" && sudo docker compose up -d
    ```
 3. Dans le tunnel → **Public Hostname** (ou **Published application routes**) → ajouter : sous-domaine vide, domaine `laphotogagnante.fr`,
    **Service** `HTTP` → URL `laphotogagnante:8080`. Cloudflare crée lui-même l'enregistrement DNS et le certificat HTTPS.
@@ -93,8 +93,8 @@ pour qu'arrêter ou redéployer le site ne coupe rien d'autre. Il rejoint les se
 ### 3. Fichier de configuration
 
 ```bash
-sudo cp deploy/.env.prod.example /srv/photoprix/.env.prod   # depuis un clone du dépôt
-sudo nano /srv/photoprix/.env.prod                          # remplacer TOUTES les valeurs change-me
+sudo cp deploy/.env.prod.example /srv/laphotogagnante/.env.prod   # depuis un clone du dépôt
+sudo nano /srv/laphotogagnante/.env.prod                          # remplacer TOUTES les valeurs change-me
 ```
 
 - Secret : `openssl rand -hex 32`.
@@ -125,7 +125,7 @@ Chaque bouton n'apparaît que si son identifiant est renseigné dans `.env.prod`
 5. Passer l'app en mode **Live** (en mode *Développement*, seuls les comptes ajoutés comme testeurs peuvent se connecter).
 6. Copier l'ID de l'app et la clé secrète dans `OAUTH_FACEBOOK_CLIENT_ID` / `OAUTH_FACEBOOK_CLIENT_SECRET`.
 
-Puis redémarrer le site pour prendre en compte les nouvelles valeurs : `cd /srv/photoprix/app && PHOTOPRIX_ENV_FILE=/srv/photoprix/.env.prod ./deploy/deploy.sh`.
+Puis redémarrer le site pour prendre en compte les nouvelles valeurs : `cd /srv/laphotogagnante/app && PHOTOPRIX_ENV_FILE=/srv/laphotogagnante/.env.prod ./deploy/deploy.sh`.
 
 > **Récapitulatif des URI de redirection à déclarer** (production + dev local, les deux peuvent coexister) :
 >
@@ -134,7 +134,7 @@ Puis redémarrer le site pour prendre en compte les nouvelles valeurs : `cd /srv
 > | Google | `https://laphotogagnante.fr/connect/google/check` | `https://localhost/connect/google/check` |
 > | Facebook | `https://laphotogagnante.fr/connect/facebook/check` | `https://localhost/connect/facebook/check` |
 >
-> En local, les identifiants vont dans `.env.local` ; en production dans `/srv/photoprix/.env.prod`. Les mêmes applications Google / Facebook peuvent servir aux deux.
+> En local, les identifiants vont dans `.env.local` ; en production dans `/srv/laphotogagnante/.env.prod`. Les mêmes applications Google / Facebook peuvent servir aux deux.
 
 ### 4. Mise à jour automatique
 
@@ -143,16 +143,16 @@ Puis redémarrer le site pour prendre en compte les nouvelles valeurs : `cd /srv
    ```bash
    sudo useradd -m -s /bin/bash photoprix
    sudo usermod -aG docker photoprix
-   sudo git clone https://github.com/AlexisVerquin/LaPhotoGagnante.git /srv/photoprix/app
-   sudo mkdir -p /srv/photoprix/logs
-   sudo chown -R photoprix:photoprix /srv/photoprix
-   sudo chmod 600 /srv/photoprix/.env.prod
+   sudo git clone https://github.com/AlexisVerquin/LaPhotoGagnante.git /srv/laphotogagnante/app
+   sudo mkdir -p /srv/laphotogagnante/logs
+   sudo chown -R photoprix:photoprix /srv/laphotogagnante
+   sudo chmod 600 /srv/laphotogagnante/.env.prod
    ```
    Appartenir au groupe `docker` revient à être administrateur de la machine : seul le code de `master` est exécuté par ce compte.
 3. `sudo crontab -u photoprix -e` :
    ```cron
    # Toutes les 5 minutes : déploie le dernier commit de master si sa CI est verte (silencieux sinon)
-   */5 * * * * /srv/photoprix/app/deploy/auto-update.sh >> /srv/photoprix/logs/deploy.log 2>&1
+   */5 * * * * /srv/laphotogagnante/app/deploy/auto-update.sh >> /srv/laphotogagnante/logs/deploy.log 2>&1
    ```
 
 ### 5. Premier déploiement
@@ -161,7 +161,7 @@ Fusionnez `dev` dans `master` et attendez que la CI soit verte : le serveur dép
 Pour ne pas attendre, ou suivre le déploiement en direct :
 
 ```bash
-sudo -iu photoprix /srv/photoprix/app/deploy/auto-update.sh
+sudo -iu photoprix /srv/laphotogagnante/app/deploy/auto-update.sh
 ```
 
 Puis, une fois le site en ligne : s'inscrire sur le site, confirmer son email, et se donner le rôle admin :
@@ -177,17 +177,17 @@ docker exec photoprix-prod-php-1 php bin/console app:user:promote votre@email.fr
 ```cron
 # Chaque nuit : désigne le gagnant du concours terminé, annonce le nouveau concours par email,
 # puis supprime ce qui a dépassé sa durée de conservation (photos, messages clôturés)
-15 0 * * * docker exec photoprix-prod-php-1 php bin/console app:daily >> /srv/photoprix/logs/daily.log 2>&1
+15 0 * * * docker exec photoprix-prod-php-1 php bin/console app:daily >> /srv/laphotogagnante/logs/daily.log 2>&1
 
 # Sauvegarde quotidienne de la base et des photos (installée par chaque déploiement)
-30 3 * * * /srv/photoprix/bin/backup.sh >> /srv/photoprix/logs/backup.log 2>&1
+30 3 * * * /srv/laphotogagnante/bin/backup.sh >> /srv/laphotogagnante/logs/backup.log 2>&1
 ```
 
-Chaque sauvegarde produit deux fichiers dans `/srv/photoprix/backups` : `photoprix-*.sql.gz` (la base, 14 gardées) et `fichiers-*.tar`
+Chaque sauvegarde produit deux fichiers dans `/srv/laphotogagnante/backups` : `photoprix-*.sql.gz` (la base, 14 gardées) et `fichiers-*.tar`
 (photos publiées, photos en attente et avatars, 7 gardées car plus lourdes). Ces nombres se règlent avec `PHOTOPRIX_BACKUPS_TO_KEEP`
-et `PHOTOPRIX_FILE_BACKUPS_TO_KEEP`. Les photos font au plus 5 Mo : prévoir de la place en conséquence (`du -sh /srv/photoprix/backups`).
+et `PHOTOPRIX_FILE_BACKUPS_TO_KEEP`. Les photos font au plus 5 Mo : prévoir de la place en conséquence (`du -sh /srv/laphotogagnante/backups`).
 
-Pensez à copier régulièrement `/srv/photoprix/backups` **hors du serveur** (disque externe, autre machine, stockage objet) : la Dedibox n'a qu'un disque, une sauvegarde sur ce disque ne protège pas d'une panne. Exemple depuis le PC : `rsync -av photoprix@serveur:/srv/photoprix/backups/ ~/sauvegardes-photoprix/`.
+Pensez à copier régulièrement `/srv/laphotogagnante/backups` **hors du serveur** (disque externe, autre machine, stockage objet) : la Dedibox n'a qu'un disque, une sauvegarde sur ce disque ne protège pas d'une panne. Exemple depuis le PC : `rsync -av photoprix@serveur:/srv/laphotogagnante/backups/ ~/sauvegardes-photoprix/`.
 
 ## Preprod réservée à quelques personnes
 
@@ -204,28 +204,28 @@ Le jour de l'ouverture, il suffit de remplacer le sous-domaine par `laphotogagna
 
 | Besoin | Commande (sur le serveur, en tant que `photoprix`) |
 |---|---|
-| État des conteneurs | `docker compose -f compose.prod.yaml --env-file /srv/photoprix/.env.prod ps` |
+| État des conteneurs | `docker compose -f compose.prod.yaml --env-file /srv/laphotogagnante/.env.prod ps` |
 | Logs du site | `docker logs -f --tail 100 photoprix-prod-php-1` |
 | Logs des emails | `docker logs -f --tail 100 photoprix-prod-messenger-1` |
 | Console Symfony | `docker exec -it photoprix-prod-php-1 php bin/console …` |
-| Où en est le déploiement ? | `/srv/photoprix/app/deploy/auto-update.sh --status` et `tail -f /srv/photoprix/logs/deploy.log` |
-| Retenter un commit en échec (après correction de la config) | `rm /srv/photoprix/state/failed-sha`, puis attendre 5 min ou lancer `auto-update.sh` |
-| Redéployer à la main la version présente | `cd /srv/photoprix/app && PHOTOPRIX_ENV_FILE=/srv/photoprix/.env.prod ./deploy/deploy.sh` |
-| Revenir à la version précédente | `docker tag photoprix-app:previous photoprix-app:latest && docker compose -f compose.prod.yaml --env-file /srv/photoprix/.env.prod up -d --no-build php messenger` |
+| Où en est le déploiement ? | `/srv/laphotogagnante/app/deploy/auto-update.sh --status` et `tail -f /srv/laphotogagnante/logs/deploy.log` |
+| Retenter un commit en échec (après correction de la config) | `rm /srv/laphotogagnante/state/failed-sha`, puis attendre 5 min ou lancer `auto-update.sh` |
+| Redéployer à la main la version présente | `cd /srv/laphotogagnante/app && PHOTOPRIX_ENV_FILE=/srv/laphotogagnante/.env.prod ./deploy/deploy.sh` |
+| Revenir à la version précédente | `docker tag photoprix-app:previous photoprix-app:latest && docker compose -f compose.prod.yaml --env-file /srv/laphotogagnante/.env.prod up -d --no-build php messenger` |
 
 ### Restaurer une sauvegarde
 
 La base :
 
 ```bash
-gunzip -c /srv/photoprix/backups/photoprix-AAAAMMJJ-HHMMSS.sql.gz \
+gunzip -c /srv/laphotogagnante/backups/photoprix-AAAAMMJJ-HHMMSS.sql.gz \
   | docker exec -i photoprix-prod-database-1 sh -c 'exec mysql -uroot -p"$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE"'
 ```
 
 Les photos et avatars (les fichiers présents sont remplacés, les autres restent) :
 
 ```bash
-docker exec -i photoprix-prod-php-1 tar xf - -C /app < /srv/photoprix/backups/fichiers-AAAAMMJJ-HHMMSS.tar
+docker exec -i photoprix-prod-php-1 tar xf - -C /app < /srv/laphotogagnante/backups/fichiers-AAAAMMJJ-HHMMSS.tar
 ```
 
 Restaurez la base et les fichiers **de la même date** : sinon des photos peuvent manquer en base, ou l'inverse.
