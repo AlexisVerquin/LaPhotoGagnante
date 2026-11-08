@@ -5,12 +5,12 @@
 #
 set -Eeuo pipefail
 
-ENV_FILE="${PHOTOPRIX_ENV_FILE:-/srv/laphotogagnante/.env.prod}"
-BACKUP_DIR="${PHOTOPRIX_BACKUP_DIR:-/srv/laphotogagnante/backups}"
-IMAGE="photoprix-app"
+ENV_FILE="${LAPHOTOGAGNANTE_ENV_FILE:-/srv/laphotogagnante/.env.prod}"
+BACKUP_DIR="${LAPHOTOGAGNANTE_BACKUP_DIR:-/srv/laphotogagnante/backups}"
+IMAGE="laphotogagnante-app"
 # Nom du projet Docker Compose (celui de compose.prod.yaml, sauf surcharge pour un test local)
-export PHOTOPRIX_PROJECT="${COMPOSE_PROJECT_NAME:-photoprix-prod}"
-export PHOTOPRIX_BACKUP_DIR="$BACKUP_DIR"
+export LAPHOTOGAGNANTE_PROJECT="${COMPOSE_PROJECT_NAME:-laphotogagnante-prod}"
+export LAPHOTOGAGNANTE_BACKUP_DIR="$BACKUP_DIR"
 
 cd "$(dirname "$0")/.."
 
@@ -20,7 +20,7 @@ fail() { printf '\n\033[1;31m[ERREUR] %s\033[0m\n' "$*" >&2; exit 1; }
 [[ -f "$ENV_FILE" ]] || fail "Fichier de configuration introuvable : $ENV_FILE (voir deploy/README.md)"
 grep -Eq '^[^#].*change-me' "$ENV_FILE" && fail "$ENV_FILE contient encore des valeurs « change-me »"
 
-export PHOTOPRIX_ENV_FILE="$ENV_FILE"
+export LAPHOTOGAGNANTE_ENV_FILE="$ENV_FILE"
 compose() { docker compose -f compose.prod.yaml --env-file "$ENV_FILE" "$@"; }
 
 # Le contrôle final doit se présenter avec le vrai domaine, sinon Symfony le refuse.
@@ -34,7 +34,7 @@ install -D -m 755 deploy/backup.sh "$(dirname "$ENV_FILE")/bin/backup.sh"
 if compose ps --status running --services 2>/dev/null | grep -qx database; then
     log "Sauvegarde de la base et des photos"
     ./deploy/backup.sh
-    backup="$(ls -1t "$BACKUP_DIR"/photoprix-*.sql.gz | head -n1)"
+    backup="$(ls -1t "$BACKUP_DIR"/laphotogagnante-*.sql.gz | head -n1)"
 fi
 
 # --- 2. Construction de la nouvelle image -----------------------------------------------------

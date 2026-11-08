@@ -13,9 +13,9 @@
 main() {
     set -Eeuo pipefail
 
-    local repo="${PHOTOPRIX_GITHUB_REPO:-AlexisVerquin/LaPhotoGagnante}"
-    local branch="${PHOTOPRIX_BRANCH:-master}"
-    local state_dir="${PHOTOPRIX_STATE_DIR:-/srv/laphotogagnante/state}"
+    local repo="${LAPHOTOGAGNANTE_GITHUB_REPO:-AlexisVerquin/LaPhotoGagnante}"
+    local branch="${LAPHOTOGAGNANTE_BRANCH:-master}"
+    local state_dir="${LAPHOTOGAGNANTE_STATE_DIR:-/srv/laphotogagnante/state}"
     local app_dir
     app_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 

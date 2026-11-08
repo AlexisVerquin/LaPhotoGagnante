@@ -7,11 +7,11 @@
 #
 set -Eeuo pipefail
 
-PROJECT="${PHOTOPRIX_PROJECT:-photoprix-prod}"
-BACKUP_DIR="${PHOTOPRIX_BACKUP_DIR:-/srv/laphotogagnante/backups}"
+PROJECT="${LAPHOTOGAGNANTE_PROJECT:-laphotogagnante-prod}"
+BACKUP_DIR="${LAPHOTOGAGNANTE_BACKUP_DIR:-/srv/laphotogagnante/backups}"
 # Les photos pèsent bien plus lourd que la base : on en garde moins d'exemplaires
-DB_TO_KEEP="${PHOTOPRIX_BACKUPS_TO_KEEP:-14}"
-FILES_TO_KEEP="${PHOTOPRIX_FILE_BACKUPS_TO_KEEP:-7}"
+DB_TO_KEEP="${LAPHOTOGAGNANTE_BACKUPS_TO_KEEP:-14}"
+FILES_TO_KEEP="${LAPHOTOGAGNANTE_FILE_BACKUPS_TO_KEEP:-7}"
 
 fail() { printf '[ERREUR] %s\n' "$*" >&2; exit 1; }
 
@@ -26,7 +26,7 @@ php="$(container php)"
 
 mkdir -p "$BACKUP_DIR"
 stamp="$(date +%Y%m%d-%H%M%S)"
-db_file="$BACKUP_DIR/photoprix-$stamp.sql.gz"
+db_file="$BACKUP_DIR/laphotogagnante-$stamp.sql.gz"
 files_file="$BACKUP_DIR/fichiers-$stamp.tar"
 
 # Écriture dans un fichier temporaire, renommé seulement si tout s'est bien passé
@@ -41,7 +41,7 @@ mv "$files_file.tmp" "$files_file"
 prune() {
     ls -1t "$BACKUP_DIR"/$1 2>/dev/null | tail -n +"$(($2 + 1))" | xargs -r rm --
 }
-prune 'photoprix-*.sql.gz' "$DB_TO_KEEP"
+prune 'laphotogagnante-*.sql.gz' "$DB_TO_KEEP"
 prune 'fichiers-*.tar' "$FILES_TO_KEEP"
 
 echo "Sauvegarde : $db_file ($(du -h "$db_file" | cut -f1)), $files_file ($(du -h "$files_file" | cut -f1))"
