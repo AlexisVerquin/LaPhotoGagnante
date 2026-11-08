@@ -3,7 +3,7 @@
 # Le tunnel n'est pas dans cette stack : un cloudflared partagé par tout le serveur (deploy/cloudflared.compose.yaml)
 # joint le site par le réseau Docker externe « tunnel », à l'adresse http://laphotogagnante:8080.
 
-name: photoprix-prod
+name: laphotogagnante-prod
 
 # Journaux tournants : quelques Mo par service au plus, jamais conservés indéfiniment
 x-logging: &logging
@@ -14,10 +14,10 @@ x-logging: &logging
 
 x-app: &app
     logging: *logging
-    image: photoprix-app:latest
+    image: laphotogagnante-app:latest
     restart: unless-stopped
     env_file:
-        - ${PHOTOPRIX_ENV_FILE:-/srv/laphotogagnante/.env.prod}
+        - ${LAPHOTOGAGNANTE_ENV_FILE:-/srv/laphotogagnante/.env.prod}
     networks:
         - internal
 
@@ -61,7 +61,7 @@ services:
         logging: *logging
         restart: unless-stopped
         env_file:
-            - ${PHOTOPRIX_ENV_FILE:-/srv/laphotogagnante/.env.prod}
+            - ${LAPHOTOGAGNANTE_ENV_FILE:-/srv/laphotogagnante/.env.prod}
         volumes:
             - database_data:/var/lib/mysql
         healthcheck:
@@ -80,7 +80,7 @@ services:
         logging: *logging
         restart: unless-stopped
         env_file:
-            - ${PHOTOPRIX_ENV_FILE:-/srv/laphotogagnante/.env.prod}
+            - ${LAPHOTOGAGNANTE_ENV_FILE:-/srv/laphotogagnante/.env.prod}
         volumes:
             - rabbitmq_data:/var/lib/rabbitmq
         healthcheck:
