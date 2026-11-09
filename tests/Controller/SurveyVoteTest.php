@@ -51,7 +51,12 @@ final class SurveyVoteTest extends FunctionalTestCase
 
         $this->vote($choice, $token);
         self::assertResponseIsSuccessful();
-        self::assertSame(1, $this->jsonResponse()['vote']);
+        $response = $this->jsonResponse();
+        self::assertSame(1, $response['vote']);
+        self::assertSame(1, $response['total']);
+        // Les scores de tous les choix sont renvoyés pour rafraîchir chaque carte.
+        self::assertCount(2, $response['choices']);
+        self::assertContains(['id' => $choice->getId(), 'vote' => 1], $response['choices']);
 
         $this->vote($choice, $token);
         self::assertResponseStatusCodeSame(409);
@@ -70,5 +75,25 @@ final class SurveyVoteTest extends FunctionalTestCase
 
         self::assertResponseStatusCodeSame(403);
         self::assertSame(0, $this->reload(SurveyChoice::class, $closedChoice->getId())?->getNumberVoter());
+    }
+
+    public function testOnlyTheLeadingChoiceIsMarkedAsLeading(): void
+    {
+        $this->createTheme();
+        $choices = $this->createSurvey('-1 day', '+5 days')->getSurveyChoices();
+        $this->client->request('GET', '/');
+        self::assertSelectorCount(0, '.theme-vote-card.is-leading', 'Aucun choix en tête tant que personne n\'a voté');
+
+        [$montagne, $mer] = $choices->toArray();
+        $mer->setNumberVoter(3);
+        $montagne->setNumberVoter(1);
+        $this->em->flush();
+
+        $crawler = $this->client->request('GET', '/');
+        $leading = $crawler->filter('.theme-vote-card.is-leading');
+        self::assertCount(1, $leading);
+        self::assertStringContainsString('Mer', $leading->text());
+        self::assertStringContainsString('En tête', $leading->text());
+        self::assertCount(1, $crawler->filter('.theme-vote-card .badge:not([hidden])'));
     }
 }
