@@ -1,20 +1,27 @@
 <div class="container">
     <footer>
-        <div class="row g-3 text-center text-md-start">
+        <div class="row g-4 text-center text-md-start">
             <div class="col-12 col-md-4">
-                <div><a href="{{ path('app_cgu') }}">Conditions d’utilisation</a></div>
-                <div><a href="{{ path('app_rgpd') }}">Politique de confidentialité</a></div>
-                <div><a href="{{ path('app_legal_notice') }}">Mentions légales</a></div>
+                <h2 class="footer-title">Informations</h2>
+                <ul class="footer-links">
+                    <li><a href="{{ path('app_cgu') }}">Conditions d’utilisation</a></li>
+                    <li><a href="{{ path('app_rgpd') }}">Politique de confidentialité</a></li>
+                    <li><a href="{{ path('app_legal_notice') }}">Mentions légales</a></li>
+                </ul>
             </div>
 
             <div class="col-12 col-md-4">
-                <div><a href="{{ path('app_contact') }}">Nous contacter</a></div>
+                <h2 class="footer-title">Une question ?</h2>
+                <ul class="footer-links">
+                    <li><a href="{{ path('app_contact') }}">Nous contacter</a></li>
+                </ul>
             </div>
             <div class="col-12 col-md-4">
-                <div>
-                    {{ site_name }} est une communauté de photographie amateur, gratuite et sans publicité :
+                <h2 class="footer-title">{{ site_name }}</h2>
+                <p class="footer-about mb-0">
+                    Une communauté de photographie amateur, gratuite et sans publicité :
                     un thème par concours, une photo par membre, et c'est vous qui votez.
-                </div>
+                </p>
             </div>
         </div>
     </footer>

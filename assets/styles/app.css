@@ -30,9 +30,49 @@ footer {
     border-top-right-radius: 1.5rem;
     border: 3px solid var(--cream);
     box-shadow: 0 15px 40px -20px rgba(45, 42, 50, 0.25);
-    padding: 1rem;
-    text-align: center;
+    padding: 1.5rem 1rem;
+}
 
+.footer-title {
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink);
+    opacity: 0.6;
+    margin-bottom: 0.75rem;
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-links li + li {
+    margin-top: 0.4rem;
+}
+
+.footer-links a {
+    color: var(--ink);
+    font-weight: 600;
+    text-decoration: none;
+    background-image: linear-gradient(var(--sunshine), var(--sunshine));
+    background-size: 0 0.35em;
+    background-position: 0 88%;
+    background-repeat: no-repeat;
+    transition: background-size 0.2s ease;
+}
+
+.footer-links a:hover,
+.footer-links a:focus-visible {
+    background-size: 100% 0.35em;
+}
+
+.footer-about {
+    font-size: 0.9rem;
+    color: var(--ink);
+    opacity: 0.75;
 }
 
 .fs-mini {
