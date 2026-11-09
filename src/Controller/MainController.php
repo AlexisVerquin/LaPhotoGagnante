@@ -158,16 +158,18 @@ final class MainController extends AbstractController
             ->execute();
         $this->em->refresh($surveyChoice);
 
-        $total = array_sum(array_map(
-            fn ($choice) => $choice->getNumberVoter(),
-            $surveyChoice->getSurvey()->getSurveyChoices()->toArray(),
-        ));
+        // Scores de tous les choix, pour que la page mette à jour chaque carte (pourcentages, badge « En tête »).
+        $choices = array_map(
+            fn (SurveyChoice $choice) => ['id' => $choice->getId(), 'vote' => $choice->getNumberVoter()],
+            $activeSurvey->getSurveyChoices()->toArray(),
+        );
 
         return $this->json([
             'message' => "Merci d'avoir voté, n'hésitez pas à revenir demain",
             'vote' => $surveyChoice->getNumberVoter(),
             'alreadyVoted' => true,
-            'total' => $total,
+            'total' => array_sum(array_column($choices, 'vote')),
+            'choices' => array_values($choices),
         ]);
     }
 

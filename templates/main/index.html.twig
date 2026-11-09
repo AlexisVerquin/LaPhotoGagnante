@@ -212,8 +212,11 @@
                     <p class="text-muted mb-0">Le thème le plus voté sera lancé le 1er du mois.</p>
 
                 </div>
+                {# Score le plus haut : badge « En tête » sur le(s) choix qui l'atteignent (aucun tant que personne n'a voté) #}
+                {% set maxVoteSurvey = activeSurvey.surveyChoices|map(c => c.numberVoter)|reduce((max, n) => n > max ? n : max, 0) %}
                 <div class="row g-3">
                     {% for theme in activeSurvey.surveyChoices %}
+                        {% set isLeading = maxVoteSurvey > 0 and theme.numberVoter == maxVoteSurvey %}
                         {% set percentVote = 0 %}
                         {% if totalVoteSurvey != 0 %}
                             {% set percentVote = ((theme.numberVoter) / totalVoteSurvey) * 100 %}
@@ -227,12 +230,13 @@
                             data-survey-vote-value="{{ theme.numberVoter }}"
                             data-survey-route-value="{{ path('app_main_vote') }}"
                             data-survey-csrf-value="{{ csrf_token('survey-vote') }}"
+                            data-action="survey:results@window->survey#refresh"
                         >
-                            <div class="theme-vote-card is-leading">
+                            <div data-survey-target="card" class="theme-vote-card{% if isLeading %} is-leading{% endif %}">
                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                     <h3 class="h6 mb-0">{{ theme.name }}</h3>
-                                    <span class="badge rounded-pill"
-                                          style="background: var(--sunshine); color: var(--ink);">En tête</span>
+                                    <span data-survey-target="badge" class="badge rounded-pill"
+                                          style="background: var(--sunshine); color: var(--ink);"{% if not isLeading %} hidden{% endif %}>En tête</span>
                                 </div>
                                 <p class="text-muted small mb-3">{{ theme.description }}</p>
                                 <div class="theme-vote-progress mb-1">
@@ -245,6 +249,7 @@
                                         data-survey-target="pourcentVote">{{ percentVote|round }} %</span> · <span
                                         data-survey-target="numberVote">{{ theme.numberVoter }}</span> votes</span>
                                     <button type="button" class="btn-vote {% if alreadyVoted %} btn-disabled {% endif %}"
+                                            data-survey-target="button"
                                             data-action="click->survey#updateVote"
                                             aria-label="Voter pour le thème {{ theme.name }}" {% if alreadyVoted %} disabled {% endif %}>
                                         Voter
