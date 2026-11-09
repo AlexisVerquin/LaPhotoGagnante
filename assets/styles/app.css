@@ -944,16 +944,14 @@ h1, h2, h3, .navbar-brand {
     100% { transform: scale(1); }
 }
 
+/* Grille et non colonnes CSS : avec `columns`, les cartes remplissent la
+   1re colonne de haut en bas (et l'équilibrage se fait avant le chargement
+   des images lazy), d'où des photos empilées l'une sous l'autre. */
 .gallery-masonry {
-    columns: 3 280px;
-    column-gap: 1.5rem;
-}
-
-.gallery-masonry .gallery-card {
-    break-inside: avoid;
-    margin-bottom: 1.5rem;
-    display: inline-block;
-    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+    align-items: start;
 }
 
 .gallery-masonry img {
@@ -998,11 +996,11 @@ h1, h2, h3, .navbar-brand {
 }
 
 @media (max-width: 992px) {
-    .gallery-masonry { columns: 2 240px; }
+    .gallery-masonry { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 576px) {
-    .gallery-masonry { columns: 1; }
+    .gallery-masonry { grid-template-columns: minmax(0, 1fr); }
 }
 
 .btn-disabled {
