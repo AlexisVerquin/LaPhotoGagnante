@@ -30,9 +30,49 @@ footer {
     border-top-right-radius: 1.5rem;
     border: 3px solid var(--cream);
     box-shadow: 0 15px 40px -20px rgba(45, 42, 50, 0.25);
-    padding: 1rem;
-    text-align: center;
+    padding: 1.5rem 1rem;
+}
 
+.footer-title {
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink);
+    opacity: 0.6;
+    margin-bottom: 0.75rem;
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-links li + li {
+    margin-top: 0.4rem;
+}
+
+.footer-links a {
+    color: var(--ink);
+    font-weight: 600;
+    text-decoration: none;
+    background-image: linear-gradient(var(--sunshine), var(--sunshine));
+    background-size: 0 0.35em;
+    background-position: 0 88%;
+    background-repeat: no-repeat;
+    transition: background-size 0.2s ease;
+}
+
+.footer-links a:hover,
+.footer-links a:focus-visible {
+    background-size: 100% 0.35em;
+}
+
+.footer-about {
+    font-size: 0.9rem;
+    color: var(--ink);
+    opacity: 0.75;
 }
 
 .fs-mini {
@@ -1067,13 +1107,35 @@ h1, h2, h3, .navbar-brand {
     list-style: none;
 }
 
-.logout {
+/* Bouton de déconnexion du profil : contour rouge, rempli au survol / focus.
+   #9b1313 sur blanc (et blanc sur #9b1313) : 8,6:1 (WCAG AAA) ; hauteur 44 px (cible tactile) */
+.btn-logout {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    min-height: 44px;
+    padding: .5rem 1.1rem;
+    border: 2px solid var(--blood);
+    border-radius: 1rem;
+    background: #fff;
     color: var(--blood);
-    font-size: 1.5em;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: background .2s ease, color .2s ease;
 }
 
-.logout:hover {
-    color: var(--coral);
+.btn-logout svg {
+    width: 1.25em;
+    height: 1.25em;
+    flex-shrink: 0;
+}
+
+.btn-logout:hover,
+.btn-logout:focus-visible,
+.btn-logout:active {
+    background: var(--blood) !important;
+    border-color: var(--blood) !important;
+    color: #fff !important;
 }
 
 /* ---------- Accessibilité ---------- */

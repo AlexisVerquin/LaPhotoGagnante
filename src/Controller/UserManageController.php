@@ -70,7 +70,7 @@ final class UserManageController extends AbstractController
                     $user,
                     new TemplatedEmail()
                         ->to((string) $user->getEmail())
-                        ->subject('Please Confirm your Email')
+                        ->subject('Confirmez votre adresse email')
                         ->htmlTemplate('user_manage/confirmation_email.html.twig'),
                 );
             }
